@@ -1,5 +1,5 @@
 mainClass="com.kuleuven.lib.GraphExtractor"
-graphPath="/data/graph/graph.json"
+graphPath="data/test_application/graph/graph.json"
 srcDir="systems/test_application/src"
 jarPath="systems/test_application/target/test-application-1.0.jar"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$graphPath $srcDir $jarPath"
