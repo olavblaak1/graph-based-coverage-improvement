@@ -21,6 +21,7 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>java/com/kuleuven/src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

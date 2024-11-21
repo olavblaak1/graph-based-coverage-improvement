@@ -3,7 +3,7 @@ from clustering.clustering_algorithm import ClusteringAlgorithm
 
 def main():
     '''
-    This runs the analysis on the real-world framework Joda-time.
+    This runs the analysis on a test application.
     '''
     data_path = './data/test_application'
     clustering_algorithm = ClusteringAlgorithm.LOUVAIN
