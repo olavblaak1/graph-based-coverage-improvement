@@ -1,4 +1,4 @@
-mainClass="com.kuleuven.GraphExtraction.GraphExtractor"
+mainClass="com.kuleuven.GraphExtraction.Main"
 graphPath="data/test_application/graph/graph.json"
 srcDir="systems/test_application/src"
 jarPath="systems/test_application/target/test-application-1.0.jar"
