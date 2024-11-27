@@ -38,6 +38,9 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         sourceMethodJSON.put("arguments", serializeArguments(sourceMethod.getArguments()));
         sourceMethodJSON.put("declaring_class", sourceMethod.getDeclaringClass());
 
+        json.put("link_method", linkMethodJSON);
+        json.put("source_method", sourceMethodJSON);
+
         return json;
     }
 
@@ -45,7 +48,7 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         JSONObject json = new JSONObject();
         for (Argument argument : arguments) {
             json.put("type", argument.getType());
-            json.put("value", argument.getName());
+            json.put("value", argument.getValue());
         }
         return json;
     }

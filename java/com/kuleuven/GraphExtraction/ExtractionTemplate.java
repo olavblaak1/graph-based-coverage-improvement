@@ -15,13 +15,15 @@ import java.util.List;
 public abstract class ExtractionTemplate {
     
     /**
-     * Template method for extracting the graph from a Java source file.
+     * Template method for extracting the edges and nodes from a Java source file.
      * 
      * @param file: the Java source file
      * @param edges: the edges of the graph
      * @param nodes: the nodes of the graph
-     * @post  edges is overwritten with the edges of the graph
-     * @post  nodes is overwritten with the nodes of the graph
+     * @pre  edges contains the edges of the graph up until now
+     * @pre  nodes contains the nodes of the graph up until now
+     * @post edges contains the edges of the graph up until now and the edges extracted from the Java source file
+     * @post nodes contains the nodes of the graph up until now and the nodes extracted from the Java source file
      */
     public void extractGraph(CompilationUnit cu, List<Edge> edges, List<Node> nodes) {
         // extracts all of the abstract syntax tree Nodes from the Java source file, 
@@ -30,17 +32,15 @@ public abstract class ExtractionTemplate {
 
         // Extracts the edges of the graph from the AST nodes
         // these may be method calls, inheritence relations, ...
-        edges.clear();
         edges.addAll(extractEdges(ASTNodes));
 
         // Converts the AST nodes to the graph nodes
-        nodes.clear();
         nodes.addAll(convertNodes(ASTNodes));
     }
 
     /**
      * Extracts the edges of the graph from a Java source file.
-     * @param file the Java source file
+     * @param nodes: the nodes of the graph
      * @return the edges of the graph
      */
     public abstract List<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes);

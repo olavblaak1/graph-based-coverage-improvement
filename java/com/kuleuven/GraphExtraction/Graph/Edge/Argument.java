@@ -1,16 +1,16 @@
 package com.kuleuven.GraphExtraction.Graph.Edge;
 
 public class Argument {
-    private String name;
+    private String value;
     private String type;
     
-    public Argument(String name, String type) {
-        this.name = name;
+    public Argument(String value, String type) {
+        this.value = value;
         this.type = type;
     }
     
-    public String getName() {
-        return name;
+    public String getValue() {
+        return value;
     }
     
     public String getType() {

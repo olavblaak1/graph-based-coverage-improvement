@@ -97,12 +97,13 @@ public class ExtractGraphOriginal extends ExtractionTemplate {
         return arguments;
     }
 
+    // These are technically the parameters of the method, not the arguments..
     private List<Argument> getArguments(MethodDeclaration methodDeclaration) {
-        List<Argument> arguments = new LinkedList<>();
+        List<Argument> parameters = new LinkedList<>();
         methodDeclaration.getParameters().forEach(param -> {
-            arguments.add(new Argument(param.getNameAsString(), param.getType().resolve().describe()));
+            parameters.add(new Argument(param.getNameAsString(), param.getType().resolve().describe()));
         });
-        return arguments;
+        return parameters;
     }
 
     /**
