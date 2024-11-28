@@ -19,4 +19,8 @@ public interface EdgeSerializer {
             }
             return json;
         }
+
+    public default List<Edge> deserialize(JSONArray json) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

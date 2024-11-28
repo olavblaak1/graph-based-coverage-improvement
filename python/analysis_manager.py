@@ -44,6 +44,7 @@ class AnalysisManager:
         clusters_dir = os.path.dirname(self.clusters_path)
         check_or_create_path(clusters_dir)
 
+    # This overwrites the original graph, might not be necessary..
     def save_graph_report(self):
         '''Save detailed graph report to a file.'''
         directory = os.path.dirname(self.graph_path)
@@ -151,7 +152,7 @@ class AnalysisManager:
         # Several possibilities for the clustering algorithm here
         self.clusters = identify_clusters(self.graph_repr, self.clustering_algorithm)
 
-        self.save_graph_report()
+        # self.save_graph_report()
         self.save_clusters_report()
         self.log_clusters_analysis()
 

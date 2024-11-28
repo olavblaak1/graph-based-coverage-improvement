@@ -23,6 +23,6 @@ public class MethodCallEdge extends Edge {
 
     @Override
     public EdgeType getType() {
-        return EdgeType.METHODCALL;
+        return EdgeType.METHOD_CALL;
     }
 }

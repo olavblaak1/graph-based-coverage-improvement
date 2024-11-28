@@ -2,6 +2,7 @@ package com.kuleuven.GraphExtraction.Graph.Serializer;
 
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.kuleuven.GraphExtraction.Graph.Edge.Argument;
@@ -18,6 +19,7 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         }
         MethodCallEdge methodCallEdge = (MethodCallEdge) edge;
         JSONObject json = new JSONObject();
+        json.put("type", edge.getType());
         json.put("source", methodCallEdge.getSource().getName());
         json.put("destination", methodCallEdge.getDestination().getName());
 
@@ -44,11 +46,15 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         return json;
     }
 
-    private JSONObject serializeArguments(List<Argument> arguments) {
-        JSONObject json = new JSONObject();
+    private JSONArray serializeArguments(List<Argument> arguments) {
+
+        JSONArray json = new JSONArray();
         for (Argument argument : arguments) {
-            json.put("type", argument.getType());
-            json.put("value", argument.getValue());
+            JSONObject argumentJSON = new JSONObject();
+            argumentJSON.put("type", argument.getType());
+            argumentJSON.put("value", argument.getValue());
+
+            json.put(argumentJSON);
         }
         return json;
     }

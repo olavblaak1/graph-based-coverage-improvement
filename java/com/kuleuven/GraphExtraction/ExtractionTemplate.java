@@ -10,7 +10,7 @@ import java.util.List;
 
 
 /*
- * Template for extracting the graph from a Java source file.
+ * Template for extracting the graph from a Java source file using the JavaParser library.
  */
 public abstract class ExtractionTemplate {
     
@@ -34,7 +34,7 @@ public abstract class ExtractionTemplate {
         // these may be method calls, inheritence relations, ...
         edges.addAll(extractEdges(ASTNodes));
 
-        // Converts the AST nodes to the graph nodes
+        // Converts the AST nodes to graph nodes
         nodes.addAll(convertNodes(ASTNodes));
     }
 

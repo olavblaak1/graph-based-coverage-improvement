@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction;
+package com.kuleuven;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -7,10 +7,14 @@ import java.nio.file.Paths;
 
 import org.json.JSONObject;
 
+import com.kuleuven.GraphExtraction.ExtractionStrategy;
+import com.kuleuven.GraphExtraction.GraphExtractor;
+import com.kuleuven.GraphExtraction.GraphUtils;
 import com.kuleuven.GraphExtraction.Graph.Serializer.ClassNodeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.EdgeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.MethodCallEdgeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.NodeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.SerializeManager;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -22,11 +26,13 @@ public class Main {
         String outputFilePath = args[0];
         File mainDirectory = new File(args[1]);
         Path jarPath = Paths.get(args[2]);
+        SerializeManager serializeManager = new SerializeManager();
 
         GraphExtractor extractor = new GraphExtractor(ExtractionStrategy.ORIGINAL);
         extractor.setupParser(jarPath, mainDirectory);
         
         // TODO: CollectClassNames removed, check if that is a problem
+        // It is not, but it now includes edges between classes that were imported and classes that were defined in the same file
         if (mainDirectory.isDirectory()) {
             Files.walk(mainDirectory.toPath())
                 .filter(Files::isRegularFile)
@@ -36,11 +42,8 @@ public class Main {
 
         JSONObject graph = new JSONObject();
 
-        EdgeSerializer edgeSerializer = new MethodCallEdgeSerializer();
-        NodeSerializer nodeSerializer = new ClassNodeSerializer();
-
-        graph.put("nodes", nodeSerializer.serialize(extractor.getNodes()));
-        graph.put("edges", edgeSerializer.serialize(extractor.getEdges()));
+        graph.put("nodes", serializeManager.serializeNodes(extractor.getNodes()));
+        graph.put("edges", serializeManager.serializeEdges(extractor.getEdges()));
 
         GraphUtils.writeFile(outputFilePath, graph.toString(4).getBytes());
         System.out.println("Graph has been saved to " + outputFilePath);

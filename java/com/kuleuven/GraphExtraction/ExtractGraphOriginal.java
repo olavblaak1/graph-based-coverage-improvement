@@ -23,6 +23,7 @@ import com.kuleuven.GraphExtraction.Graph.NodeType;
  * 
  * With this strategy, the nodes of the resulting graph are CLASS DEFINITIONS
  * and the edges are METHOD CALLS between these classes, ignoring method calls within a class.
+ * This one includes edges with imported classes, but not as nodes.
  */
 public class ExtractGraphOriginal extends ExtractionTemplate {
 

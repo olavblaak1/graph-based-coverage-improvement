@@ -43,7 +43,7 @@ public class GraphExtractor {
         edges = new LinkedList<>();
     }
 
-    void setupParser(Path jarPath, File mainDirectory) {
+    public void setupParser(Path jarPath, File mainDirectory) {
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
         
         if (mainDirectory.exists() && mainDirectory.isDirectory()) {
@@ -67,7 +67,7 @@ public class GraphExtractor {
     }
 
 
-    void parseJavaFile(File file) {
+    public void parseJavaFile(File file) {
         try (FileInputStream in = new FileInputStream(file)) {
             
             ParseResult<CompilationUnit> parseResult = javaParser.parse(in);
