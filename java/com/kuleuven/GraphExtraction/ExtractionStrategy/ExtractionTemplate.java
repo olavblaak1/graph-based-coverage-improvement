@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction;
+package com.kuleuven.GraphExtraction.ExtractionStrategy;
 
 
 import com.github.javaparser.ast.CompilationUnit;

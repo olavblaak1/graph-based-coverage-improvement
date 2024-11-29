@@ -12,8 +12,6 @@ import com.kuleuven.GraphExtraction.Graph.Node;
 import com.kuleuven.GraphExtraction.Graph.NodeType;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
 import com.kuleuven.GraphExtraction.Graph.Edge.EdgeType;
-import com.kuleuven.GraphExtraction.Graph.Serializer.EdgeSerializer;
-import com.kuleuven.GraphExtraction.Graph.Serializer.MethodCallEdgeSerializer;
 
 public class SerializeManager {
     private Map<EdgeType, EdgeSerializer> edgeSerializers = new HashMap<>();
@@ -22,6 +20,9 @@ public class SerializeManager {
 
     public SerializeManager() {
         edgeSerializers.put(EdgeType.METHOD_CALL, new MethodCallEdgeSerializer());
+        edgeSerializers.put(EdgeType.INHERITANCE, new InheritanceEdgeSerializer());
+        edgeSerializers.put(EdgeType.FIELD, new FieldEdgeSerializer());
+
 
         nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
     }
