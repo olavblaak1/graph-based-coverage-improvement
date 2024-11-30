@@ -106,9 +106,14 @@ public class ExtractGraphHelper {
         Set<Edge> uniqueEdges = new HashSet<>();
 
         String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
-        NodeList<ClassOrInterfaceType> extendedClasses = classDefinition.getExtendedTypes();
-        extendedClasses.forEach(extendedClass -> {
-            String extendedClassName = extendedClass.getNameAsString();
+
+        NodeList<ClassOrInterfaceType> inheritedClasses = new NodeList<>();
+
+        inheritedClasses.addAll(classDefinition.getExtendedTypes());
+        inheritedClasses.addAll(classDefinition.getImplementedTypes());
+
+        inheritedClasses.forEach(inheritedClass -> {
+            String extendedClassName = inheritedClass.getNameAsString();
             Node subclass = new Node(className, NodeType.CLASS);
             Node superclass = new Node(extendedClassName, NodeType.CLASS);
 
@@ -136,7 +141,7 @@ public class ExtractGraphHelper {
         
         List<String> refersTo = new LinkedList<>();
         classDefinition.getFields().forEach(field -> {
-            
+
             // In case the field refers to a generic type, we take the type inside by recursively
             // tracing the type 
             
