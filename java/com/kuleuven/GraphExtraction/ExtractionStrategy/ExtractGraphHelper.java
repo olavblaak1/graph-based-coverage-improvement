@@ -11,12 +11,14 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.kuleuven.GraphExtraction.GraphUtils;
+import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.FieldTypesVisitor;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodVisitor;
 import com.kuleuven.GraphExtraction.Graph.Node;
 import com.kuleuven.GraphExtraction.Graph.NodeType;
 import com.kuleuven.GraphExtraction.Graph.Edge.Argument;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
+import com.kuleuven.GraphExtraction.Graph.Edge.FieldEdge;
 import com.kuleuven.GraphExtraction.Graph.Edge.InheritanceEdge;
 import com.kuleuven.GraphExtraction.Graph.Edge.Method;
 import com.kuleuven.GraphExtraction.Graph.Edge.MethodCallEdge;
@@ -132,19 +134,30 @@ public class ExtractGraphHelper {
 
         String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
         
+        List<String> refersTo = new LinkedList<>();
         classDefinition.getFields().forEach(field -> {
-            String fieldType = field.getElementType().resolve().describe();
-            if (fieldType.contains("java.")) {
-                return;
-            }
-            Node sourceNode = new Node(className, NodeType.CLASS);
-            Node destinationNode = new Node(fieldType, NodeType.CLASS);
+            
+            // In case the field refers to a generic type, we take the type inside by recursively
+            // tracing the type 
+            
+            FieldTypesVisitor typesVisitor = new FieldTypesVisitor();
+            typesVisitor.visit(field, null);
+            
+            typesVisitor.getReferredTypes().forEach(type -> {
+                refersTo.add(type.describe());
+            });
 
-            Edge edge = new InheritanceEdge(sourceNode, destinationNode);
-            if (!uniqueEdges.contains(edge)) {
-                edges.add(edge);
-                uniqueEdges.add(edge);
-            }
+            System.out.println("ReferredTypes: " + typesVisitor.getReferredTypes()); 
+            refersTo.forEach(type -> {
+                Node sourceNode = new Node(className, NodeType.CLASS);
+                Node destinationNode = new Node(type, NodeType.CLASS);
+    
+                Edge edge = new FieldEdge(sourceNode, destinationNode);
+                if (!uniqueEdges.contains(edge)) {
+                    edges.add(edge);
+                    uniqueEdges.add(edge);
+                }
+            });
         });
 
         return edges;

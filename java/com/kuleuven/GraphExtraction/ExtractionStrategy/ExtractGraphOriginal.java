@@ -1,25 +1,12 @@
 package com.kuleuven.GraphExtraction.ExtractionStrategy;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.kuleuven.GraphExtraction.GraphUtils;
 import com.kuleuven.GraphExtraction.Graph.Node;
-import com.kuleuven.GraphExtraction.Graph.Edge.Argument;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
-import com.kuleuven.GraphExtraction.Graph.Edge.MethodCallEdge;
-
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.ClassVisitor;
-import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodCallVisitor;
-import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodVisitor;
-
-import com.kuleuven.GraphExtraction.Graph.Edge.Method;
 import com.kuleuven.GraphExtraction.Graph.NodeType;
 
 
