@@ -2,4 +2,7 @@ mainClass="com.kuleuven.Main"
 graphPath="data/test_application/graph/graph.json"
 srcDir="systems/test_application/src"
 jarPath="systems/test_application/target/test-application-1.0.jar"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$graphPath $srcDir $jarPath"
+
+extractionMethod="ORIGINAL"
+
+mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$graphPath $srcDir $jarPath $extractionMethod"
