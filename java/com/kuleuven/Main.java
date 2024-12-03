@@ -15,17 +15,18 @@ import com.kuleuven.GraphExtraction.ExtractionStrategy.GraphExtractor;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        if (args.length < 2) {
-            System.err.println("Usage: java CollaborationDiagramExtractor <output_json_file_path> <source_directory> <jar_path>]");
+        if (args.length < 3) {
+            System.err.println("Usage: java CollaborationDiagramExtractor <output_json_file_path> <source_directory> <jar_path> <extraction_method>]");
             return;
         }
 
         String outputFilePath = args[0];
         File mainDirectory = new File(args[1]);
         Path jarPath = Paths.get(args[2]);
+        ExtractionStrategy extractionStrategy = ExtractionStrategy.valueOf(args[3]);
         SerializeManager serializeManager = new SerializeManager();
 
-        GraphExtractor extractor = new GraphExtractor(ExtractionStrategy.INHERITANCE_FIELDS);
+        GraphExtractor extractor = new GraphExtractor(extractionStrategy);
         extractor.setupParser(jarPath, mainDirectory);
         
         // TODO: CollectClassNames removed, check if that is a problem
@@ -42,7 +43,7 @@ public class Main {
         graph.put("nodes", serializeManager.serializeNodes(extractor.getNodes()));
         graph.put("edges", serializeManager.serializeEdges(extractor.getEdges()));
 
-        GraphUtils.writeFile(outputFilePath, graph.toString(4).getBytes());
+        GraphUtils.writeFile(outputFilePath, graph.toString(4).getBytes()); 
         System.out.println("Graph has been saved to " + outputFilePath);
     }
 

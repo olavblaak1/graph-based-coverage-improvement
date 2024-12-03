@@ -1,7 +1,11 @@
 package com.kuleuven.GraphExtraction.ExtractionStrategy;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.kuleuven.GraphExtraction.Graph.Node;
@@ -26,8 +30,8 @@ public class ExtractGraphOriginal extends ExtractionTemplate {
      * @return the edges of the graph, which are the method calls between classes, ignoring method calls within a class
      */
     @Override
-    public List<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes) {
-        List<Edge> edges = new LinkedList<>();
+    public Set<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes) {
+        Set<Edge> edges = new HashSet<>();
         nodes.forEach(node -> {
         if (node instanceof ClassOrInterfaceDeclaration) {
             ClassOrInterfaceDeclaration classDefinition = (ClassOrInterfaceDeclaration) node;

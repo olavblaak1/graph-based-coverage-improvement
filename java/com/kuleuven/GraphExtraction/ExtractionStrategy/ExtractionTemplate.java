@@ -5,6 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
 import com.kuleuven.GraphExtraction.Graph.Node;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -43,7 +44,7 @@ public abstract class ExtractionTemplate {
      * @param nodes: the nodes of the graph
      * @return the edges of the graph
      */
-    public abstract List<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes);
+    public abstract Collection<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes);
 
 
     /**

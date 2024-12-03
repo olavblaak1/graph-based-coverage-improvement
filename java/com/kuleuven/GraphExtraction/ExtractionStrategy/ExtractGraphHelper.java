@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.kuleuven.GraphExtraction.GraphUtils;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.FieldTypesVisitor;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodCallVisitor;
@@ -105,15 +106,15 @@ public class ExtractGraphHelper {
         List<Edge> edges = new LinkedList<>();
         Set<Edge> uniqueEdges = new HashSet<>();
 
-        String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
-
-        NodeList<ClassOrInterfaceType> inheritedClasses = new NodeList<>();
-
-        inheritedClasses.addAll(classDefinition.getExtendedTypes());
-        inheritedClasses.addAll(classDefinition.getImplementedTypes());
+        List<ResolvedReferenceType> inheritedClasses = new LinkedList<>();
+        classDefinition.resolve().getAncestors().forEach(ancestor -> {
+            inheritedClasses.add(ancestor);
+        });
 
         inheritedClasses.forEach(inheritedClass -> {
-            String extendedClassName = inheritedClass.getNameAsString();
+            String extendedClassName = inheritedClass.describe();
+
+            String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
             Node subclass = new Node(className, NodeType.CLASS);
             Node superclass = new Node(extendedClassName, NodeType.CLASS);
 

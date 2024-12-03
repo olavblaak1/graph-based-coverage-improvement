@@ -79,6 +79,8 @@ public class GraphExtractor {
             });
         } catch (Exception e) {
             System.err.println("Error processing file: " + file.getName());
+            System.err.println("Error message: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
