@@ -21,7 +21,7 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>java/com/kuleuven/GraphExtraction</sourceDirectory>
+        <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

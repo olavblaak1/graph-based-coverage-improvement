@@ -26,20 +26,27 @@ class GraphVisualizer:
 
             # Count the number of edges between the same nodes
             edge_key = (source, destination)
+
+            #if edge_key in self.edge_count:
+            #    continue
+
             if edge_key not in self.edge_count:
                 self.edge_count[edge_key] = 0
+            
+            #if self.edge_count[edge_key] < 7:
             self.edge_count[edge_key] += 1
 
             # Offset the edges to make them distinguishable
-            offset = self.edge_count[edge_key] * 0.1
+            offset = self.edge_count[edge_key] * 0.009
 
             try:
-                self.net.add_edge(source, destination, color=color, dashes=(style == 'dashed'), width=4, physics=False, smooth={'type': 'curvedCCW', 'roundness': offset})
+                self.net.add_edge(source, destination, color=color, dashes=(style == 'dashed'), width=2, physics=True, smooth={'type': 'CurvedCCW', 'roundness': offset})
             except AssertionError: # At least one of the nodes are not modelled right now (e.g. classes of a library)
                 continue
 
     def set_options(self):
         self.net.set_edge_smooth('dynamic')
+        #self.net.show_buttons(filter_=['physics'])
         net_options = """
         {
             "nodes": {
@@ -59,10 +66,10 @@ class GraphVisualizer:
             },
             "physics": {
                 "barnesHut": {
-                "gravitationalConstant": -80000,
+                "gravitationalConstant": -8000000,
                 "centralGravity": 0.3,
                 "springLength": 95,
-                "damping": 0.09
+                "damping": 0.45
                 },
                 "minVelocity": 0.75
             }
@@ -73,5 +80,16 @@ class GraphVisualizer:
     def visualize(self, graph_data, output_file):
         self.add_nodes(graph_data['nodes'])
         self.add_edges(graph_data['edges'])
+
+        print("Amount of isolated nodes: " + str(self.count_isolated_nodes()))
+
         self.set_options()
         self.net.show(output_file)
+
+
+    def count_isolated_nodes(self):
+        isolated_nodes = []
+        for node in self.net.nodes:
+            if len(self.net.get_adj_list()[node['id']]) == 0:
+                isolated_nodes.append(node['id'])
+        return len(isolated_nodes)

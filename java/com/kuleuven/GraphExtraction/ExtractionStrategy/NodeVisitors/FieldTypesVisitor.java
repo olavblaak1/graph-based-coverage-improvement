@@ -20,12 +20,13 @@ public class FieldTypesVisitor extends VoidVisitorAdapter<Void> {
     public void visit(FieldDeclaration fieldDeclaration, Void arg) {
         super.visit(fieldDeclaration, arg);
 
-        ResolvedType type = fieldDeclaration.resolve().getType();
-        if (type.isReferenceType()) {
-            System.out.println("Found reference type: " + type.describe());
-            ResolvedReferenceType resolvedReferenceType = type.asReferenceType();
-            this.visit(resolvedReferenceType, null);
-        }
+        fieldDeclaration.getVariables().forEach(variableDeclarator -> {
+            ResolvedType type = variableDeclarator.resolve().getType();
+            if (type.isReferenceType()) {
+                ResolvedReferenceType resolvedReferenceType = type.asReferenceType();
+                this.visit(resolvedReferenceType, null);
+            }
+        });
     }
     private void visit(ResolvedReferenceType referenceType, Void arg) {
         if (referenceType.typeParametersValues().isEmpty()) {

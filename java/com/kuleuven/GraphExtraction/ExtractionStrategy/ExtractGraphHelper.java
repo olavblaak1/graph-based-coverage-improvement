@@ -5,11 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.kuleuven.GraphExtraction.GraphUtils;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.FieldTypesVisitor;
@@ -43,7 +41,7 @@ public class ExtractGraphHelper {
             sourceMethod.accept(methodCallVisitor, null);
             List<MethodCallExpr> methodCalls = methodCallVisitor.getMethodCalls();
             methodCalls.forEach(methodCall -> {
-                if (methodCall.getNameAsString().contains("java.")) {
+                if (methodCall.resolve().declaringType().getQualifiedName().contains("java.")) {
                     return;
                 }
                 String declaringClassName = methodCall.resolve().declaringType().getQualifiedName();
@@ -153,7 +151,6 @@ public class ExtractGraphHelper {
                 refersTo.add(type.describe());
             });
 
-            System.out.println("ReferredTypes: " + typesVisitor.getReferredTypes()); 
             refersTo.forEach(type -> {
                 Node sourceNode = new Node(className, NodeType.CLASS);
                 Node destinationNode = new Node(type, NodeType.CLASS);
