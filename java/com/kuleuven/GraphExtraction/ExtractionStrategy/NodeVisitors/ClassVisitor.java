@@ -10,7 +10,6 @@ import java.util.List;
 public class ClassVisitor extends VoidVisitorAdapter<Void> {
     private List<ClassOrInterfaceDeclaration> classDefinitions = new LinkedList<>();
 
-
     @Override
     public void visit(ClassOrInterfaceDeclaration cid, Void arg) {
         super.visit(cid, arg);

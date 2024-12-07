@@ -27,8 +27,6 @@ class GraphVisualizer:
             # Count the number of edges between the same nodes
             edge_key = (source, destination)
 
-            #if edge_key in self.edge_count:
-            #    continue
 
             if edge_key not in self.edge_count:
                 self.edge_count[edge_key] = 0
@@ -66,10 +64,10 @@ class GraphVisualizer:
             },
             "physics": {
                 "barnesHut": {
-                "gravitationalConstant": -8000000,
+                "gravitationalConstant": -10000000,
                 "centralGravity": 0.3,
-                "springLength": 95,
-                "damping": 0.45
+                "springLength": 200,
+                "damping": 0.4
                 },
                 "minVelocity": 0.75
             }

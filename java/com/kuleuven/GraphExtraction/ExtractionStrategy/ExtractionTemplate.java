@@ -26,10 +26,10 @@ public abstract class ExtractionTemplate {
      * @post edges contains the edges of the graph up until now and the edges extracted from the Java source file
      * @post nodes contains the nodes of the graph up until now and the nodes extracted from the Java source file
      */
-    public void extractGraph(CompilationUnit cu, List<Edge> edges, List<Node> nodes) {
+    public void extractGraph(List<CompilationUnit> compilationUnits, List<Edge> edges, List<Node> nodes) {
         // extracts all of the abstract syntax tree Nodes from the Java source file, 
         // these may be classes, methods, statements, ...
-        List<com.github.javaparser.ast.Node> ASTNodes = extractASTNodes(cu);
+        List<com.github.javaparser.ast.Node> ASTNodes = extractASTNodes(compilationUnits);
 
         // Extracts the edges of the graph from the AST nodes
         // these may be method calls, inheritence relations, ...
@@ -50,11 +50,11 @@ public abstract class ExtractionTemplate {
     /**
      * Extracts all JavaParser Abstract Syntax Tree nodes from the Java source file for further processing.
     */ 
-    public abstract List<com.github.javaparser.ast.Node> extractASTNodes(CompilationUnit cu);
+    public abstract List<com.github.javaparser.ast.Node> extractASTNodes(List<CompilationUnit> compilationUnits);
 
 
     /**
      * Converts the JavaParser AST nodes to the graph nodes.
      */
-    public abstract List<Node> convertNodes(List<com.github.javaparser.ast.Node> nodes);
+    protected abstract List<Node> convertNodes(List<com.github.javaparser.ast.Node> nodes);
 }

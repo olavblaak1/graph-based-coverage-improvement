@@ -49,12 +49,13 @@ public class ExtractGraphOriginal extends ExtractionTemplate {
      * 
      */
     @Override
-    public List<com.github.javaparser.ast.Node> extractASTNodes(CompilationUnit cu) {
+    public List<com.github.javaparser.ast.Node> extractASTNodes(List<CompilationUnit> compilationUnits) {
         List<com.github.javaparser.ast.Node> nodes = new LinkedList<>();
         ClassVisitor classVisitor = new ClassVisitor();
-        cu.accept(classVisitor, null);
-        List<ClassOrInterfaceDeclaration> classDefinitions = classVisitor.getDeclaredClasses();
-        nodes.addAll(classDefinitions);
+        compilationUnits.forEach(cu -> {
+            cu.accept(classVisitor, null);
+        });
+        nodes.addAll(classVisitor.getDeclaredClasses());
         return nodes;
     }
 

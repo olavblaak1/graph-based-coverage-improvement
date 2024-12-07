@@ -12,6 +12,7 @@ import com.kuleuven.GraphExtraction.Graph.Serializer.SerializeManager;
 
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionStrategy;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.GraphExtractor;
+import com.kuleuven.GraphExtraction.ExtractionStrategy.ParseManager;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -24,19 +25,25 @@ public class Main {
         File mainDirectory = new File(args[1]);
         Path jarPath = Paths.get(args[2]);
         ExtractionStrategy extractionStrategy = ExtractionStrategy.valueOf(args[3]);
-        SerializeManager serializeManager = new SerializeManager();
 
         GraphExtractor extractor = new GraphExtractor(extractionStrategy);
-        extractor.setupParser(jarPath, mainDirectory);
+        SerializeManager serializeManager = new SerializeManager();
+
+        ParseManager parseManager = new ParseManager();
+        parseManager.setupParser(jarPath, mainDirectory);
         
+
         // TODO: CollectClassNames removed, check if that is a problem
         // It is not, but it now includes edges between classes that were imported and classes that were defined in the same file
         if (mainDirectory.isDirectory()) {
             Files.walk(mainDirectory.toPath())
                 .filter(Files::isRegularFile)
                 .filter(path -> path.toString().endsWith(".java"))
-                .forEach(path -> extractor.parseJavaFile(path.toFile()));
+                .forEach(path -> parseManager.parseJavaFile(path.toFile()));
         }
+
+        // Extract the graph from the parsed (Java source files)
+        extractor.extractGraph(parseManager.getCompilationUnits());
 
         JSONObject graph = new JSONObject();
 

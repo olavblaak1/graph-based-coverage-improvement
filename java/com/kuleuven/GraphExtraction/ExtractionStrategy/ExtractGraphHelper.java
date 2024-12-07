@@ -8,8 +8,9 @@ import java.util.Set;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.resolution.MethodAmbiguityException;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.kuleuven.GraphExtraction.GraphUtils;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.FieldTypesVisitor;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodVisitor;
@@ -24,9 +25,8 @@ import com.kuleuven.GraphExtraction.Graph.Edge.MethodCallEdge;
 
 public class ExtractGraphHelper {
 
-    public static List<Edge> extractUniqueMethodCallEdges(ClassOrInterfaceDeclaration classDefinition) {
-        List<Edge> edges = new LinkedList<>();
-        Set<String> uniqueEdges = new HashSet<>();
+    public static Set<Edge> extractUniqueMethodCallEdges(ClassOrInterfaceDeclaration classDefinition) throws UnsolvedSymbolException {
+        Set<Edge> edges = new HashSet<>();
         String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
 
         MethodVisitor methodVisitor = new MethodVisitor();
@@ -41,41 +41,50 @@ public class ExtractGraphHelper {
             sourceMethod.accept(methodCallVisitor, null);
             List<MethodCallExpr> methodCalls = methodCallVisitor.getMethodCalls();
             methodCalls.forEach(methodCall -> {
-                if (methodCall.resolve().declaringType().getQualifiedName().contains("java.")) {
+
+                try {
+                    methodCall.resolve();
+                } catch (UnsolvedSymbolException e) {
+                    System.err.println("Could not resolve symbol: " + e.getName() + " in method call: " + methodCall);
+                    return;
+                } catch (MethodAmbiguityException e) {
+                    System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method call: " + methodCall);
                     return;
                 }
+
+
                 String declaringClassName = methodCall.resolve().declaringType().getQualifiedName();
-                String uniqueId = GraphUtils.getUniqueId(methodCall, sourceMethod, className);
-
-                if (!uniqueEdges.contains(uniqueId) && !declaringClassName.equals(className)) {
-                    Node sourceNode = new Node(className, NodeType.CLASS);
-                    Node destinationNode = new Node(declaringClassName, NodeType.CLASS);
-
-                    String linkMethodSignature      = methodCall.resolve().getSignature();
-                    String linkMethodName           = methodCall.getNameAsString();
-                    String linkMethodReturnType     = methodCall.resolve().getReturnType().describe();
-                    String linkMethodDeclaringClass = methodCall.resolve().declaringType().getQualifiedName();
-                    List<Argument> linkArguments = getArguments(methodCall);
-                    Method linkMethod = new Method(linkMethodSignature, linkMethodName, linkMethodReturnType, linkMethodDeclaringClass, linkArguments);
-
-
-                    String sourceMethodSignature      = sourceMethod.getSignature().asString();
-                    String sourceMethodName           = sourceMethod.getNameAsString();
-                    String sourceMethodReturnType     = sourceMethod.getType().resolve().describe();
-                    String sourceMethodDeclaringClass = className;
-                    List<Argument> sourceMethodArguments = getArguments(sourceMethod);
-                    Method sMethod = new Method(sourceMethodSignature, sourceMethodName, sourceMethodReturnType, sourceMethodDeclaringClass, sourceMethodArguments);
-                    
-
-                    MethodCallEdge edge = new MethodCallEdge(
-                        sourceNode,
-                        destinationNode,
-                        linkMethod,
-                        sMethod
-                    );
-                    edges.add(edge);
-                    uniqueEdges.add(uniqueId);
+                if (methodCall.resolve().declaringType().getQualifiedName().contains("java.") || 
+                    declaringClassName.equals(className)) {
+                    return;
                 }
+
+                Node sourceNode = new Node(className, NodeType.CLASS);
+                Node destinationNode = new Node(declaringClassName, NodeType.CLASS);
+
+                String linkMethodSignature      = methodCall.resolve().getSignature();
+                String linkMethodName           = methodCall.getNameAsString();
+                String linkMethodReturnType     = methodCall.resolve().getReturnType().describe();
+                String linkMethodDeclaringClass = methodCall.resolve().declaringType().getQualifiedName();
+                List<Argument> linkArguments = getArguments(methodCall);
+                Method linkMethod = new Method(linkMethodSignature, linkMethodName, linkMethodReturnType, linkMethodDeclaringClass, linkArguments);
+
+
+                String sourceMethodSignature      = sourceMethod.getSignature().asString();
+                String sourceMethodName           = sourceMethod.getNameAsString();
+                String sourceMethodReturnType     = sourceMethod.getType().resolve().describe();
+                String sourceMethodDeclaringClass = className;
+                List<Argument> sourceMethodArguments = getArguments(sourceMethod);
+                Method sMethod = new Method(sourceMethodSignature, sourceMethodName, sourceMethodReturnType, sourceMethodDeclaringClass, sourceMethodArguments);
+                
+
+                MethodCallEdge edge = new MethodCallEdge(
+                    sourceNode,
+                    destinationNode,
+                    linkMethod,
+                    sMethod
+                );
+                edges.add(edge);
             });
         });
         return edges;
