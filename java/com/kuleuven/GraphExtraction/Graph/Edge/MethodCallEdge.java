@@ -25,4 +25,9 @@ public class MethodCallEdge extends Edge {
     public EdgeType getType() {
         return EdgeType.METHOD_CALL;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

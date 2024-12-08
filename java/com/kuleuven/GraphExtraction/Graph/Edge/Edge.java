@@ -23,4 +23,21 @@ public abstract class Edge {
     }
 
     public abstract EdgeType getType();
+
+    @Override
+    public int hashCode() {
+        return source.hashCode() + destination.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Edge)) {
+            return false;
+        }
+        Edge edge = (Edge) obj;
+        return source.equals(edge.getSource()) && destination.equals(edge.getDestination());
+    }
 }

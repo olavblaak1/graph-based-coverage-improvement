@@ -11,7 +11,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.MethodAmbiguityException;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.FieldTypesVisitor;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.MethodVisitor;
 import com.kuleuven.GraphExtraction.Graph.Node;
@@ -111,11 +111,10 @@ public class ExtractGraphHelper {
 
     public static List<Edge> extractInheritanceEdges(ClassOrInterfaceDeclaration classDefinition) {
         List<Edge> edges = new LinkedList<>();
-        Set<Edge> uniqueEdges = new HashSet<>();
-
         List<ResolvedReferenceType> inheritedClasses = new LinkedList<>();
+
         classDefinition.resolve().getAncestors().forEach(ancestor -> {
-            inheritedClasses.add(ancestor);
+            inheritedClasses.addAll(extractReferencedTypes(ancestor));
         });
 
         inheritedClasses.forEach(inheritedClass -> {
@@ -126,10 +125,7 @@ public class ExtractGraphHelper {
             Node superclass = new Node(extendedClassName, NodeType.CLASS);
 
             Edge edge = new InheritanceEdge(subclass, superclass);
-            if (!uniqueEdges.contains(edge)) {
-                edges.add(edge);
-                uniqueEdges.add(edge);
-            }
+            edges.add(edge);
         });
         return edges;
     }
@@ -137,41 +133,57 @@ public class ExtractGraphHelper {
 
     /**
      * Extracts the edges from one class to another if the class holds this class as a type in a field
-     * TODO: ADD SUPPORT FOR FIELDS THAT ARE GENERIC REFERENCES TO OTHER CLASSES (ex. List<Employee>)
      * @param classDefinition
      * @return 
      */
     public static List<Edge> extractFieldEdges(ClassOrInterfaceDeclaration classDefinition) {
         List<Edge> edges = new LinkedList<>();
-        Set<Edge> uniqueEdges = new HashSet<>();
-
-        String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
         
-        List<String> refersTo = new LinkedList<>();
+        List<ResolvedReferenceType> referencedTypes = new LinkedList<>();
         classDefinition.getFields().forEach(field -> {
+            field.getVariables().forEach(variableDeclarator -> {
+                ResolvedType type = variableDeclarator.resolve().getType();
 
-            // In case the field refers to a generic type, we take the type inside by recursively
-            // tracing the type 
-            
-            FieldTypesVisitor typesVisitor = new FieldTypesVisitor();
-            typesVisitor.visit(field, null);
-            
-            typesVisitor.getReferredTypes().forEach(type -> {
-                refersTo.add(type.describe());
-            });
-
-            refersTo.forEach(type -> {
-                Node sourceNode = new Node(className, NodeType.CLASS);
-                Node destinationNode = new Node(type, NodeType.CLASS);
-    
-                Edge edge = new FieldEdge(sourceNode, destinationNode);
-                if (!uniqueEdges.contains(edge)) {
-                    edges.add(edge);
-                    uniqueEdges.add(edge);
+                if (type.isArray()) {
+                    type = type.asArrayType().getComponentType();
+                }
+                if (type.isReferenceType()) {
+                    referencedTypes.addAll(extractReferencedTypes(type.asReferenceType()));
                 }
             });
         });
 
+
+        String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
+        referencedTypes.forEach(referencedType -> {
+            String referencedClassName = referencedType.describe();
+            Node sourceNode = new Node(className, NodeType.CLASS);
+            Node destinationNode = new Node(referencedClassName, NodeType.CLASS);
+            Edge edge = new FieldEdge(sourceNode, destinationNode);
+            edges.add(edge);
+        });
+
         return edges;
     }
+
+
+    /**
+     * Extracts all types referenced by a reference type, for example, List<String> would return List and String as ResolvedReferenceTypes
+     * @param referenceType
+     * @return  a list of ResolvedReferenceTypes that are referenced by the input reference type
+     */
+    private static List<ResolvedReferenceType> extractReferencedTypes(ResolvedReferenceType referenceType) {
+        List<ResolvedReferenceType> referencedTypes = new LinkedList<>();
+        referencedTypes.add(referenceType);
+
+        // Recursively handle type parameters (generics)
+        referenceType.getTypeParametersMap().forEach(pair -> { // pair.a = type parameter, pair.b = type
+            if (pair.b.isReferenceType()) {
+                referencedTypes.addAll(extractReferencedTypes(pair.b.asReferenceType()));
+            }
+        });
+        return referencedTypes;
+    }
+
+
 }
