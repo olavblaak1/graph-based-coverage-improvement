@@ -1,6 +1,5 @@
-package com.kuleuven.GraphExtraction.ExtractionStrategy;
+package com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,10 +7,10 @@ import java.util.Set;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.kuleuven.GraphExtraction.Extraction.NodeVisitors.ClassVisitor;
+import com.kuleuven.GraphExtraction.Graph.ClassNode;
 import com.kuleuven.GraphExtraction.Graph.Node;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
-import com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors.ClassVisitor;
-import com.kuleuven.GraphExtraction.Graph.NodeType;
 
 
 /**
@@ -21,7 +20,7 @@ import com.kuleuven.GraphExtraction.Graph.NodeType;
  * and the edges are METHOD CALLS between these classes, ignoring method calls within a class.
  * This one includes edges with imported classes, but not as nodes.
  */
-public class ExtractGraphOriginal extends ExtractionTemplate {
+public class ExtractGraphOriginal extends ExtractionTemplate<ClassOrInterfaceDeclaration> {
 
     /**
      * Extracts the edges of the graph from the list of Nodes
@@ -30,13 +29,10 @@ public class ExtractGraphOriginal extends ExtractionTemplate {
      * @return the edges of the graph, which are the method calls between classes, ignoring method calls within a class
      */
     @Override
-    public Set<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes) {
+    public Set<Edge> extractEdges(List<ClassOrInterfaceDeclaration> nodes) {
         Set<Edge> edges = new HashSet<>();
         nodes.forEach(node -> {
-        if (node instanceof ClassOrInterfaceDeclaration) {
-            ClassOrInterfaceDeclaration classDefinition = (ClassOrInterfaceDeclaration) node;
-            edges.addAll(ExtractGraphHelper.extractUniqueMethodCallEdges(classDefinition));
-        }
+            edges.addAll(ExtractGraphHelper.extractMethodCallEdges(node));
         });
         return edges;
     }
@@ -49,8 +45,8 @@ public class ExtractGraphOriginal extends ExtractionTemplate {
      * 
      */
     @Override
-    public List<com.github.javaparser.ast.Node> extractASTNodes(List<CompilationUnit> compilationUnits) {
-        List<com.github.javaparser.ast.Node> nodes = new LinkedList<>();
+    public List<ClassOrInterfaceDeclaration> extractASTNodes(List<CompilationUnit> compilationUnits) {
+        List<ClassOrInterfaceDeclaration> nodes = new LinkedList<>();
         ClassVisitor classVisitor = new ClassVisitor();
         compilationUnits.forEach(cu -> {
             cu.accept(classVisitor, null);
@@ -60,15 +56,12 @@ public class ExtractGraphOriginal extends ExtractionTemplate {
     }
 
     @Override
-    public List<Node> convertNodes(List<com.github.javaparser.ast.Node> nodes) {
+    public List<Node> convertNodes(List<ClassOrInterfaceDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
         nodes.forEach(node -> {
-            if (node instanceof ClassOrInterfaceDeclaration) {
-                ClassOrInterfaceDeclaration classDefinition = (ClassOrInterfaceDeclaration) node;
-                String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
-                Node graphNode = new Node(className, NodeType.CLASS);
-                graphNodes.add(graphNode);
-            }
+            String className = node.getFullyQualifiedName().orElse("Unknown");
+            Node graphNode = new ClassNode(className);
+            graphNodes.add(graphNode);
         });
         return graphNodes;
     }

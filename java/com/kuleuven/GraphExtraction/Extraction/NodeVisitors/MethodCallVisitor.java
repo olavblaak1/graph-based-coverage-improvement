@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors;
+package com.kuleuven.GraphExtraction.Extraction.NodeVisitors;
 
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;

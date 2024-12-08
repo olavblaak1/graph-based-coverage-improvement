@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction.ExtractionStrategy.NodeVisitors;
+package com.kuleuven.GraphExtraction.Extraction.NodeVisitors;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -17,6 +17,6 @@ public class MethodVisitor extends VoidVisitorAdapter<String> {
 
 
     public List<MethodDeclaration> getMethodDeclarations() {
-        return methodDeclarations;
+        return new LinkedList<MethodDeclaration>(methodDeclarations);
     }
 }

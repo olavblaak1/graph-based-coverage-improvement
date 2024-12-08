@@ -1,6 +1,10 @@
-package com.kuleuven.GraphExtraction.ExtractionStrategy;
+package com.kuleuven.GraphExtraction.Extraction;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractGraphInheritanceFields;
+import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractGraphOriginal;
+import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractionStrategy;
+import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractionTemplate;
 import com.kuleuven.GraphExtraction.Graph.Node;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
 import java.util.LinkedList;

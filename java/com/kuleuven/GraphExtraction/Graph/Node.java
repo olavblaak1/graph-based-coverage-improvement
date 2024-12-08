@@ -1,21 +1,17 @@
 package com.kuleuven.GraphExtraction.Graph;
 
-public class Node {
+public abstract class Node {
     private String name;
-    private NodeType type;
 
-    public Node(String name, NodeType type) {
+    public Node(String name) {
         this.name = name;
-        this.type = type;
     }
 
     public String getName() {
         return name;
     }
 
-    public NodeType getType() {
-        return type;
-    }
+    public abstract NodeType getType();
 
     @Override
     public int hashCode() {
@@ -31,6 +27,6 @@ public class Node {
             return false;
         }
         Node node = (Node) obj;
-        return name.equals(node.getName()) && type.equals(node.getType());
+        return name.equals(node.getName());
     }
 }

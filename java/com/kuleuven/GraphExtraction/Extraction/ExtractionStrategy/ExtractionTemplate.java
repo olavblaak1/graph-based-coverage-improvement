@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction.ExtractionStrategy;
+package com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy;
 
 
 import com.github.javaparser.ast.CompilationUnit;
@@ -13,7 +13,7 @@ import java.util.List;
 /*
  * Template for extracting the graph from a Java source file using the JavaParser library.
  */
-public abstract class ExtractionTemplate {
+public abstract class ExtractionTemplate<T extends com.github.javaparser.ast.Node> {
     
     /**
      * Template method for extracting the edges and nodes from a Java source file.
@@ -29,7 +29,7 @@ public abstract class ExtractionTemplate {
     public void extractGraph(List<CompilationUnit> compilationUnits, List<Edge> edges, List<Node> nodes) {
         // extracts all of the abstract syntax tree Nodes from the Java source file, 
         // these may be classes, methods, statements, ...
-        List<com.github.javaparser.ast.Node> ASTNodes = extractASTNodes(compilationUnits);
+        List<T> ASTNodes = extractASTNodes(compilationUnits);
 
         // Extracts the edges of the graph from the AST nodes
         // these may be method calls, inheritence relations, ...
@@ -44,17 +44,17 @@ public abstract class ExtractionTemplate {
      * @param nodes: the nodes of the graph
      * @return the edges of the graph
      */
-    public abstract Collection<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes);
+    public abstract Collection<Edge> extractEdges(List<T> nodes);
 
 
     /**
      * Extracts all JavaParser Abstract Syntax Tree nodes from the Java source file for further processing.
     */ 
-    public abstract List<com.github.javaparser.ast.Node> extractASTNodes(List<CompilationUnit> compilationUnits);
+    public abstract List<T> extractASTNodes(List<CompilationUnit> compilationUnits);
 
 
     /**
      * Converts the JavaParser AST nodes to the graph nodes.
      */
-    protected abstract List<Node> convertNodes(List<com.github.javaparser.ast.Node> nodes);
+    protected abstract List<Node> convertNodes(List<T> nodes);
 }

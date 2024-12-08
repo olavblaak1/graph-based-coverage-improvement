@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction.ExtractionStrategy;
+package com.kuleuven.GraphExtraction.Extraction;
 
 import java.io.File;
 import java.io.FileInputStream;

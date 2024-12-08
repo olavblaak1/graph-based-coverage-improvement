@@ -6,9 +6,8 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.kuleuven.GraphExtraction.Graph.ClassNode;
 import com.kuleuven.GraphExtraction.Graph.Node;
-import com.kuleuven.GraphExtraction.Graph.NodeType;
-import com.kuleuven.GraphExtraction.Graph.Edge.Argument;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
 import com.kuleuven.GraphExtraction.Graph.Edge.MethodCallEdge;
 import com.kuleuven.GraphExtraction.Graph.Edge.Method;
@@ -33,14 +32,14 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         linkMethodJSON.put("method_signature", linkMethod.getMethodSignature());
         linkMethodJSON.put("method_name", linkMethod.getMethodName());
         linkMethodJSON.put("return_type", linkMethod.getReturnType());
-        linkMethodJSON.put("arguments", serializeArguments(linkMethod.getArguments()));
+        linkMethodJSON.put("arguments", serializeArguments(linkMethod.getParameters()));
         linkMethodJSON.put("declaring_class", linkMethod.getDeclaringClass());
         
         JSONObject sourceMethodJSON = new JSONObject();
         sourceMethodJSON.put("method_signature", sourceMethod.getMethodSignature());
         sourceMethodJSON.put("method_name", sourceMethod.getMethodName());
         sourceMethodJSON.put("return_type", sourceMethod.getReturnType());
-        sourceMethodJSON.put("arguments", serializeArguments(sourceMethod.getArguments()));
+        sourceMethodJSON.put("arguments", serializeArguments(sourceMethod.getParameters()));
         sourceMethodJSON.put("declaring_class", sourceMethod.getDeclaringClass());
 
         json.put("link_method", linkMethodJSON);
@@ -49,34 +48,36 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         return json;
     }
 
-    private JSONArray serializeArguments(List<Argument> arguments) {
+    private JSONArray serializeArguments(List<String> arguments) {
 
         JSONArray json = new JSONArray();
-        for (Argument argument : arguments) {
-            JSONObject argumentJSON = new JSONObject();
-            argumentJSON.put("type", argument.getType());
-            argumentJSON.put("value", argument.getValue());
 
-            json.put(argumentJSON);
-        }
+        arguments.forEach(
+            argument -> {
+                JSONObject argumentJSON = new JSONObject();
+                argumentJSON.put("type", argument);
+                json.put(argumentJSON);
+            }
+        );
+        
         return json;
     }
 
     @Override
     public Edge deserialize(JSONObject json) {
         String source = json.getString("source");
-        Node sourceNode = new Node(source, NodeType.CLASS);
+        Node sourceNode = new ClassNode(source);
 
 
         String destination = json.getString("destination");
-        Node destinationNode = new Node(destination, NodeType.CLASS);
+        Node destinationNode = new ClassNode(destination);
 
         JSONObject linkMethodJSON = json.getJSONObject("link_method");
         String linkMethodSignature = linkMethodJSON.getString("method_signature");
         String linkMethodName = linkMethodJSON.getString("method_name");
         String linkMethodReturnType = linkMethodJSON.getString("return_type");
         String linkMethodDeclaringClass = linkMethodJSON.getString("declaring_class");
-        List<Argument> linkMethodArguments = deserializeArguments(linkMethodJSON.getJSONArray("arguments"));
+        List<String> linkMethodArguments = deserializeArguments(linkMethodJSON.getJSONArray("arguments"));
         Method linkMethod = new Method(linkMethodName, linkMethodReturnType, linkMethodDeclaringClass, linkMethodSignature, linkMethodArguments);
 
         JSONObject sourceMethodJSON = json.getJSONObject("source_method");
@@ -84,19 +85,17 @@ public class MethodCallEdgeSerializer implements EdgeSerializer {
         String sourceMethodName = sourceMethodJSON.getString("method_name");
         String sourceMethodReturnType = sourceMethodJSON.getString("return_type");
         String sourceMethodDeclaringClass = sourceMethodJSON.getString("declaring_class");
-        List<Argument> sourceMethodArguments = deserializeArguments(sourceMethodJSON.getJSONArray("arguments"));
+        List<String> sourceMethodArguments = deserializeArguments(sourceMethodJSON.getJSONArray("arguments"));
         Method sourceMethod = new Method(sourceMethodName, sourceMethodReturnType, sourceMethodDeclaringClass, sourceMethodSignature, sourceMethodArguments);
 
         return new MethodCallEdge(sourceNode, destinationNode, linkMethod, sourceMethod);
     }
 
-    private List<Argument> deserializeArguments(JSONArray json) {
-        List<Argument> arguments = new LinkedList<>();
+    private List<String> deserializeArguments(JSONArray json) {
+        List<String> arguments = new LinkedList<>();
         for (int i = 0; i < json.length(); i++) {
             JSONObject argumentJSON = json.getJSONObject(i);
-            String type = argumentJSON.getString("type");
-            String value = argumentJSON.getString("value");
-            arguments.add(new Argument(value, type));
+            arguments.add(argumentJSON.getString("type"));
         }
         return arguments;
     }

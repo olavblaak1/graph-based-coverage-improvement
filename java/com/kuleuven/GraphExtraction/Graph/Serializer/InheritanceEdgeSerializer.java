@@ -2,8 +2,7 @@ package com.kuleuven.GraphExtraction.Graph.Serializer;
 
 import org.json.JSONObject;
 
-import com.kuleuven.GraphExtraction.Graph.Node;
-import com.kuleuven.GraphExtraction.Graph.NodeType;
+import com.kuleuven.GraphExtraction.Graph.ClassNode;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
 import com.kuleuven.GraphExtraction.Graph.Edge.InheritanceEdge;
 
@@ -23,6 +22,6 @@ public class InheritanceEdgeSerializer implements EdgeSerializer {
     public Edge deserialize(JSONObject json) {
         String source = json.getString("source");
         String destination = json.getString("destination");
-        return new InheritanceEdge(new Node(source, NodeType.CLASS), new Node(destination, NodeType.CLASS));
+        return new InheritanceEdge(new ClassNode(source), new ClassNode(destination));
     }
 }

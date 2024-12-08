@@ -8,11 +8,10 @@ import java.nio.file.Paths;
 import org.json.JSONObject;
 
 import com.kuleuven.GraphExtraction.GraphUtils;
+import com.kuleuven.GraphExtraction.Extraction.GraphExtractor;
+import com.kuleuven.GraphExtraction.Extraction.ParseManager;
+import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractionStrategy;
 import com.kuleuven.GraphExtraction.Graph.Serializer.SerializeManager;
-
-import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionStrategy;
-import com.kuleuven.GraphExtraction.ExtractionStrategy.GraphExtractor;
-import com.kuleuven.GraphExtraction.ExtractionStrategy.ParseManager;
 
 public class Main {
     public static void main(String[] args) throws Exception {
