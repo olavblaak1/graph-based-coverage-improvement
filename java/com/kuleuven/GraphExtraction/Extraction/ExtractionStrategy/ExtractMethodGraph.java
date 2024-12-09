@@ -9,7 +9,6 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.kuleuven.GraphExtraction.Extraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.Extraction.NodeVisitors.MethodVisitor;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
-import com.kuleuven.GraphExtraction.Graph.Edge.Method;
 import com.kuleuven.GraphExtraction.Graph.Edge.MethodCallEdge;
 import com.kuleuven.GraphExtraction.Graph.MethodNode;
 import com.kuleuven.GraphExtraction.Graph.Node;
@@ -53,7 +52,6 @@ public class ExtractMethodGraph extends ExtractionTemplate<MethodDeclaration> {
         node.accept(methodCallVisitor, null);
 
         Node sourceNode = new MethodNode(node.resolve().getQualifiedName());
-        Method destinationMethod = new Method(node.resolve());
 
         List<Edge> edges = new LinkedList<>();
         methodCallVisitor.getMethodCalls().forEach(methodCall -> {
@@ -62,9 +60,7 @@ public class ExtractMethodGraph extends ExtractionTemplate<MethodDeclaration> {
             }
 
             Node destinationNode = new MethodNode(methodCall.resolve().getQualifiedName());
-            Method sourceMethod = new Method(methodCall.resolve());
-
-            edges.add(new MethodCallEdge(sourceNode, destinationNode, sourceMethod, destinationMethod));
+            edges.add(new MethodCallEdge(sourceNode, destinationNode));
         });
 
         return edges;

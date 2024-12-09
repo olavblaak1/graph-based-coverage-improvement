@@ -12,9 +12,15 @@ import com.kuleuven.GraphExtraction.Graph.Node;
 import com.kuleuven.GraphExtraction.Graph.NodeType;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
 import com.kuleuven.GraphExtraction.Graph.Edge.EdgeType;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.EdgeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.FieldEdgeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.InheritanceEdgeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.MethodCallEdgeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Node.ClassNodeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Node.NodeSerializer;
 
 public class SerializeManager {
-    private Map<EdgeType, EdgeSerializer> edgeSerializers = new HashMap<>();
+    private Map<EdgeType, EdgeSerializer<? extends Edge>> edgeSerializers = new HashMap<>();
     private Map<NodeType, NodeSerializer> nodeSerializers = new HashMap<>();
 
 
@@ -28,11 +34,17 @@ public class SerializeManager {
     }
 
     public JSONObject serializeEdge(Edge edge) {
-        EdgeSerializer serializer = edgeSerializers.get(edge.getType());
+        EdgeSerializer<? extends Edge> serializer = edgeSerializers.get(edge.getType());
         if (serializer == null) {
             throw new IllegalArgumentException("No serializer found for edge type: " + edge.getType());
         }
-        return serializer.serialize(edge);
+        return serializeEdgeInternal(serializer, edge);
+    }
+
+    private <T extends Edge> JSONObject serializeEdgeInternal(EdgeSerializer<T> serializer, Edge edge) {
+        @SuppressWarnings("unchecked")
+        T typedEdge = (T) edge;
+        return serializer.serialize(typedEdge);
     }
 
     public JSONArray serializeEdges(List<Edge> edges) {
@@ -46,7 +58,7 @@ public class SerializeManager {
 
     public Edge deserializeEdge(JSONObject json) {
         EdgeType type = EdgeType.valueOf(json.getString("type"));
-        EdgeSerializer serializer = edgeSerializers.get(type);
+        EdgeSerializer<? extends Edge> serializer = edgeSerializers.get(type);
         if (serializer == null) {
             throw new IllegalArgumentException("No serializer found for edge type: " + type);
         }

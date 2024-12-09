@@ -14,7 +14,6 @@ import com.kuleuven.GraphExtraction.Extraction.NodeVisitors.MethodVisitor;
 import com.kuleuven.GraphExtraction.Graph.ClassNode;
 import com.kuleuven.GraphExtraction.Graph.Node;
 import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
-import com.kuleuven.GraphExtraction.Graph.Edge.Method;
 import com.kuleuven.GraphExtraction.Graph.Edge.MethodCallEdge;
 
 class ExtractGraphHelper {
@@ -58,15 +57,10 @@ class ExtractGraphHelper {
 
                 Node sourceNode = new ClassNode(className);
                 Node destinationNode = new ClassNode(declaringClassName);
-                
-                Method linkMethod = new Method(methodCall.resolve());
-                Method sMethod = new Method(sourceMethod.resolve());
 
                 MethodCallEdge edge = new MethodCallEdge(
                         sourceNode,
-                        destinationNode,
-                        linkMethod,
-                        sMethod);
+                        destinationNode); 
                 edges.add(edge);
             });
         });

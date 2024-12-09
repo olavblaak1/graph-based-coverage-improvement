@@ -1,6 +1,8 @@
 package com.kuleuven.GraphExtraction.Extraction;
 
 import com.github.javaparser.ast.CompilationUnit;
+
+import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractMethodGraph;
 import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractGraphInheritanceFields;
 import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractGraphOriginal;
 import com.kuleuven.GraphExtraction.Extraction.ExtractionStrategy.ExtractionStrategy;
@@ -29,6 +31,9 @@ public class GraphExtractor {
                 break;
             case INHERITANCE_FIELDS:
                 extractionTemplate = new ExtractGraphInheritanceFields();
+                break;
+            case METHODS_CALLS:
+                extractionTemplate = new ExtractMethodGraph();
                 break;
             default:
                 extractionTemplate = new ExtractGraphOriginal();

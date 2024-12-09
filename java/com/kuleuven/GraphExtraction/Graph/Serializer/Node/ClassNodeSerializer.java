@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction.Graph.Serializer;
+package com.kuleuven.GraphExtraction.Graph.Serializer.Node;
 
 import org.json.JSONObject;
 

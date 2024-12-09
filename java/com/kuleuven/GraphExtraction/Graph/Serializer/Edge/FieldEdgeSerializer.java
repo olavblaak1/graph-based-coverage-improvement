@@ -1,17 +1,17 @@
-package com.kuleuven.GraphExtraction.Graph.Serializer;
+package com.kuleuven.GraphExtraction.Graph.Serializer.Edge;
+
 
 import org.json.JSONObject;
 
 import com.kuleuven.GraphExtraction.Graph.ClassNode;
-import com.kuleuven.GraphExtraction.Graph.Edge.Edge;
-import com.kuleuven.GraphExtraction.Graph.Edge.InheritanceEdge;
+import com.kuleuven.GraphExtraction.Graph.Edge.FieldEdge;
 
-public class InheritanceEdgeSerializer implements EdgeSerializer {
-    public InheritanceEdgeSerializer() {
+public class FieldEdgeSerializer extends EdgeSerializer<FieldEdge> {
+    public FieldEdgeSerializer() {
         super();
     }
 
-    public JSONObject serialize(Edge edge) {
+    public JSONObject serialize(FieldEdge edge) {
         JSONObject json = new JSONObject();
         json.put("source", edge.getSource().getName());
         json.put("destination", edge.getDestination().getName());
@@ -19,9 +19,9 @@ public class InheritanceEdgeSerializer implements EdgeSerializer {
         return json;
     }
 
-    public Edge deserialize(JSONObject json) {
+    public FieldEdge deserialize(JSONObject json) {
         String source = json.getString("source");
         String destination = json.getString("destination");
-        return new InheritanceEdge(new ClassNode(source), new ClassNode(destination));
+        return new FieldEdge(new ClassNode(source), new ClassNode(destination));
     }
 }
