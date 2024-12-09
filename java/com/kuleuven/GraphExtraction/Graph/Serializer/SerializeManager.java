@@ -17,11 +17,12 @@ import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.FieldEdgeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.InheritanceEdgeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.Edge.MethodCallEdgeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.Node.ClassNodeSerializer;
+import com.kuleuven.GraphExtraction.Graph.Serializer.Node.MethodNodeSerializer;
 import com.kuleuven.GraphExtraction.Graph.Serializer.Node.NodeSerializer;
 
 public class SerializeManager {
     private Map<EdgeType, EdgeSerializer<? extends Edge>> edgeSerializers = new HashMap<>();
-    private Map<NodeType, NodeSerializer> nodeSerializers = new HashMap<>();
+    private Map<NodeType, NodeSerializer<? extends Node>> nodeSerializers = new HashMap<>();
 
 
     public SerializeManager() {
@@ -31,13 +32,11 @@ public class SerializeManager {
 
 
         nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
+        nodeSerializers.put(NodeType.METHOD, new MethodNodeSerializer());
     }
 
     public JSONObject serializeEdge(Edge edge) {
-        EdgeSerializer<? extends Edge> serializer = edgeSerializers.get(edge.getType());
-        if (serializer == null) {
-            throw new IllegalArgumentException("No serializer found for edge type: " + edge.getType());
-        }
+        EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(edge.getType());
         return serializeEdgeInternal(serializer, edge);
     }
 
@@ -58,10 +57,7 @@ public class SerializeManager {
 
     public Edge deserializeEdge(JSONObject json) {
         EdgeType type = EdgeType.valueOf(json.getString("type"));
-        EdgeSerializer<? extends Edge> serializer = edgeSerializers.get(type);
-        if (serializer == null) {
-            throw new IllegalArgumentException("No serializer found for edge type: " + type);
-        }
+        EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(type);
         return serializer.deserialize(json);
     }
 
@@ -74,20 +70,19 @@ public class SerializeManager {
     }
 
     public JSONObject serializeNode(Node node) {
-        NodeSerializer serializer = nodeSerializers.get(node.getType());
-        if (serializer == null) {
-            throw new IllegalArgumentException("No serializer found for node type: " + node.getType());
-        }
-        return serializer.serialize(node);
+        NodeSerializer<? extends Node> serializer = getNodeSerializer(node.getType());
+        return serializeNodeInternal(serializer, node);
+    }
+
+    private <T extends Node> JSONObject serializeNodeInternal(NodeSerializer<T> serializer, Node node) {
+        @SuppressWarnings("unchecked")
+        T typedNode = (T) node;
+        return serializer.serialize(typedNode);
     }
 
 
     public Node deserializeNode(JSONObject json) {
-        NodeType type = NodeType.valueOf(json.getString("type"));
-        NodeSerializer serializer = nodeSerializers.get(type);
-        if (serializer == null) {
-            throw new IllegalArgumentException("No serializer found for node type: " + type);
-        }
+        NodeSerializer<? extends Node> serializer = nodeSerializers.get(NodeType.valueOf(json.getString("type")));
         return serializer.deserialize(json);
     }
 
@@ -106,5 +101,25 @@ public class SerializeManager {
             nodes.add(deserializeNode(json.getJSONObject(i)));
         }
         return nodes;
+    }
+
+
+    private <T extends Edge> EdgeSerializer<T> getEdgeSerializer(EdgeType type) {
+        @SuppressWarnings("unchecked")
+        EdgeSerializer<T> serializer = (EdgeSerializer<T>) edgeSerializers.get(type);
+        if (serializer == null) {
+            throw new IllegalArgumentException("No serializer found for edge type: " + type);
+        }
+        return serializer;
+    }
+
+
+    private <T extends Node> NodeSerializer<T> getNodeSerializer(NodeType type) {
+        @SuppressWarnings("unchecked")
+        NodeSerializer<T> serializer = (NodeSerializer<T>) nodeSerializers.get(type);
+        if (serializer == null) {
+            throw new IllegalArgumentException("No serializer found for node type: " + type);
+        }
+        return serializer;
     }
 }

@@ -8,24 +8,24 @@ import org.json.JSONObject;
 
 import com.kuleuven.GraphExtraction.Graph.Node;
 
-public interface NodeSerializer {
+public interface NodeSerializer<T extends Node> {
     
-    public JSONObject serialize(Node node);
+    public JSONObject serialize(T node);
 
-    public default JSONArray serialize(List<Node> nodes) {
+    public default JSONArray serialize(List<T> nodes) {
             JSONArray json = new JSONArray();
-            for (Node node : nodes) {
+            for (T node : nodes) {
                 json.put(serialize(node));
             }
             return json;
         }
 
 
-    public Node deserialize(JSONObject json);
+    public T deserialize(JSONObject json);
 
 
-    public default List<Node> deserialize(JSONArray json) {
-        List<Node> nodes = new LinkedList<>();
+    public default List<T> deserialize(JSONArray json) {
+        List<T> nodes = new LinkedList<>();
         for (int i = 0; i < json.length(); i++) {
             nodes.add(deserialize(json.getJSONObject(i)));
         }

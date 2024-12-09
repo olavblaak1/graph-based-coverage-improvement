@@ -4,12 +4,10 @@ import org.json.JSONObject;
 
 import com.kuleuven.GraphExtraction.Graph.ClassNode;
 import com.kuleuven.GraphExtraction.Graph.MethodNode;
-import com.kuleuven.GraphExtraction.Graph.Node;
-import com.kuleuven.GraphExtraction.Graph.NodeType;
 
-public class ClassNodeSerializer implements NodeSerializer<ClassNode> {
+public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
     @Override
-    public JSONObject serialize(ClassNode node) {
+    public JSONObject serialize(MethodNode node) {
         JSONObject json = new JSONObject();
         json.put("name", node.getName());
         json.put("type", node.getType().toString());
@@ -17,7 +15,7 @@ public class ClassNodeSerializer implements NodeSerializer<ClassNode> {
     }
 
     @Override
-    public ClassNode deserialize(JSONObject json) {
-        return new ClassNode(json.getString("name"));
+    public MethodNode deserialize(JSONObject json) {
+        return new MethodNode(json.getString("name"));
     }
 }

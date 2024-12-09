@@ -15,8 +15,8 @@ class GraphVisualizer:
 
     def add_edges(self, edges):
         for edge in edges:
-            source = edge['source']
-            destination = edge['destination']
+            source = edge['source']['name']
+            destination = edge['destination']['name'] # This is only necessary when were looking at method nodes...
             
 
             edge_type = edge['type']
