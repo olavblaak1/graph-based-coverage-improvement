@@ -1,4 +1,4 @@
-package com.kuleuven.GraphExtraction.NodeVisitors;;
+package com.kuleuven.GraphExtraction.NodeVisitors;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;

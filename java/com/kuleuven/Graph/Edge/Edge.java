@@ -1,24 +1,22 @@
 package com.kuleuven.Graph.Edge;
 
-import com.kuleuven.Graph.Node;
-
 /**
  * Abstract class representing an edge in the system graph
  */ 
 public abstract class Edge {
-    private Node source;
-    private Node destination;
+    private String source;
+    private String destination;
 
-    public Edge(Node source, Node destination) {
+    public Edge(String source, String destination) {
         this.source = source;
         this.destination = destination;
     }
 
-    public Node getSource() {
+    public String getSource() {
         return source;
     }
 
-    public Node getDestination() {
+    public String getDestination() {
         return destination;
     }
 

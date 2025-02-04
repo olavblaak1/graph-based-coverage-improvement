@@ -1,10 +1,8 @@
 package com.kuleuven.Graph.Edge;
 
-import com.kuleuven.Graph.Node;
-
 public class InheritanceEdge extends Edge {
 
-    public InheritanceEdge(Node subclass, Node superclass) {
+    public InheritanceEdge(String subclass, String superclass) {
         super(subclass, superclass);
     }
 

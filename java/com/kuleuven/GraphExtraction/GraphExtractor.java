@@ -1,26 +1,25 @@
 package com.kuleuven.GraphExtraction;
 import com.github.javaparser.ast.CompilationUnit;
-import com.kuleuven.Graph.Node;
-import com.kuleuven.Graph.Edge.Edge;
+import com.github.javaparser.ast.Node;
+import com.kuleuven.Graph.Graph;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractGraphInheritanceFields;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractGraphOriginal;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractMethodGraph;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionStrategy;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionTemplate;
-import java.util.LinkedList;
+
 import java.util.List;
 
 public class GraphExtractor {
 
-    private List<Node> nodes;
-    private List<Edge> edges;
+    private Graph graph;
 
     /*
      * Extraction strategy to use for extracting the graph from the Java source file
      * This dictates whether the nodes are class definitions, method definitions, ...
      * and if the edges are method calls, inheritence relations, ...
      */
-    private ExtractionTemplate extractionTemplate;
+    private ExtractionTemplate<? extends Node> extractionTemplate;
 
     public GraphExtractor(ExtractionStrategy strategy) {
         switch (strategy) {
@@ -36,22 +35,15 @@ public class GraphExtractor {
             default:
                 extractionTemplate = new ExtractGraphOriginal();
         }
-        nodes = new LinkedList<>();
-        edges = new LinkedList<>();
+        this.graph = new Graph();
     }
 
 
     public void extractGraph(List<CompilationUnit> compilationUnits) {
-        extractionTemplate.extractGraph(compilationUnits, edges, nodes);
+        extractionTemplate.extractGraph(compilationUnits, graph);
     }
 
-
-    public List<Node> getNodes() {
-        return new LinkedList<>(nodes);
-    }
-
-    
-    public List<Edge> getEdges() {
-        return new LinkedList<>(edges);
+    Graph getGraph() {
+        return graph;
     }
 }

@@ -1,11 +1,16 @@
 package com.kuleuven.Graph;
 
 public class MethodNode extends Node {
-    private String superClass;
 
-    public MethodNode(String name, String superClass) {
+    public enum OverWrite {
+        YES, NO, UNKNOWN
+    }
+
+    private OverWrite overWrite; 
+
+    public MethodNode(String name, OverWrite overWrite) {
         super(name);
-        this.superClass = superClass;
+        this.overWrite = overWrite;
     }
 
     @Override
@@ -13,7 +18,13 @@ public class MethodNode extends Node {
         return NodeType.METHOD;
     }
 
-    public String getSuperClassName() {
-        return superClass;
+    public String getClassName() {
+        String name = super.getName();
+        int lastDotIndex = name.lastIndexOf('.');
+        return lastDotIndex != -1 ? name.substring(0, lastDotIndex) : name;
+    }
+
+    public String getOverWrite() {
+        return overWrite.toString();
     }
 }

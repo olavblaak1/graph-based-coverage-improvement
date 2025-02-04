@@ -1,11 +1,9 @@
 package com.kuleuven.Graph.Edge;
 
-import com.kuleuven.Graph.Node;
-
 public class FieldEdge extends Edge {
 
 
-    public FieldEdge(Node source, Node destination) {
+    public FieldEdge(String source, String destination) {
         super(source, destination);
     }
 

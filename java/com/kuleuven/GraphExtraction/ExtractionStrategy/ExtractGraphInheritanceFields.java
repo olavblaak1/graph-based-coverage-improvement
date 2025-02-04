@@ -7,6 +7,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.kuleuven.GraphExtraction.NodeVisitors.ClassVisitor;
+import com.kuleuven.Graph.ClassNode;
 import com.kuleuven.Graph.Node;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.FieldEdge;
@@ -40,7 +41,7 @@ public class ExtractGraphInheritanceFields extends ExtractionTemplate<ClassOrInt
     /**
      * Extracts the AST's nodes, which in this case are the CLASS DEFINITIONS
      * 
-     * @param cu: the CompilationUnit of the Java source file
+     * @param compilationUnits: the CompilationUnits of the Java source file
      * @return the list of AST nodes, which are the class definitions
      * 
      */
@@ -67,25 +68,22 @@ public class ExtractGraphInheritanceFields extends ExtractionTemplate<ClassOrInt
         List<Edge> edges = new LinkedList<>();
 
         List<ResolvedReferenceType> referencedTypes = new LinkedList<>();
-        classDefinition.getFields().forEach(field -> {
-            field.getVariables().forEach(variableDeclarator -> {
-                ResolvedType type = variableDeclarator.resolve().getType();
+        classDefinition.getFields().forEach(field ->
+                field.getVariables().forEach(variableDeclarator -> {
+            ResolvedType type = variableDeclarator.resolve().getType();
 
-                if (type.isArray()) {
-                    type = type.asArrayType().getComponentType();
-                }
-                if (type.isReferenceType()) {
-                    referencedTypes.addAll(ExtractGraphHelper.extractReferencedTypes(type.asReferenceType()));
-                }
-            });
-        });
+            if (type.isArray()) {
+                type = type.asArrayType().getComponentType();
+            }
+            if (type.isReferenceType()) {
+                referencedTypes.addAll(ExtractGraphHelper.extractReferencedTypes(type.asReferenceType()));
+            }
+        }));
 
         String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
         referencedTypes.forEach(referencedType -> {
             String referencedClassName = referencedType.describe();
-            Node sourceNode = new ClassNode(className);
-            Node destinationNode = new ClassNode(referencedClassName);
-            Edge edge = new FieldEdge(sourceNode, destinationNode);
+            Edge edge = new FieldEdge(className, referencedClassName);
             edges.add(edge);
         });
 
@@ -96,18 +94,13 @@ public class ExtractGraphInheritanceFields extends ExtractionTemplate<ClassOrInt
         List<Edge> edges = new LinkedList<>();
         List<ResolvedReferenceType> inheritedClasses = new LinkedList<>();
 
-        classDefinition.resolve().getAncestors().forEach(ancestor -> {
-            inheritedClasses.addAll(ExtractGraphHelper.extractReferencedTypes(ancestor));
-        });
+        classDefinition.resolve().getAncestors().forEach(ancestor ->
+                inheritedClasses.addAll(ExtractGraphHelper.extractReferencedTypes(ancestor)));
 
         inheritedClasses.forEach(inheritedClass -> {
             String extendedClassName = inheritedClass.describe();
-
             String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
-            Node subclass = new ClassNode(className);
-            Node superclass = new ClassNode(extendedClassName);
-
-            Edge edge = new InheritanceEdge(subclass, superclass);
+            Edge edge = new InheritanceEdge(className, extendedClassName);
             edges.add(edge);
         });
         return edges;

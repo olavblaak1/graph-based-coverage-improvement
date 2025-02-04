@@ -1,15 +1,14 @@
 package com.kuleuven.Graph.Serializer;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node;
 import com.kuleuven.Graph.NodeType;
+import com.kuleuven.Graph.RankedNode;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Serializer.Edge.EdgeSerializer;
@@ -30,7 +29,6 @@ public class SerializeManager {
         edgeSerializers.put(EdgeType.INHERITANCE, new InheritanceEdgeSerializer());
         edgeSerializers.put(EdgeType.FIELD, new FieldEdgeSerializer());
 
-
         nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
         nodeSerializers.put(NodeType.METHOD, new MethodNodeSerializer());
     }
@@ -46,7 +44,7 @@ public class SerializeManager {
         return serializer.serialize(typedEdge);
     }
 
-    public JSONArray serializeEdges(List<Edge> edges) {
+    public JSONArray serializeEdges(Collection<Edge> edges) {
         JSONArray json = new JSONArray();
         for (Edge edge : edges) {
             json.put(serializeEdge(edge));
@@ -61,8 +59,8 @@ public class SerializeManager {
         return serializer.deserialize(json);
     }
 
-    public List<Edge> deserializeEdges(JSONArray json) {
-        List<Edge> edges = new LinkedList<>();
+    public Collection<Edge> deserializeEdges(JSONArray json) {
+        Set<Edge> edges = new HashSet<>();
         for (int i = 0; i < json.length(); i++) {
             edges.add(deserializeEdge(json.getJSONObject(i)));
         }
@@ -86,7 +84,7 @@ public class SerializeManager {
         return serializer.deserialize(json);
     }
 
-    public JSONArray serializeNodes(List<Node> nodes) {
+    public JSONArray serializeNodes(Collection<Node> nodes) {
         JSONArray json = new JSONArray();
         for (Node node : nodes) {
             json.put(serializeNode(node));
@@ -95,7 +93,7 @@ public class SerializeManager {
     }
 
 
-    public List<Node> deserializeNodes(JSONArray json) {
+    public Collection<Node> deserializeNodes(JSONArray json) {
         List<Node> nodes = new LinkedList<>();
         for (int i = 0; i < json.length(); i++) {
             nodes.add(deserializeNode(json.getJSONObject(i)));
@@ -122,4 +120,52 @@ public class SerializeManager {
         }
         return serializer;
     }
+
+    public JSONObject serializeRankedNode(RankedNode rankedNode) {
+        JSONObject json = serializeNode(rankedNode.getNode());
+        json.put("rank", rankedNode.getRank());
+        return json;
+    }
+
+    public JSONArray serializeRankedNodes(Collection<RankedNode> rankedNodes) {
+        JSONArray json = new JSONArray();
+        for (RankedNode rankedNode : rankedNodes) {
+            json.put(serializeRankedNode(rankedNode));
+        }
+        return json;
+    }
+
+    public RankedNode deserializeRankedNode(JSONObject json) {
+        return new RankedNode(deserializeNode(json), json.getDouble("rank"));
+    }
+
+    public List<RankedNode> deserializeRankedNodes(JSONArray json) {
+        List<RankedNode> rankedNodes = new LinkedList<>();
+        for (int i = 0; i < json.length(); i++) {
+            rankedNodes.add(deserializeRankedNode(json.getJSONObject(i)));
+        }
+        return rankedNodes;
+    }
+
+    public Graph deserializeGraph(JSONObject jsonGraph) {
+        Graph graph = new Graph();
+
+        for (Node n : deserializeNodes(jsonGraph.getJSONArray("nodes"))) {
+            graph.addNode(n);
+        }
+
+        for (Edge e : deserializeEdges(jsonGraph.getJSONArray("edges"))) {
+            graph.addEdge(e);
+        }
+
+        return graph;
+    }
+
+    public JSONObject serializeGraph(Graph graph) {
+        JSONObject json = new JSONObject();
+        json.put("nodes", serializeNodes(graph.getNodes()));
+        json.put("edges", serializeEdges(graph.getEdges()));
+        return json;
+    }
+
 }

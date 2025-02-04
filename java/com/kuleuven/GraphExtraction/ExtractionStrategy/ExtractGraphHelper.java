@@ -13,8 +13,6 @@ import com.kuleuven.GraphExtraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodVisitor;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.MethodCallEdge;
-import com.kuleuven.Graph.ClassNode;
-import com.kuleuven.Graph.Node;
 
 class ExtractGraphHelper {
 
@@ -30,7 +28,7 @@ class ExtractGraphHelper {
         List<MethodDeclaration> methods = methodVisitor.getMethodDeclarations();
 
         methods.forEach(sourceMethod -> {
-            if (!resolves(sourceMethod)) {
+            if (doesNotResolve(sourceMethod)) {
                 return;
             }
 
@@ -45,7 +43,7 @@ class ExtractGraphHelper {
 
 
             methodCalls.forEach(methodCall -> {
-                if(!resolves(methodCall)) {
+                if(doesNotResolve(methodCall)) {
                     return;
                 }
 
@@ -55,12 +53,9 @@ class ExtractGraphHelper {
                     return;
                 }
 
-                Node sourceNode = new ClassNode(className);
-                Node destinationNode = new ClassNode(declaringClassName);
-
                 MethodCallEdge edge = new MethodCallEdge(
-                        sourceNode,
-                        destinationNode); 
+                        className,
+                        declaringClassName);
                 edges.add(edge);
             });
         });
@@ -96,16 +91,16 @@ class ExtractGraphHelper {
      * @param resolvable the resolvable object to resolve
      * @return true if the resolution was successful, false otherwise
      */
-    static <T extends Resolvable<?>> boolean resolves(T resolvable) {
+    static <T extends Resolvable<?>> boolean doesNotResolve(T resolvable) {
         try {
             resolvable.resolve();
-            return true;
+            return false;
         } catch (UnsolvedSymbolException e) {
             System.err.println("Could not resolve symbol: " + e.getName() + " in resolvable: " + resolvable);
-            return false;
+            return true;
         } catch (MethodAmbiguityException e) {
             System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
-            return false;
+            return true;
         }
     }
 

@@ -8,9 +8,12 @@ class GraphVisualizer:
 
 
     def add_nodes(self, nodes):
+        minimum = min([node['rank'] for node in nodes])
+        maximum = max([node['rank'] for node in nodes])
         for node in nodes:
             node_name = node['name']
-            color = get_node_color(node_name)
+            node_rank = (node['rank'] - minimum) / maximum
+            color = get_node_color(node_name, node_rank)
             self.net.add_node(node_name, label=node_name, color=color)
 
     def add_edges(self, edges):
@@ -18,7 +21,6 @@ class GraphVisualizer:
             source = edge['source']['name']
             destination = edge['destination']['name'] # This is only necessary when were looking at method nodes...
             
-
             edge_type = edge['type']
             color = get_edge_color(edge_type)
             style = get_edge_style(edge_type)
@@ -36,8 +38,6 @@ class GraphVisualizer:
             # Offset the edges to make them distinguishable
             offset = self.directed_edge_count[edge_key] * 0.009
 
-            if source == "org.joda.time.DateTimeConstants" or destination == "org.joda.time.DateTimeConstants":
-                print(source)
 
             try:
                 self.net.add_edge(source, destination, color=color, dashes=(style == 'dashed'), width=2, physics=True, smooth={'type': 'CurvedCCW', 'roundness': offset})

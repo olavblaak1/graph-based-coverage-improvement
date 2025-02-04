@@ -1,11 +1,9 @@
 package com.kuleuven.Graph.Edge;
 
-import com.kuleuven.Graph.Node;
-
 public class MethodCallEdge extends Edge {
 
 
-    public MethodCallEdge(Node source, Node destination) { 
+    public MethodCallEdge(String source, String destination) {
         super(source, destination);
     }
 

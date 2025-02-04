@@ -1,1 +1,1 @@
-python python/create_graph.py joda-time
+python python/create_graph.py joda-time graph.json
