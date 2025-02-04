@@ -9,12 +9,13 @@ def load_graph_from_json(file_path):
     return graph_data
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python create_graph.py <system_name>")
+    if len(sys.argv) != 3:
+        print("Usage: python create_graph.py <system_name> <graph_name>")
         sys.exit(1)
 
     system_name = sys.argv[1]
-    graph_file = os.path.join('data', system_name, 'graph', 'graph.json')
+    graph_name = sys.argv[2]
+    graph_file = os.path.join('data', system_name, 'graph', graph_name)
     output_dir = os.path.join('data', system_name, 'plots')
     output_file = os.path.join(output_dir, 'graph.html')
 
