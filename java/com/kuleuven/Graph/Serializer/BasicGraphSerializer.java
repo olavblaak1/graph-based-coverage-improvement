@@ -32,6 +32,7 @@ public class BasicGraphSerializer implements  GraphSerializer<Graph> {
     @Override
     public JSONObject serializeGraph(Graph graph) {
         JSONObject json = new JSONObject();
+        json.put("graph_type", "basic");
 
         JSONArray jsonNodes = new JSONArray();
         for (Node node : graph.getNodes()) {

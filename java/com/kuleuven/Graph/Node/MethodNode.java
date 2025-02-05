@@ -18,6 +18,12 @@ public class MethodNode extends Node {
         return NodeType.METHOD;
     }
 
+    public String getMethodName() {
+        String name = super.getName();
+        int lastDotIndex = name.lastIndexOf('.');
+        return lastDotIndex != -1 ? name.substring(lastDotIndex + 1) : name;
+    }
+
     public String getClassName() {
         String name = super.getName();
         int lastDotIndex = name.lastIndexOf('.');

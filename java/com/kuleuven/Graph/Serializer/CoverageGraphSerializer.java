@@ -38,6 +38,7 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
     @Override
     public JSONObject serializeGraph(CoverageGraph graph) {
         JSONObject json = new JSONObject();
+        json.put("graph_type", "coverage");
 
         JSONArray jsonNodes = new JSONArray();
         for (Node node : graph.getNodes()) {
