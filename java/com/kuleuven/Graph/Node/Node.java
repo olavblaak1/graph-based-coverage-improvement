@@ -1,4 +1,4 @@
-package com.kuleuven.Graph;
+package com.kuleuven.Graph.Node;
 
 public abstract class Node {
     private String name;

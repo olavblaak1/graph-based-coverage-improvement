@@ -1,4 +1,4 @@
-package com.kuleuven.Graph;
+package com.kuleuven.Graph.Node;
 
 public class MethodNode extends Node {
 

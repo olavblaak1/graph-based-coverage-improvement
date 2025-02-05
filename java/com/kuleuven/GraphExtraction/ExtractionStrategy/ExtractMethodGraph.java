@@ -7,12 +7,11 @@ import java.util.List;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodVisitor;
 import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.MethodNode;
-import com.kuleuven.Graph.MethodNode.OverWrite;
-import com.kuleuven.Graph.Node;
+import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Edge.MethodCallEdge;
 
 public class ExtractMethodGraph extends ExtractionTemplate<MethodDeclaration> {
@@ -32,10 +31,10 @@ public class ExtractMethodGraph extends ExtractionTemplate<MethodDeclaration> {
     }
 
     @Override
-    protected List<com.kuleuven.Graph.Node> convertNodes(List<MethodDeclaration> nodes) {
+    protected List<Node> convertNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
         nodes.forEach(node -> {
-            OverWrite overwrite = node.getAnnotationByName("Override").isPresent() ? OverWrite.YES : OverWrite.NO;
+            MethodNode.OverWrite overwrite = node.getAnnotationByName("Override").isPresent() ? MethodNode.OverWrite.YES : MethodNode.OverWrite.NO;
             ResolvedMethodDeclaration resolvedNode = node.resolve();
             String name = resolvedNode.getQualifiedName();
             graphNodes.add(new MethodNode(name, overwrite));

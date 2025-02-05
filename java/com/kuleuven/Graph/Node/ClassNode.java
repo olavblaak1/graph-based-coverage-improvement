@@ -1,4 +1,4 @@
-package com.kuleuven.Graph;
+package com.kuleuven.Graph.Node;
 
 public class ClassNode extends Node {
     public ClassNode(String name) {

@@ -6,9 +6,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.kuleuven.Graph.Graph;
-import com.kuleuven.Graph.Node;
-import com.kuleuven.Graph.NodeType;
-import com.kuleuven.Graph.RankedNode;
+import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.NodeType;
+import com.kuleuven.Graph.Node.RankedNode;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Serializer.Edge.EdgeSerializer;
@@ -44,7 +44,7 @@ public class SerializeManager {
         return serializer.serialize(typedEdge);
     }
 
-    public JSONArray serializeEdges(Collection<Edge> edges) {
+    JSONArray serializeEdges(Collection<Edge> edges) {
         JSONArray json = new JSONArray();
         for (Edge edge : edges) {
             json.put(serializeEdge(edge));
@@ -53,13 +53,13 @@ public class SerializeManager {
     }
 
 
-    public Edge deserializeEdge(JSONObject json) {
+    Edge deserializeEdge(JSONObject json) {
         EdgeType type = EdgeType.valueOf(json.getString("type"));
         EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(type);
         return serializer.deserialize(json);
     }
 
-    public Collection<Edge> deserializeEdges(JSONArray json) {
+    Collection<Edge> deserializeEdges(JSONArray json) {
         Set<Edge> edges = new HashSet<>();
         for (int i = 0; i < json.length(); i++) {
             edges.add(deserializeEdge(json.getJSONObject(i)));
@@ -67,7 +67,7 @@ public class SerializeManager {
         return edges;
     }
 
-    public JSONObject serializeNode(Node node) {
+    JSONObject serializeNode(Node node) {
         NodeSerializer<? extends Node> serializer = getNodeSerializer(node.getType());
         return serializeNodeInternal(serializer, node);
     }
@@ -79,12 +79,12 @@ public class SerializeManager {
     }
 
 
-    public Node deserializeNode(JSONObject json) {
+    Node deserializeNode(JSONObject json) {
         NodeSerializer<? extends Node> serializer = nodeSerializers.get(NodeType.valueOf(json.getString("type")));
         return serializer.deserialize(json);
     }
 
-    public JSONArray serializeNodes(Collection<Node> nodes) {
+    JSONArray serializeNodes(Collection<Node> nodes) {
         JSONArray json = new JSONArray();
         for (Node node : nodes) {
             json.put(serializeNode(node));
@@ -93,7 +93,7 @@ public class SerializeManager {
     }
 
 
-    public Collection<Node> deserializeNodes(JSONArray json) {
+    Collection<Node> deserializeNodes(JSONArray json) {
         List<Node> nodes = new LinkedList<>();
         for (int i = 0; i < json.length(); i++) {
             nodes.add(deserializeNode(json.getJSONObject(i)));
@@ -121,20 +121,6 @@ public class SerializeManager {
         return serializer;
     }
 
-    public JSONObject serializeRankedNode(RankedNode rankedNode) {
-        JSONObject json = serializeNode(rankedNode.getNode());
-        json.put("rank", rankedNode.getRank());
-        return json;
-    }
-
-    public JSONArray serializeRankedNodes(Collection<RankedNode> rankedNodes) {
-        JSONArray json = new JSONArray();
-        for (RankedNode rankedNode : rankedNodes) {
-            json.put(serializeRankedNode(rankedNode));
-        }
-        return json;
-    }
-
     public RankedNode deserializeRankedNode(JSONObject json) {
         return new RankedNode(deserializeNode(json), json.getDouble("rank"));
     }
@@ -147,25 +133,5 @@ public class SerializeManager {
         return rankedNodes;
     }
 
-    public Graph deserializeGraph(JSONObject jsonGraph) {
-        Graph graph = new Graph();
-
-        for (Node n : deserializeNodes(jsonGraph.getJSONArray("nodes"))) {
-            graph.addNode(n);
-        }
-
-        for (Edge e : deserializeEdges(jsonGraph.getJSONArray("edges"))) {
-            graph.addEdge(e);
-        }
-
-        return graph;
-    }
-
-    public JSONObject serializeGraph(Graph graph) {
-        JSONObject json = new JSONObject();
-        json.put("nodes", serializeNodes(graph.getNodes()));
-        json.put("edges", serializeEdges(graph.getEdges()));
-        return json;
-    }
 
 }

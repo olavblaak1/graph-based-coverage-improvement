@@ -2,7 +2,7 @@ package com.kuleuven.Graph.Serializer.Node;
 
 import org.json.JSONObject;
 
-import com.kuleuven.Graph.ClassNode;
+import com.kuleuven.Graph.Node.ClassNode;
 
 public class ClassNodeSerializer implements NodeSerializer<ClassNode> {
     @Override

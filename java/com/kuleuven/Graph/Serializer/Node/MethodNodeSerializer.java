@@ -2,8 +2,8 @@ package com.kuleuven.Graph.Serializer.Node;
 
 import org.json.JSONObject;
 
-import com.kuleuven.Graph.MethodNode;
-import com.kuleuven.Graph.MethodNode.OverWrite;
+import com.kuleuven.Graph.Node.MethodNode;
+import com.kuleuven.Graph.Node.MethodNode.OverWrite;
 
 public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
     @Override

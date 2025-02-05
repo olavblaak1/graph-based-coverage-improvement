@@ -8,21 +8,19 @@ class GraphVisualizer:
 
 
     def add_nodes(self, nodes):
-        minimum = min([node['rank'] for node in nodes])
-        maximum = max([node['rank'] for node in nodes])
         for node in nodes:
             node_name = node['name']
-            node_rank = (node['rank'] - minimum) / maximum
+            node_rank = 0 if node['covered'] else 1
             color = get_node_color(node_name, node_rank)
             self.net.add_node(node_name, label=node_name, color=color)
 
     def add_edges(self, edges):
         for edge in edges:
-            source = edge['source']['name']
-            destination = edge['destination']['name'] # This is only necessary when were looking at method nodes...
+            source = edge['source']
+            destination = edge['destination'] # This is only necessary when were looking at method nodes...
             
             edge_type = edge['type']
-            color = get_edge_color(edge_type)
+            color = get_edge_color(edge)
             style = get_edge_style(edge_type)
 
             # Count the number of edges between the same nodes

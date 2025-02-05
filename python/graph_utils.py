@@ -21,13 +21,11 @@ def get_node_color(node_name, normalized_rank):
     return 
     
 
-def get_edge_color(edge_type):
-    edge_colors = {
-        "METHOD_CALL": "black",
-        "Inheritance": "blue",
-        "Field": "green"
-    }
-    return edge_colors.get(edge_type, 'gray')
+def get_edge_color(edge):
+    if edge['covered']:
+        return "green"
+    else:
+        return "black"
 
 def get_edge_style(edge_type):
     edge_styles = {

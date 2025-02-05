@@ -8,8 +8,8 @@ import java.util.Set;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.kuleuven.GraphExtraction.NodeVisitors.ClassVisitor;
-import com.kuleuven.Graph.ClassNode;
-import com.kuleuven.Graph.Node;
+import com.kuleuven.Graph.Node.ClassNode;
+import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Edge.Edge;
 
 
@@ -40,7 +40,7 @@ public class ExtractGraphOriginal extends ExtractionTemplate<ClassOrInterfaceDec
     /**
      * Extracts the AST's nodes, which in this case are the CLASS DEFINITIONS
      * 
-     * @param cu: the CompilationUnit of the Java source file
+     * @param compilationUnits: the CompilationUnit of the Java source file
      * @return the list of AST nodes, which are the class definitions
      * 
      */

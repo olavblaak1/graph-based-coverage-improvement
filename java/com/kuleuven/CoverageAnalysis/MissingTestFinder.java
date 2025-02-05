@@ -1,27 +1,24 @@
 package com.kuleuven.CoverageAnalysis;
 
-import org.json.JSONArray;
+import com.kuleuven.Graph.Serializer.BasicGraphSerializer;
+import com.kuleuven.Graph.Serializer.CoverageGraphSerializer;
+import com.kuleuven.Graph.Serializer.GraphSerializer;
 import org.json.JSONObject;
 import com.kuleuven.ParseManager;
 import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.GraphUtils;
-import com.kuleuven.Graph.MethodNode;
-import com.kuleuven.Graph.NodeType;
-import com.kuleuven.Graph.Serializer.SerializeManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class MissingTestFinder {
 
     public static void main(String[] args) {
-        if (args.length < 5) {
-            System.err.println("Usage: java MissingTestFinder <graphPath> <test_directory_path> <jar_path> <src_dir> <analysisStrategy>");
+        if (args.length < 6) {
+            System.err.println("Usage: java MissingTestFinder <graphPath> <test_directory_path> <jar_path> <src_dir> <analysisStrategy> <output_graph>");
             return;
         }
         String graphPath = args[0];
@@ -29,11 +26,14 @@ public class MissingTestFinder {
         Path jarPath = Paths.get(args[2]);
         File srcDir = new File(args[3]);
         AnalysisStrategy analysisStrategy = AnalysisStrategy.valueOf(args[4]);
+        String outputPath = args[5];
 
 
-        SerializeManager serializeManager = new SerializeManager();
+
         JSONObject graphJson = GraphUtils.readGraph(graphPath);
-        Graph SUTGraph = serializeManager.deserializeGraph(graphJson);
+
+        GraphSerializer<Graph> graphSerializer = new BasicGraphSerializer();
+        Graph SUTGraph = graphSerializer.deserializeGraph(graphJson);
 
         ParseManager parseManager = new ParseManager();
         List<Path> jarPaths = Arrays.asList(jarPath,
@@ -70,20 +70,10 @@ public class MissingTestFinder {
         double percentageNotTestedNodes = ((double) totalCoveredNodes / totalNodes) * 100.0;
         System.out.println("Percentage of methods not tested: " + percentageNotTestedNodes + "%");
 
-    }
-    
+        GraphSerializer<CoverageGraph> coverageGraphSerializer = new CoverageGraphSerializer();
+        JSONObject coverageGraphJson = coverageGraphSerializer.serializeGraph(coverageGraph);
 
-    private static void outputMissingTests(Set<MethodNode> untestedMethods, String outputPath) {
-        JSONArray untestedMethodsJson = new JSONArray();
-        
-        untestedMethods.forEach(method -> {
-            JSONObject methodJson = new JSONObject();
-            methodJson.put("name", method.getName());
-            methodJson.put("class", method.getClassName());
-            methodJson.put("type", NodeType.METHOD.toString());
-            untestedMethodsJson.put(methodJson);
-        });
-        
-        GraphUtils.writeFile(outputPath, untestedMethodsJson.toString(4).getBytes());
-    } 
+        GraphUtils.writeFile(outputPath, coverageGraphJson.toString(4).getBytes());
+    }
+
 }
