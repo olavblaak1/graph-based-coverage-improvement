@@ -17,6 +17,6 @@ public class MethodVisitor extends VoidVisitorAdapter<String> {
 
 
     public List<MethodDeclaration> getMethodDeclarations() {
-        return new LinkedList<MethodDeclaration>(methodDeclarations);
+        return new LinkedList<>(methodDeclarations);
     }
 }

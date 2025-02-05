@@ -7,5 +7,7 @@ public enum ExtractionStrategy {
     INHERITANCE_FIELDS, // Also extract inheritance and fields
 
     // LEVEL 2: METHODS
-    METHODS_CALLS 
+    METHODS_CALLS,
+
+    FULL_GRAPH // Methods and classes as nodes, with edges between them
 }

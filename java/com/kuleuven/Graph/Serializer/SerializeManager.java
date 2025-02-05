@@ -2,6 +2,7 @@ package com.kuleuven.Graph.Serializer;
 
 import java.util.*;
 
+import com.kuleuven.Graph.Serializer.Edge.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,10 +12,6 @@ import com.kuleuven.Graph.Node.NodeType;
 import com.kuleuven.Graph.Node.RankedNode;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
-import com.kuleuven.Graph.Serializer.Edge.EdgeSerializer;
-import com.kuleuven.Graph.Serializer.Edge.FieldEdgeSerializer;
-import com.kuleuven.Graph.Serializer.Edge.InheritanceEdgeSerializer;
-import com.kuleuven.Graph.Serializer.Edge.MethodCallEdgeSerializer;
 import com.kuleuven.Graph.Serializer.Node.ClassNodeSerializer;
 import com.kuleuven.Graph.Serializer.Node.MethodNodeSerializer;
 import com.kuleuven.Graph.Serializer.Node.NodeSerializer;
@@ -28,6 +25,7 @@ public class SerializeManager {
         edgeSerializers.put(EdgeType.METHOD_CALL, new MethodCallEdgeSerializer());
         edgeSerializers.put(EdgeType.INHERITANCE, new InheritanceEdgeSerializer());
         edgeSerializers.put(EdgeType.FIELD, new FieldEdgeSerializer());
+        edgeSerializers.put(EdgeType.METHOD_OWN, new OwnsEdgeSerializer());
 
         nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
         nodeSerializers.put(NodeType.METHOD, new MethodNodeSerializer());
