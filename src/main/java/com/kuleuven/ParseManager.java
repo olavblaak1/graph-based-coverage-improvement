@@ -4,7 +4,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
@@ -22,12 +21,8 @@ import java.util.List;
 public class ParseManager {
 
     private JavaParser javaParser;
-    private TypeSolver typeSolver;
     private List<CompilationUnit> compilationUnits;
 
-    public TypeSolver getSolver() {
-        return typeSolver;
-    }
 
     public void setupParser(List<Path> jarPaths, File mainDirectory) {
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
@@ -46,7 +41,6 @@ public class ParseManager {
             System.err.println("Failed to load JAR for type resolution: " + e.getMessage());
         }
 
-        this.typeSolver = combinedSolver;
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         ParserConfiguration parserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver);
         this.javaParser = new JavaParser(parserConfiguration);

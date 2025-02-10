@@ -47,7 +47,7 @@ public class MissingTestFinder {
 
 
         CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(analysisStrategy);
-        CoverageGraph coverageGraph = coverageAnalyzer.analyze(parseManager.getCompilationUnits(), SUTGraph, parseManager.getSolver());
+        CoverageGraph coverageGraph = coverageAnalyzer.analyze(parseManager.getCompilationUnits(), SUTGraph);
 
 
         int totalEdges = coverageGraph.getEdges().size();

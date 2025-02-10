@@ -14,17 +14,15 @@ import java.util.List;
 
 public abstract class CoverageTemplate {
     CoverageGraph coverageGraph;
-    TypeSolver solver;
 
     /*
      * Analysis happens in a few steps:
      * first the generic graph is filtered only to contain the relevant nodes and (possibly) edges
      * then the graph is analyzed to determine which relevant nodes and edges are covered
      */
-    public CoverageGraph analyze(List<CompilationUnit> cus, Graph graph, TypeSolver solver) {
+    public CoverageGraph analyze(List<CompilationUnit> cus, Graph graph) {
         Graph filteredGraph = filterGraph(graph);
         this.coverageGraph = new CoverageGraph(filteredGraph);
-        this.solver = solver;
         return analyzeFilteredGraph(cus);
     }
 

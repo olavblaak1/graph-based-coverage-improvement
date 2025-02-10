@@ -21,7 +21,7 @@ public class CoverageAnalyzer {
         }
     }
 
-    public CoverageGraph analyze(List<CompilationUnit> cus, Graph SUTGraph, TypeSolver solver) {
-        return strategy.analyze(cus, SUTGraph, solver);
+    public CoverageGraph analyze(List<CompilationUnit> cus, Graph SUTGraph) {
+        return strategy.analyze(cus, SUTGraph);
     }
 }

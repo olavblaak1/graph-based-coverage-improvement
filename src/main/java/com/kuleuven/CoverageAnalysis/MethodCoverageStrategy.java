@@ -79,17 +79,8 @@ public class MethodCoverageStrategy extends CoverageTemplate {
     private void analyzeClassCoverage(ResolvedReferenceTypeDeclaration testedClass, MethodNode untestedDest,
                                       MethodCallEdge untestedEdge, CoverageGraph coverageGraph) {
         String untestedClassName = untestedDest.getClassName();
-
         if (untestedClassName.equals(testedClass.getQualifiedName())) {
             coverageGraph.markEdge(untestedEdge);
         }
-        /* Test if this makes a diff
-        if (untestedClassRef.isSolved()) {
-            ResolvedReferenceTypeDeclaration untestedClass = untestedClassRef.getCorrespondingDeclaration();
-            if (testedClass.isAssignableBy(untestedClass) || untestedClass.isAssignableBy(testedClass)) {
-
-            }
-        }
-        */
     }
 }
