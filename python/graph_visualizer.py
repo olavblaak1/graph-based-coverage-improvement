@@ -9,10 +9,9 @@ class GraphVisualizer:
 
     def add_nodes(self, nodes):
         for node in nodes:
-            node_name = node['name']
-            node_rank = 0 if node['covered'] else 1
-            color = get_node_color(node_name, node_rank)
-            self.net.add_node(node_name, label=node_name, color=color)
+            color = get_node_color(node)
+            label = node["name"].split('.')[-1]
+            self.net.add_node(node["name"], label=label, color=color)
 
     def add_edges(self, edges):
         for edge in edges:
@@ -38,7 +37,8 @@ class GraphVisualizer:
 
 
             try:
-                self.net.add_edge(source, destination, color=color, dashes=(style == 'dashed'), width=2, physics=True, smooth={'type': 'CurvedCCW', 'roundness': offset})
+                width = 4 if style == 'solid' else 2
+                self.net.add_edge(source, destination, color=color, dashes=(style == 'dashed'), width=width, physics=True, smooth={'type': 'CurvedCCW', 'roundness': offset})
             except AssertionError: # At least one of the nodes are not modelled right now (e.g. classes of a library)
                 print("Edge not added: " + source + " -> " + destination)
 
