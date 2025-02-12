@@ -7,6 +7,7 @@ public class ClassNodeSerializer implements NodeSerializer<ClassNode> {
     @Override
     public JSONObject serialize(ClassNode node) {
         JSONObject json = new JSONObject();
+        json.put("id", node.getId());
         json.put("name", node.getName());
         json.put("type", node.getType().toString());
         return json;

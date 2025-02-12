@@ -1,16 +1,9 @@
 package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
-import com.github.javaparser.resolution.model.SymbolReference;
-import com.kuleuven.Graph.CoverageGraph;
-import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Edge.MethodCallEdge;
 import com.kuleuven.Graph.Graph;
-import com.kuleuven.Graph.Node.MethodNode;
-import com.kuleuven.Graph.Node.Node;
 
-public class FullGraphCoverageStrategy extends CoverageTemplate {
+public class FullGraphCoverage extends Coverage {
     @Override
     protected void filterNodes(Graph newGraph, Graph graph) {
         // No filtering necessary, as we are analyzing the entire graph

@@ -1,24 +1,26 @@
 package com.kuleuven.Graph.Edge;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.Graph.Node.Node;
 
 /**
  * Abstract class representing an edge in the system graph
  */
 public abstract class Edge {
-    private final String source;
-    private final String destination;
+    private final Node source;
+    private final Node destination;
 
-    public Edge(String source, String destination) {
+    public Edge(Node source, Node destination) {
         this.source = source;
         this.destination = destination;
     }
 
-    public String getSource() {
+    public Node getSource() {
         return source;
     }
 
-    public String getDestination() {
+    public Node getDestination() {
         return destination;
     }
 
@@ -41,5 +43,10 @@ public abstract class Edge {
         return source.equals(edge.getSource()) && destination.equals(edge.getDestination());
     }
 
-    public abstract boolean isCoveredBy(ResolvedMethodDeclaration methodDeclaration);
+    public abstract boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration);
+
+    @Override
+    public String toString() {
+        return source + " -> " + destination;
+    }
 }

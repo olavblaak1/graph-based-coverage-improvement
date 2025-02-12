@@ -26,7 +26,7 @@ public class MissingTestFinder {
         File testDirectory = new File(args[1]);
         Path jarPath = Paths.get(args[2]);
         File srcDir = new File(args[3]);
-        AnalysisStrategy analysisStrategy = AnalysisStrategy.valueOf(args[4]);
+        AnalysisMethod analysisMethod = AnalysisMethod.valueOf(args[4]);
         String outputPath = args[5];
 
 
@@ -46,7 +46,7 @@ public class MissingTestFinder {
         parseManager.parseDirectory(testDirectory);
 
 
-        CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(analysisStrategy);
+        CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(analysisMethod);
         CoverageGraph coverageGraph = coverageAnalyzer.analyze(parseManager.getCompilationUnits(), SUTGraph);
 
 
@@ -61,13 +61,13 @@ public class MissingTestFinder {
 
         System.out.println("Total number of edges: " + totalEdges);
         System.out.println("Total number of edges covered: " + totalCoveredEdges);
-        double percentageNotTested = ((double) totalCoveredEdges / totalEdges) * 100.0;
-        System.out.println("Percentage of method calls not tested: " + percentageNotTested + "%");
+        double percentageTested =  ((double) totalCoveredEdges / totalEdges) * 100.0;
+        System.out.println("Percentage of method calls tested: " + percentageTested + "%");
 
         System.out.println("Total number of nodes: " + totalNodes);
         System.out.println("Total number of nodes covered: " + totalCoveredNodes);
-        double percentageNotTestedNodes = ((double) totalCoveredNodes / totalNodes) * 100.0;
-        System.out.println("Percentage of methods not tested: " + percentageNotTestedNodes + "%");
+        double percentageTestedNodes = 1 - ((double) totalCoveredNodes / totalNodes) * 100.0;
+        System.out.println("Percentage of methods not tested: " + percentageTestedNodes + "%");
 
         GraphSerializer<CoverageGraph> coverageGraphSerializer = new CoverageGraphSerializer();
         JSONObject coverageGraphJson = coverageGraphSerializer.serializeGraph(coverageGraph);

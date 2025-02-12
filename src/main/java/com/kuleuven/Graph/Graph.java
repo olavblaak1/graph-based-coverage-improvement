@@ -7,59 +7,80 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Graph {
-    private final Map<String, Node> nodes;
-    private final List<Edge> edges;
+    private final Map<Node, Set<Edge>> outgoingEdges;
+    private final Map<Node, Set<Edge>> incomingEdges;
 
     public Graph(Graph graph) {
-        this.nodes = graph.getNodes().stream().collect(Collectors.toMap(Node::getName, n -> n));
-        this.edges = new ArrayList<>(graph.getEdges());
+        incomingEdges = new HashMap<>();
+        outgoingEdges = new HashMap<>();
+        for (Node node : graph.getNodes()) {
+            incomingEdges.put(node, new HashSet<>());
+            outgoingEdges.put(node, new HashSet<>());
+        }
+        for (Edge edge : graph.getEdges()) {
+            outgoingEdges.get(edge.getSource()).add(edge);
+            incomingEdges.get(edge.getDestination()).add(edge);
+        }
     }
 
     public Graph() {
-        this.nodes = new HashMap<>();
-        this.edges = new ArrayList<>(); // LinkedList
+        outgoingEdges = new HashMap<>();
+        incomingEdges = new HashMap<>();
     }
 
     public Collection<Node> getNodes() {
-        return new HashSet<>(nodes.values());
+        return new HashSet<>(incomingEdges.keySet());
     }
 
     public Collection<Edge> getEdges() {
-        return edges;
-    }
-
-    public Node getNode(String name) {
-        if (!nodes.containsKey(name)) {
-            throw new IllegalArgumentException("Node does not exist");
-        }
-        return nodes.get(name);
+        return incomingEdges.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public void addNode(Node node) {
-        nodes.put(node.getName(), node);
-    }
-
-    public void addEdge(Edge edge) {
-        if (nodeExists(edge.getSource()) && nodeExists(edge.getDestination())) {
-            edges.add(edge);
+        if (!incomingEdges.containsKey(node) && !outgoingEdges.containsKey(node)) {
+            incomingEdges.put(node, new HashSet<>());
+            outgoingEdges.put(node, new HashSet<>());
+        }
+        else if (!incomingEdges.containsKey(node) ^ !outgoingEdges.containsKey(node)) {
+            throw new IllegalStateException("Graph is inconsistent");
         }
     }
 
-    public void removeNode(String name) {
-        if (nodeExists(name)) {
-            nodes.remove(name);
+
+    public void addEdge(Edge edge) {
+        if (nodeExists(edge.getSource()) && nodeExists(edge.getDestination())) {
+            incomingEdges.get(edge.getSource()).add(edge);
+            outgoingEdges.get(edge.getDestination()).add(edge);
+        }
+    }
+
+    public void removeNode(Node node) {
+        if (nodeExists(node)) {
+            incomingEdges.remove(node);
+            outgoingEdges.remove(node);
         }
     }
 
     public void removeEdge(Edge edge) {
-        if (!nodeExists(edge.getSource()) && !nodeExists(edge.getDestination())) {
-            edges.remove(edge);
-        } else {
-            throw new IllegalArgumentException("Tried to remove edge from existing nodes");
+        if (nodeExists(edge.getSource()) && nodeExists(edge.getDestination())) {
+            incomingEdges.remove(edge.getSource());
+            outgoingEdges.remove(edge.getDestination());
         }
     }
 
-    private boolean nodeExists(String node) {
-        return nodes.containsKey(node);
+    private boolean nodeExists(Node node) {
+        return incomingEdges.containsKey(node) || outgoingEdges.containsKey(node);
+    }
+
+    public Optional<Node> getNode(String id) {
+        return incomingEdges.keySet().stream().filter(node -> node.getId().equals(id)).findFirst();
+    }
+
+    public Set<Edge> getOutgoingEdges(Node node) {
+        return outgoingEdges.get(node);
+    }
+
+    public Set<Edge> getIncomingEdges(Node node) {
+        return incomingEdges.get(node);
     }
 }

@@ -9,11 +9,11 @@ public abstract class EdgeSerializer<T extends Edge> {
     public JSONObject serialize(T edge) {
         JSONObject json = new JSONObject();
         json.put("type", edge.getType());
-        json.put("source", edge.getSource());
-        json.put("destination", edge.getDestination());
+        json.put("sourceID", edge.getSource().getId());
+        json.put("destinationID", edge.getDestination().getId());
         return json;
     }
 
-    public abstract T deserialize(JSONObject json);
+    public abstract SerializedEdge deserialize(JSONObject json);
 
 }

@@ -1,6 +1,7 @@
 package com.kuleuven.Graph.Node;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 
 public class ClassNode extends Node {
     public ClassNode(String name) {
@@ -13,8 +14,7 @@ public class ClassNode extends Node {
     }
 
     @Override
-    public boolean isCoveredBy(ResolvedMethodDeclaration testMethod) {
-        return testMethod.getClassName().equals(super.getName());
+    public boolean accept(CoverageVisitor coverageVisitor, ResolvedMethodDeclaration methodDeclaration) {
+        return coverageVisitor.isCoveredBy(this, methodDeclaration);
     }
-
 }

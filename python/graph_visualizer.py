@@ -11,12 +11,12 @@ class GraphVisualizer:
         for node in nodes:
             color = get_node_color(node)
             label = node["name"].split('.')[-1]
-            self.net.add_node(node["name"], label=label, color=color)
+            self.net.add_node(node["id"], label=label, color=color)
 
     def add_edges(self, edges):
         for edge in edges:
-            source = edge['source']
-            destination = edge['destination'] # This is only necessary when were looking at method nodes...
+            source = edge['sourceID']
+            destination = edge['destinationID'] # This is only necessary when were looking at method nodes...
             
             edge_type = edge['type']
             color = get_edge_color(edge)

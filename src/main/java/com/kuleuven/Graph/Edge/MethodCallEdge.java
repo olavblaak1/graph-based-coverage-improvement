@@ -1,11 +1,13 @@
 package com.kuleuven.Graph.Edge;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.Graph.Node.Node;
 
 public class MethodCallEdge extends Edge {
 
 
-    public MethodCallEdge(String source, String destination) {
+    public MethodCallEdge(Node source, Node destination) {
         super(source, destination);
     }
 
@@ -20,8 +22,7 @@ public class MethodCallEdge extends Edge {
     }
 
     @Override
-    public boolean isCoveredBy(ResolvedMethodDeclaration methodDeclaration) {
-        return false;
-        // TODO: Implement, see MethodCoverageStrategy
+    public boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration) {
+        return visitor.isCoveredBy(this, methodDeclaration);
     }
 }

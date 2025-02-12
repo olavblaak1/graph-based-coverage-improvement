@@ -14,13 +14,12 @@ import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.isOverride;
 import com.kuleuven.GraphExtraction.NodeVisitors.ClassVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodVisitor;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ExtractGraphHelper {
 
@@ -39,9 +38,11 @@ public class ExtractGraphHelper {
     public static List<Node> extractMethodNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
         nodes.forEach(node -> {
-            MethodNode.OverWrite overwrite = node.getAnnotationByName("Override").isPresent() ? MethodNode.OverWrite.YES : MethodNode.OverWrite.NO;
+            isOverride overwrite = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
+
             String name = node.resolve().getQualifiedName();
-            graphNodes.add(new MethodNode(name, overwrite));
+            String signature = node.resolve().getSignature();
+            graphNodes.add(new MethodNode(name, overwrite, signature));
         });
         return graphNodes;
     }
@@ -79,8 +80,9 @@ public class ExtractGraphHelper {
 
         String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
         referencedTypes.forEach(referencedType -> {
-            String referencedClassName = referencedType.describe();
-            edges.add(new FieldEdge(className, referencedClassName));
+
+
+            edges.add(new FieldEdge(new ClassNode(className), new ClassNode(referencedType.getQualifiedName())));
         });
 
         return edges;
@@ -137,12 +139,22 @@ public class ExtractGraphHelper {
                 if (doesNotResolve(methodCall)) {
                     return;
                 }
-                String declaringClassName = methodCall.resolve().declaringType().getQualifiedName();
-                if (methodCall.resolve().declaringType().getQualifiedName().contains("java.") ||
+                ResolvedMethodDeclaration resolvedCall = methodCall.resolve();
+                String declaringClassName = resolvedCall.declaringType().getQualifiedName();
+                if (declaringClassName.contains("java.") ||
                         declaringClassName.equals(className)) {
                     return;
                 }
-                edges.add(new MethodCallEdge(className, declaringClassName));
+
+                MethodNode destinationMethodNode = new MethodNode(resolvedCall.getQualifiedName(),
+                                                                  resolvedCall.getSignature());
+
+                ResolvedMethodDeclaration resolvedSourceMethod = sourceMethod.resolve();
+                MethodNode sourceMethodNode = new MethodNode(resolvedSourceMethod.getQualifiedName(),
+                                                             resolvedSourceMethod.getSignature());
+
+
+                edges.add(new MethodCallEdge(sourceMethodNode, destinationMethodNode));
             });
         });
         return edges;
@@ -157,15 +169,21 @@ public class ExtractGraphHelper {
         MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
         methodDeclaration.accept(methodCallVisitor, null);
 
-        ResolvedMethodDeclaration resolvedNode = methodDeclaration.resolve();
-
         List<Edge> edges = new LinkedList<>();
         methodCallVisitor.getMethodCalls().forEach(methodCall -> {
             if (doesNotResolve(methodCall)) {
                 return;
             }
             ResolvedMethodDeclaration resolvedMethodCall = methodCall.resolve();
-            edges.add(new MethodCallEdge(resolvedNode.getQualifiedName(), resolvedMethodCall.getQualifiedName()));
+
+            MethodNode destinationMethodNode = new MethodNode(resolvedMethodCall.getQualifiedName(),
+                    resolvedMethodCall.getSignature());
+
+            ResolvedMethodDeclaration resolvedSourceMethod = methodDeclaration.resolve();
+            MethodNode sourceMethodNode = new MethodNode(resolvedSourceMethod.getQualifiedName(),
+                    resolvedSourceMethod.getSignature());
+
+            edges.add(new MethodCallEdge(sourceMethodNode, destinationMethodNode));
         });
 
         return edges;
@@ -183,6 +201,7 @@ public class ExtractGraphHelper {
         inheritedClasses.forEach(inheritedClass -> {
             String extendedClassName = inheritedClass.describe();
             String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
+
             edges.add(new InheritanceEdge(className, extendedClassName));
         });
         return edges;
@@ -191,7 +210,9 @@ public class ExtractGraphHelper {
     public static Optional<Edge> extractOwnsMethodEdge(com.github.javaparser.ast.Node node) {
         if (node instanceof MethodDeclaration) {
             ResolvedMethodDeclaration decl = ((MethodDeclaration) node).resolve();
-            return Optional.of(new OwnedByEdge(decl.getQualifiedName(), decl.declaringType().getQualifiedName()));
+
+            return Optional.of(new OwnedByEdge(new MethodNode(decl.getQualifiedName(), decl.getSignature()),
+                                                new ClassNode(decl.declaringType().getQualifiedName())));
         }
         return Optional.empty();
     }

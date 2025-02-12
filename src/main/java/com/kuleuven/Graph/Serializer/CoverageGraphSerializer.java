@@ -3,10 +3,12 @@ package com.kuleuven.Graph.Serializer;
 import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Serializer.Edge.SerializedEdge;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
+
 
     @Override
     public CoverageGraph deserializeGraph(JSONObject jsonGraph) {
@@ -24,7 +26,8 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
         JSONArray jsonEdges = jsonGraph.getJSONArray("edges");
         for (int i = 0; i < jsonEdges.length(); i++) {
             JSONObject jsonEdge = jsonEdges.getJSONObject(i);
-            Edge edge = serializeManager.deserializeEdge(jsonEdge);
+            SerializedEdge serializedEdge = serializeManager.deserializeEdge(jsonEdge);
+            Edge edge = getEdge(serializedEdge, graph);
             graph.addEdge(edge);
             if (jsonEdge.getBoolean("covered")) {
                 graph.markEdge(edge);

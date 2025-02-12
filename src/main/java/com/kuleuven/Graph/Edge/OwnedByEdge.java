@@ -1,11 +1,18 @@
 package com.kuleuven.Graph.Edge;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.Graph.Node.ClassNode;
+import com.kuleuven.Graph.Node.Node;
 
 public class OwnedByEdge extends Edge {
 
-    public OwnedByEdge(String source, String destination) {
+    public OwnedByEdge(Node source, Node destination) {
         super(source, destination);
+    }
+
+    public OwnedByEdge(String source, String destination) {
+        super(new ClassNode(source), new ClassNode(destination));
     }
 
     @Override
@@ -19,7 +26,7 @@ public class OwnedByEdge extends Edge {
     }
 
     @Override
-    public boolean isCoveredBy(ResolvedMethodDeclaration methodDeclaration) {
-        return methodDeclaration.getQualifiedName().equals(getSource());
+    public boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration) {
+        return visitor.isCoveredBy(this, methodDeclaration);
     }
 }

@@ -4,16 +4,18 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.MethodAmbiguityException;
-import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageChecker;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph;
 
 import java.util.List;
 
-public abstract class CoverageTemplate {
+public abstract class Coverage {
     CoverageGraph coverageGraph;
+    CoverageVisitor coverageVisitor = new CoverageChecker();
 
     /*
      * Analysis happens in a few steps:
@@ -59,6 +61,6 @@ public abstract class CoverageTemplate {
 
     protected abstract void filterEdges(Graph newGraph, Graph graph);
 
-    protected abstract void analyzeMethodCall(ResolvedMethodDeclaration resolvedTestMethod);
+    protected abstract void analyzeMethodCall(ResolvedMethodDeclaration testMethod);
 
 }

@@ -1,11 +1,14 @@
 package com.kuleuven.Graph.Serializer;
 
 import com.kuleuven.Graph.CoverageGraph;
-import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Serializer.Edge.SerializedEdge;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Optional;
 
 public class BasicGraphSerializer implements GraphSerializer<Graph> {
     @Override
@@ -22,8 +25,8 @@ public class BasicGraphSerializer implements GraphSerializer<Graph> {
         JSONArray jsonEdges = jsonGraph.getJSONArray("edges");
         for (int i = 0; i < jsonEdges.length(); i++) {
             JSONObject jsonEdge = jsonEdges.getJSONObject(i);
-            Edge edge = serializeManager.deserializeEdge(jsonEdge);
-            graph.addEdge(edge);
+            SerializedEdge edge = serializeManager.deserializeEdge(jsonEdge);
+            graph.addEdge(getEdge(edge, graph));
         }
 
         return graph;

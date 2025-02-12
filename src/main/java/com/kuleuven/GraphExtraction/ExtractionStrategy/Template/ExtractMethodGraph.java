@@ -7,6 +7,8 @@ import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractGraphHelper;
+import com.kuleuven.Graph.Node.isOverride;
+
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -30,10 +32,11 @@ public class ExtractMethodGraph extends ExtractionTemplate<MethodDeclaration> {
     protected List<Node> convertNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
         nodes.forEach(node -> {
-            MethodNode.OverWrite overwrite = node.getAnnotationByName("Override").isPresent() ? MethodNode.OverWrite.YES : MethodNode.OverWrite.NO;
+            isOverride override = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
             ResolvedMethodDeclaration resolvedNode = node.resolve();
             String name = resolvedNode.getQualifiedName();
-            graphNodes.add(new MethodNode(name, overwrite));
+            String signature = resolvedNode.getSignature();
+            graphNodes.add(new MethodNode(name, override, signature));
         });
         return graphNodes;
     }

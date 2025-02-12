@@ -4,12 +4,10 @@ import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.NodeType;
-import com.kuleuven.Graph.Node.RankedNode;
 import com.kuleuven.Graph.Serializer.Edge.*;
 import com.kuleuven.Graph.Serializer.Node.ClassNodeSerializer;
 import com.kuleuven.Graph.Serializer.Node.MethodNodeSerializer;
 import com.kuleuven.Graph.Serializer.Node.NodeSerializer;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -40,27 +38,11 @@ public class SerializeManager {
         return serializer.serialize(typedEdge);
     }
 
-    JSONArray serializeEdges(Collection<Edge> edges) {
-        JSONArray json = new JSONArray();
-        for (Edge edge : edges) {
-            json.put(serializeEdge(edge));
-        }
-        return json;
-    }
 
-
-    Edge deserializeEdge(JSONObject json) {
+    SerializedEdge deserializeEdge(JSONObject json) {
         EdgeType type = EdgeType.valueOf(json.getString("type"));
         EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(type);
         return serializer.deserialize(json);
-    }
-
-    Collection<Edge> deserializeEdges(JSONArray json) {
-        Set<Edge> edges = new HashSet<>();
-        for (int i = 0; i < json.length(); i++) {
-            edges.add(deserializeEdge(json.getJSONObject(i)));
-        }
-        return edges;
     }
 
     JSONObject serializeNode(Node node) {
@@ -78,23 +60,6 @@ public class SerializeManager {
     Node deserializeNode(JSONObject json) {
         NodeSerializer<? extends Node> serializer = nodeSerializers.get(NodeType.valueOf(json.getString("type")));
         return serializer.deserialize(json);
-    }
-
-    JSONArray serializeNodes(Collection<Node> nodes) {
-        JSONArray json = new JSONArray();
-        for (Node node : nodes) {
-            json.put(serializeNode(node));
-        }
-        return json;
-    }
-
-
-    Collection<Node> deserializeNodes(JSONArray json) {
-        List<Node> nodes = new LinkedList<>();
-        for (int i = 0; i < json.length(); i++) {
-            nodes.add(deserializeNode(json.getJSONObject(i)));
-        }
-        return nodes;
     }
 
 
@@ -115,18 +80,6 @@ public class SerializeManager {
             throw new IllegalArgumentException("No serializer found for node type: " + type);
         }
         return serializer;
-    }
-
-    public RankedNode deserializeRankedNode(JSONObject json) {
-        return new RankedNode(deserializeNode(json), json.getDouble("rank"));
-    }
-
-    public List<RankedNode> deserializeRankedNodes(JSONArray json) {
-        List<RankedNode> rankedNodes = new LinkedList<>();
-        for (int i = 0; i < json.length(); i++) {
-            rankedNodes.add(deserializeRankedNode(json.getJSONObject(i)));
-        }
-        return rankedNodes;
     }
 
 
