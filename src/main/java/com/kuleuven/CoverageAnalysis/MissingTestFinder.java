@@ -61,7 +61,7 @@ public class MissingTestFinder {
 
         System.out.println("Total number of edges: " + totalEdges);
         System.out.println("Total number of edges covered: " + totalCoveredEdges);
-        double percentageTested =  ((double) totalCoveredEdges / totalEdges) * 100.0;
+        double percentageTested = ((double) totalCoveredEdges / totalEdges) * 100.0;
         System.out.println("Percentage of method calls tested: " + percentageTested + "%");
 
         System.out.println("Total number of nodes: " + totalNodes);

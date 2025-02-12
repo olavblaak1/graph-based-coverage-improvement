@@ -1,36 +1,16 @@
 package com.kuleuven.CoverageAnalysis.EdgeAnalysis;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.kuleuven.Graph.Edge.FieldEdge;
-import com.kuleuven.Graph.Edge.InheritanceEdge;
-import com.kuleuven.Graph.Edge.MethodCallEdge;
-import com.kuleuven.Graph.Edge.OwnedByEdge;
+import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
-import com.kuleuven.Graph.Node.Node;
 
 public class CoverageChecker implements CoverageVisitor {
 
 
     @Override
     public boolean isCoveredBy(MethodCallEdge edge, ResolvedMethodDeclaration methodDeclaration) {
-        Node dest = edge.getDestination();
-        String untestedName = dest.getName();
-
-        String testedMethodName = methodDeclaration.getQualifiedName();
-        String testedSignature = methodDeclaration.getSignature();
-
-        if (dest instanceof MethodNode) {
-            String untestedSignature = ((MethodNode) dest).getSignature();
-            return untestedName.equals(testedMethodName) &&
-                    untestedSignature.equals(testedSignature);
-        }
-        else if (dest instanceof ClassNode) {
-            return untestedName.equals(testedMethodName);
-        }
-        else {
-            throw new IllegalArgumentException("Unrecognized node: " + dest);
-        }
+        return (edge.getDestination().accept(this, methodDeclaration));
     }
 
     @Override
@@ -65,5 +45,10 @@ public class CoverageChecker implements CoverageVisitor {
 
         return untestedMethodName.equals(testedMethodName) &&
                 untestedSignature.equals(testedSignature);
+    }
+
+    @Override
+    public boolean isCoveredBy(OverridesEdge overridesEdge, ResolvedMethodDeclaration methodDeclaration) {
+        return false;
     }
 }

@@ -40,7 +40,6 @@ public class MethodGraphCoverage extends Coverage {
     protected void analyzeMethodCall(ResolvedMethodDeclaration resolvedTestMethod) {
         coverageGraph.getNodes()
                 .forEach(untestedNode -> analyzeNode(resolvedTestMethod, untestedNode));
-
     }
 
     /**
@@ -48,36 +47,11 @@ public class MethodGraphCoverage extends Coverage {
      * and marks the node in the coverage graph if they match.
      *
      * @param methodDeclaration The fully qualified name of the test method call being analyzed.
-     * @param untestedNode       The method node representing a method in the graph to be checked and marked for coverage.
+     * @param untestedNode      The method node representing a method in the graph to be checked and marked for coverage.
      */
     private void analyzeNode(ResolvedMethodDeclaration methodDeclaration, Node untestedNode) {
         if (untestedNode.accept(coverageVisitor, methodDeclaration)) {
-            coverageGraph.markNode(untestedNode);
-            coverageGraph.getOutgoingEdges(untestedNode).forEach(this::markEdges);
-        }
-    }
-
-
-    // For now, we just assume any method that possibly gets called by the covered method to be
-    // covered, this is NOT great
-    private void markEdges(Edge startEdge) {
-        Deque<Edge> stack = new ArrayDeque<>();
-        Set<Edge> visitedEdges = new HashSet<>();
-
-        stack.push(startEdge);
-
-        while (!stack.isEmpty()) {
-            Edge currentEdge = stack.pop();
-
-            if (!visitedEdges.add(currentEdge)) {
-                continue;
-            }
-
-            coverageGraph.markEdge(currentEdge);
-            coverageGraph.getOutgoingEdges(currentEdge.getDestination())
-                    .stream()
-                    .filter(edge -> edge instanceof MethodCallEdge && !coverageGraph.isEdgeMarked(edge))
-                    .forEach(stack::push);
+            markNode(untestedNode);
         }
     }
 }

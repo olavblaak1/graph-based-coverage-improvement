@@ -19,7 +19,9 @@ import com.kuleuven.GraphExtraction.NodeVisitors.ClassVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodVisitor;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 public class ExtractGraphHelper {
 
@@ -38,13 +40,26 @@ public class ExtractGraphHelper {
     public static List<Node> extractMethodNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
         nodes.forEach(node -> {
-            isOverride overwrite = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
-
-            String name = node.resolve().getQualifiedName();
-            String signature = node.resolve().getSignature();
-            graphNodes.add(new MethodNode(name, overwrite, signature));
+            graphNodes.add(createMethodNode(node));
         });
         return graphNodes;
+    }
+
+    public static MethodNode createMethodNode(MethodDeclaration node) {
+        String name = node.resolve().getQualifiedName();
+        String signature = node.resolve().getSignature();
+        isOverride overwrite = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
+        if (overwrite == isOverride.YES) {
+            Optional<ResolvedMethodDeclaration> overriddenMethod = getOverriddenMethod(node.resolve());
+            if (!overriddenMethod.isPresent()) {
+                throw new RuntimeException("Could not find overridden method");
+            }
+            MethodNode overriddenMethodNode = new MethodNode(overriddenMethod.get().getQualifiedName(),
+                                                             overriddenMethod.get().getSignature());
+            return new MethodNode(name, overwrite, signature, overriddenMethodNode.getId());
+        }
+
+        return new MethodNode(name, signature, overwrite);
     }
 
     // Method for extracting class definitions from compilation units
@@ -86,6 +101,33 @@ public class ExtractGraphHelper {
         });
 
         return edges;
+    }
+
+
+
+    private static Optional<ResolvedMethodDeclaration> getOverriddenMethod(ResolvedMethodDeclaration methodDeclaration) {
+        for (ResolvedReferenceType ancestor : methodDeclaration.declaringType().getAncestors()) {
+            for (ResolvedMethodDeclaration method : ancestor.getAllMethods()) {
+                if (method.getSignature().equals(methodDeclaration.getSignature())) {
+                    return Optional.of(method); // Found a match, return immediately
+                }
+            }
+            Optional<ResolvedMethodDeclaration> overridden = getOverriddenMethodFromAncestor(ancestor, methodDeclaration);
+            if (overridden.isPresent()) {
+                return overridden;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<ResolvedMethodDeclaration> getOverriddenMethodFromAncestor(
+            ResolvedReferenceType ancestor, ResolvedMethodDeclaration methodDeclaration) {
+        for (ResolvedMethodDeclaration method : ancestor.getAllMethods()) {
+            if (method.getSignature().equals(methodDeclaration.getSignature())) {
+                return Optional.of(method);
+            }
+        }
+        return Optional.empty();
     }
 
     // Auxiliary method for extracting referenced types
@@ -147,11 +189,11 @@ public class ExtractGraphHelper {
                 }
 
                 MethodNode destinationMethodNode = new MethodNode(resolvedCall.getQualifiedName(),
-                                                                  resolvedCall.getSignature());
+                        resolvedCall.getSignature());
 
                 ResolvedMethodDeclaration resolvedSourceMethod = sourceMethod.resolve();
                 MethodNode sourceMethodNode = new MethodNode(resolvedSourceMethod.getQualifiedName(),
-                                                             resolvedSourceMethod.getSignature());
+                        resolvedSourceMethod.getSignature());
 
 
                 edges.add(new MethodCallEdge(sourceMethodNode, destinationMethodNode));
@@ -189,6 +231,17 @@ public class ExtractGraphHelper {
         return edges;
     }
 
+    public static List<Edge> extractOverridesEdges(MethodDeclaration methodDeclaration) {
+        List<Edge> edges = new LinkedList<>();
+        Optional<ResolvedMethodDeclaration> overridden = getOverriddenMethod(methodDeclaration.resolve());
+        if (overridden.isPresent()) {
+            MethodNode overriddenNode = new MethodNode(overridden.get().getQualifiedName(), overridden.get().getSignature());
+            MethodNode overridingNode = new MethodNode(methodDeclaration.resolve().getQualifiedName(), methodDeclaration.resolve().getSignature());
+            edges.add(new OverridesEdge(overridingNode, overriddenNode));
+        }
+        return edges;
+    }
+
 
     // Extract inheritance edges
     public static List<Edge> extractInheritanceEdges(ClassOrInterfaceDeclaration classDefinition) {
@@ -212,7 +265,7 @@ public class ExtractGraphHelper {
             ResolvedMethodDeclaration decl = ((MethodDeclaration) node).resolve();
 
             return Optional.of(new OwnedByEdge(new MethodNode(decl.getQualifiedName(), decl.getSignature()),
-                                                new ClassNode(decl.declaringType().getQualifiedName())));
+                    new ClassNode(decl.declaringType().getQualifiedName())));
         }
         return Optional.empty();
     }

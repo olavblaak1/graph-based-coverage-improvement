@@ -4,5 +4,6 @@ public enum EdgeType {
     METHOD_CALL,
     INHERITANCE,
     FIELD,
-    OWNED_BY
+    OWNED_BY,
+    OVERRIDES
 }

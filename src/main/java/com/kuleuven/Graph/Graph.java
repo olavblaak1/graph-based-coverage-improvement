@@ -40,8 +40,7 @@ public class Graph {
         if (!incomingEdges.containsKey(node) && !outgoingEdges.containsKey(node)) {
             incomingEdges.put(node, new HashSet<>());
             outgoingEdges.put(node, new HashSet<>());
-        }
-        else if (!incomingEdges.containsKey(node) ^ !outgoingEdges.containsKey(node)) {
+        } else if (!incomingEdges.containsKey(node) ^ !outgoingEdges.containsKey(node)) {
             throw new IllegalStateException("Graph is inconsistent");
         }
     }

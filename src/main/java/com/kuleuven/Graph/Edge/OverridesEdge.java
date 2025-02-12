@@ -4,27 +4,18 @@ import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.Graph.CoverageGraph;
-import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.Node;
 
-public class OwnedByEdge extends Edge {
+public class OverridesEdge extends Edge {
 
-    public OwnedByEdge(Node source, Node destination) {
+
+    public OverridesEdge(Node source, Node destination) {
         super(source, destination);
-    }
-
-    public OwnedByEdge(String source, String destination) {
-        super(new ClassNode(source), new ClassNode(destination));
     }
 
     @Override
     public EdgeType getType() {
-        return EdgeType.OWNED_BY;
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+        return EdgeType.OVERRIDES;
     }
 
     @Override

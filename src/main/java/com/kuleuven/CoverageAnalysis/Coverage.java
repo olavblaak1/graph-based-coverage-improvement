@@ -8,14 +8,40 @@ import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageChecker;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
+import com.kuleuven.CoverageAnalysis.MarkVisitor.Marker;
 import com.kuleuven.Graph.CoverageGraph;
+import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Node.Node;
 
 import java.util.List;
+import java.util.Set;
 
 public abstract class Coverage {
     CoverageGraph coverageGraph;
     CoverageVisitor coverageVisitor = new CoverageChecker();
+    MarkVisitor markVisitor = new Marker();
+
+    public Set<Edge> getOutgoingEdges(Node node) {
+        return coverageGraph.getOutgoingEdges(node);
+    }
+
+    public boolean isCoveredBy(Edge edge, ResolvedMethodDeclaration method) {
+        return edge.accept(coverageVisitor, method);
+    }
+
+    public boolean isCoveredBy(Node node, ResolvedMethodDeclaration method) {
+        return node.accept(coverageVisitor, method);
+    }
+
+    public void markEdge(Edge edge) {
+        edge.accept(markVisitor, coverageGraph);
+    }
+
+    public void markNode(Node node) {
+        node.accept(markVisitor, coverageGraph);
+    }
 
     /*
      * Analysis happens in a few steps:

@@ -1,9 +1,8 @@
 package com.kuleuven.Graph.Serializer.Node;
 
 import com.kuleuven.Graph.Node.MethodNode;
-import org.json.JSONObject;
-
 import com.kuleuven.Graph.Node.isOverride;
+import org.json.JSONObject;
 
 public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
     @Override
@@ -14,6 +13,9 @@ public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
         json.put("type", node.getType().toString());
         json.put("class", node.getClassName());
         json.put("override", node.isOverride());
+        if (node.isOverride()) {
+            json.put("overriddenMethod", node.getOverriddenMethodID());
+        }
         json.put("signature", node.getSignature());
         return json;
     }
@@ -22,8 +24,8 @@ public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
     public MethodNode deserialize(JSONObject json) {
         return new MethodNode(
                 json.getString("name"),
-                isOverride.valueOf(json.getString("override")),
-                json.getString("signature")
+                json.getString("signature"),
+                isOverride.valueOf(json.getString("override"))
         );
     }
 }

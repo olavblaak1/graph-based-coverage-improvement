@@ -6,7 +6,6 @@ import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Serializer.Edge.SerializedEdge;
 import org.json.JSONObject;
 
-import java.util.Collection;
 import java.util.Optional;
 
 public interface GraphSerializer<T extends Graph> {
@@ -37,8 +36,10 @@ public interface GraphSerializer<T extends Graph> {
                 return new OwnedByEdge(sourceNode, destinationNode);
             case METHOD_CALL:
                 return new MethodCallEdge(sourceNode, destinationNode);
+            case OVERRIDES:
+                return new OverridesEdge(sourceNode, destinationNode);
             default:
-                throw new IllegalArgumentException("EdgeType does not exist");
+                throw new IllegalArgumentException("EdgeType " + edge.getEdgeType() +  " serialization not supported");
         }
     }
 }

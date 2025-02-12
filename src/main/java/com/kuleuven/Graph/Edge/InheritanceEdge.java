@@ -1,8 +1,9 @@
 package com.kuleuven.Graph.Edge;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.kuleuven.CoverageAnalysis.Coverage;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
+import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.Node;
 
@@ -24,5 +25,10 @@ public class InheritanceEdge extends Edge {
     @Override
     public boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration) {
         return visitor.isCoveredBy(this, methodDeclaration);
+    }
+
+    @Override
+    public void accept(MarkVisitor visitor, CoverageGraph graph) {
+        visitor.mark(this, graph);
     }
 }

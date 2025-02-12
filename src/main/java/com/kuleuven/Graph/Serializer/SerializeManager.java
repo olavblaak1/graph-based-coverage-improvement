@@ -10,7 +10,8 @@ import com.kuleuven.Graph.Serializer.Node.MethodNodeSerializer;
 import com.kuleuven.Graph.Serializer.Node.NodeSerializer;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SerializeManager {
     private final Map<EdgeType, EdgeSerializer<? extends Edge>> edgeSerializers = new HashMap<>();
@@ -22,6 +23,7 @@ public class SerializeManager {
         edgeSerializers.put(EdgeType.INHERITANCE, new InheritanceEdgeSerializer());
         edgeSerializers.put(EdgeType.FIELD, new FieldEdgeSerializer());
         edgeSerializers.put(EdgeType.OWNED_BY, new OwnsEdgeSerializer());
+        edgeSerializers.put(EdgeType.OVERRIDES, new OverridesEdgeSerializer());
 
         nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
         nodeSerializers.put(NodeType.METHOD, new MethodNodeSerializer());

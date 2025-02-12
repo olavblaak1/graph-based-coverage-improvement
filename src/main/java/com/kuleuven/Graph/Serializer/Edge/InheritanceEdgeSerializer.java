@@ -2,7 +2,6 @@ package com.kuleuven.Graph.Serializer.Edge;
 
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Edge.InheritanceEdge;
-import com.kuleuven.Graph.Node.ClassNode;
 import org.json.JSONObject;
 
 public class InheritanceEdgeSerializer extends EdgeSerializer<InheritanceEdge> {

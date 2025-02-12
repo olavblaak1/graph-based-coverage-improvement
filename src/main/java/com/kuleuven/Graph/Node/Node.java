@@ -2,6 +2,8 @@ package com.kuleuven.Graph.Node;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
+import com.kuleuven.Graph.CoverageGraph;
 
 public abstract class Node {
     private final String name;
@@ -40,7 +42,9 @@ public abstract class Node {
 
     public String getId() {
         return name;
-    };
+    }
 
     public abstract boolean accept(CoverageVisitor nodeCoverageVisitor, ResolvedMethodDeclaration methodDeclaration);
+
+    public abstract void accept(MarkVisitor nodeMarkVisitor, CoverageGraph graph);
 }
