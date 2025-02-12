@@ -49,10 +49,6 @@ public class Marker implements MarkVisitor {
     public void mark(OwnedByEdge edge, CoverageGraph graph) {
         graph.markEdge(edge);
         graph.markNode(edge.getDestination());
-        if (((MethodNode) edge.getSource()).isOverride()) {
-            // If this node is covered and the current method is an override
-            graph.getOutgoingEdges(edge.getDestination()).stream().filter(outgoingEdge -> outgoingEdge instanceof InheritanceEdge);
-        }
     }
 
     @Override
@@ -68,6 +64,6 @@ public class Marker implements MarkVisitor {
 
     @Override
     public void mark(OverridesEdge overridesEdge, CoverageGraph graph) {
-        return;
+        graph.markEdge(overridesEdge);
     }
 }

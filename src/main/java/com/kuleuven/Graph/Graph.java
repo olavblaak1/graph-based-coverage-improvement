@@ -14,12 +14,10 @@ public class Graph {
         incomingEdges = new HashMap<>();
         outgoingEdges = new HashMap<>();
         for (Node node : graph.getNodes()) {
-            incomingEdges.put(node, new HashSet<>());
-            outgoingEdges.put(node, new HashSet<>());
+            addNode(node);
         }
         for (Edge edge : graph.getEdges()) {
-            outgoingEdges.get(edge.getSource()).add(edge);
-            incomingEdges.get(edge.getDestination()).add(edge);
+            addEdge(edge);
         }
     }
 
@@ -61,9 +59,11 @@ public class Graph {
     }
 
     public void removeEdge(Edge edge) {
-        if (nodeExists(edge.getSource()) && nodeExists(edge.getDestination())) {
-            incomingEdges.remove(edge.getSource());
-            outgoingEdges.remove(edge.getDestination());
+        Node source = edge.getSource();
+        Node destination = edge.getDestination();
+        if (nodeExists(source) && nodeExists(destination)) {
+            incomingEdges.get(source).remove(edge);
+            outgoingEdges.get(destination).remove(edge);
         }
     }
 

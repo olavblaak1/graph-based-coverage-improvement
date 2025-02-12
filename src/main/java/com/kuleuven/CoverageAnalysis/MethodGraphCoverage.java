@@ -2,10 +2,13 @@ package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Edge.MethodCallEdge;
+import com.kuleuven.Graph.Edge.OverridesEdge;
 import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.NodeType;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -27,9 +30,10 @@ public class MethodGraphCoverage extends Coverage {
     public void filterEdges(Graph newGraph, Graph graph) {
         // Retain only MethodCallEdges where both endpoints are MethodNodes
         graph.getEdges().stream()
-                .filter(edge -> !(edge instanceof MethodCallEdge) ||
-                        !(edge.getSource() instanceof MethodNode) ||
-                        !(edge.getDestination() instanceof MethodNode))
+                .filter(edge -> (!(edge.getType().equals(EdgeType.METHOD_CALL)) &&
+                                      !(edge.getType().equals(EdgeType.OVERRIDES))) ||
+                        !(edge.getSource().getType().equals(NodeType.METHOD)) ||
+                        !(edge.getDestination().getType().equals(NodeType.METHOD)))
                 .forEach(newGraph::removeEdge);
     }
 

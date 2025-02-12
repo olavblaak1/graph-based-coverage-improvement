@@ -66,7 +66,7 @@ public class MissingTestFinder {
 
         System.out.println("Total number of nodes: " + totalNodes);
         System.out.println("Total number of nodes covered: " + totalCoveredNodes);
-        double percentageTestedNodes = 1 - ((double) totalCoveredNodes / totalNodes) * 100.0;
+        double percentageTestedNodes = ((double) totalCoveredNodes / totalNodes) * 100.0;
         System.out.println("Percentage of methods not tested: " + percentageTestedNodes + "%");
 
         GraphSerializer<CoverageGraph> coverageGraphSerializer = new CoverageGraphSerializer();

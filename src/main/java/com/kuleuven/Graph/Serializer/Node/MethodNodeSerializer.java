@@ -25,7 +25,7 @@ public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
         return new MethodNode(
                 json.getString("name"),
                 json.getString("signature"),
-                isOverride.valueOf(json.getString("override"))
+                json.getBoolean("override") ? isOverride.YES : isOverride.NO
         );
     }
 }
