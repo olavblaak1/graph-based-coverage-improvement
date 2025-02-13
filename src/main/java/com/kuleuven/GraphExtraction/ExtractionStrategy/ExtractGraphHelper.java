@@ -16,9 +16,11 @@ import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.isOverride;
 import com.kuleuven.GraphExtraction.NodeVisitors.ClassVisitor;
+import com.kuleuven.GraphExtraction.NodeVisitors.FieldAccessVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodVisitor;
 
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -94,11 +96,8 @@ public class ExtractGraphHelper {
                 }));
 
         String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
-        referencedTypes.forEach(referencedType -> {
-
-
-            edges.add(new FieldEdge(new ClassNode(className), new ClassNode(referencedType.getQualifiedName())));
-        });
+        referencedTypes.forEach(referencedType ->
+                edges.add(new FieldEdge(new ClassNode(className), new ClassNode(referencedType.getQualifiedName()))));
 
         return edges;
     }
@@ -173,6 +172,8 @@ public class ExtractGraphHelper {
             if (sourceMethod.getNameAsString().contains("java.")) {
                 return;
             }
+
+
             MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
             sourceMethod.accept(methodCallVisitor, null);
             List<MethodCallExpr> methodCalls = methodCallVisitor.getMethodCalls();
@@ -254,8 +255,9 @@ public class ExtractGraphHelper {
         inheritedClasses.forEach(inheritedClass -> {
             String extendedClassName = inheritedClass.describe();
             String className = classDefinition.getFullyQualifiedName().orElse("Unknown");
-
-            edges.add(new InheritanceEdge(className, extendedClassName));
+            if (!className.equals(extendedClassName)) {
+                edges.add(new InheritanceEdge(className, extendedClassName));
+            }
         });
         return edges;
     }
@@ -268,5 +270,26 @@ public class ExtractGraphHelper {
                     new ClassNode(decl.declaringType().getQualifiedName())));
         }
         return Optional.empty();
+    }
+
+    public static List<Edge> extractFieldAccessEdge(com.github.javaparser.ast.Node node) {
+        List<Edge> edges = new LinkedList<>();
+        if (node instanceof MethodDeclaration) {
+            MethodDeclaration decl = ((MethodDeclaration) node);
+            FieldAccessVisitor fieldAccessVisitor = new FieldAccessVisitor();
+            decl.accept(fieldAccessVisitor, null);
+            fieldAccessVisitor.getAccessExprs().forEach(accessExpr -> {
+                MethodNode method = createMethodNode(decl);
+                if (doesNotResolve(accessExpr)) {
+                    return;
+                }
+
+                if(accessExpr.resolve().isField()) {
+                    ClassNode accessedClass = new ClassNode(accessExpr.resolve().asField().declaringType().getQualifiedName());
+                    edges.add(new FieldAccessEdge(method, accessedClass));
+                }
+            });
+        }
+        return edges;
     }
 }

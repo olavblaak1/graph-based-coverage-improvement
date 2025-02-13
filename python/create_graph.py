@@ -15,7 +15,7 @@ def main():
 
     system_name = sys.argv[1]
     graph_name = sys.argv[2]
-    graph_file = os.path.join('data', system_name, 'analysis', graph_name)
+    graph_file = os.path.join('data', system_name, 'graph', graph_name)
     output_dir = os.path.join('data', system_name, 'plots')
     output_file = os.path.join(output_dir, 'graph.html')
 

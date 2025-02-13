@@ -24,6 +24,7 @@ public class SerializeManager {
         edgeSerializers.put(EdgeType.FIELD, new FieldEdgeSerializer());
         edgeSerializers.put(EdgeType.OWNED_BY, new OwnsEdgeSerializer());
         edgeSerializers.put(EdgeType.OVERRIDES, new OverridesEdgeSerializer());
+        edgeSerializers.put(EdgeType.FIELD_ACCESS, new FieldAccessEdgeSerializer());
 
         nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
         nodeSerializers.put(NodeType.METHOD, new MethodNodeSerializer());

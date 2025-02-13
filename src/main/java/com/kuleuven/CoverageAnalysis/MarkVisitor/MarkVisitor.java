@@ -20,4 +20,6 @@ public interface MarkVisitor {
     void mark(MethodNode node, CoverageGraph graph);
 
     void mark(OverridesEdge overridesEdge, CoverageGraph graph);
+
+    void mark(FieldAccessEdge fieldAccessEdge, CoverageGraph graph);
 }

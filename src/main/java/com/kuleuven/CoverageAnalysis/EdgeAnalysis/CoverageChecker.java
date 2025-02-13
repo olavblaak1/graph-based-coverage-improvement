@@ -51,4 +51,9 @@ public class CoverageChecker implements CoverageVisitor {
     public boolean isCoveredBy(OverridesEdge overridesEdge, ResolvedMethodDeclaration methodDeclaration) {
         return false;
     }
+
+    @Override
+    public boolean isCoveredBy(FieldAccessEdge fieldAccessEdge, ResolvedMethodDeclaration methodDeclaration) {
+        return false;
+    }
 }

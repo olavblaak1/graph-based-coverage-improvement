@@ -54,7 +54,7 @@ public class MethodGraphCoverage extends Coverage {
      * @param untestedNode      The method node representing a method in the graph to be checked and marked for coverage.
      */
     private void analyzeNode(ResolvedMethodDeclaration methodDeclaration, Node untestedNode) {
-        if (untestedNode.accept(coverageVisitor, methodDeclaration)) {
+        if (isCoveredBy(untestedNode, methodDeclaration)) {
             markNode(untestedNode);
         }
     }

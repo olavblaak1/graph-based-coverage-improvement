@@ -1,5 +1,6 @@
 package com.kuleuven.CoverageAnalysis;
 
 public enum AnalysisMethod {
-    METHODS
+    METHODS,
+    FULL
 }

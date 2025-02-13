@@ -15,6 +15,9 @@ public class CoverageAnalyzer {
             case METHODS:
                 this.strategy = new MethodGraphCoverage();
                 break;
+            case FULL:
+                this.strategy = new FullGraphCoverage();
+                break;
             default:
                 throw new IllegalArgumentException("Invalid analysis strategy: " + strategy);
         }

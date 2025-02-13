@@ -46,8 +46,8 @@ public class Graph {
 
     public void addEdge(Edge edge) {
         if (nodeExists(edge.getSource()) && nodeExists(edge.getDestination())) {
-            incomingEdges.get(edge.getSource()).add(edge);
-            outgoingEdges.get(edge.getDestination()).add(edge);
+            outgoingEdges.get(edge.getSource()).add(edge);
+            incomingEdges.get(edge.getDestination()).add(edge);
         }
     }
 
@@ -62,8 +62,8 @@ public class Graph {
         Node source = edge.getSource();
         Node destination = edge.getDestination();
         if (nodeExists(source) && nodeExists(destination)) {
-            incomingEdges.get(source).remove(edge);
-            outgoingEdges.get(destination).remove(edge);
+            outgoingEdges.get(source).remove(edge);
+            incomingEdges.get(destination).remove(edge);
         }
     }
 

@@ -12,6 +12,7 @@ import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.Marker;
 import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 
@@ -20,8 +21,8 @@ import java.util.Set;
 
 public abstract class Coverage {
     CoverageGraph coverageGraph;
-    CoverageVisitor coverageVisitor = new CoverageChecker();
-    MarkVisitor markVisitor = new Marker();
+    private CoverageVisitor coverageVisitor = new CoverageChecker();
+    private MarkVisitor markVisitor = new Marker();
 
     public Set<Edge> getOutgoingEdges(Node node) {
         return coverageGraph.getOutgoingEdges(node);

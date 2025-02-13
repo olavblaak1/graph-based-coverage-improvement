@@ -46,7 +46,6 @@ public abstract class Edge {
     }
 
     public abstract boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration);
-
     public abstract void accept(MarkVisitor visitor, CoverageGraph graph);
 
     @Override

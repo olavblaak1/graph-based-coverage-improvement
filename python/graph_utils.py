@@ -3,14 +3,11 @@ import math
 
 def get_node_color(node):
     # Define a color gradient from red (low rank) to green (high rank)
-    if node['covered']:
-        return '#00ff00'
-    else:
-        return '#ff0000'
+    return '#00ff00'
 
 
 def get_edge_color(edge):
-    if edge['covered']:
+    if edge['type'] == "OVERRIDES":
         return '#00ff00'
     else:
         return '#ff0000'

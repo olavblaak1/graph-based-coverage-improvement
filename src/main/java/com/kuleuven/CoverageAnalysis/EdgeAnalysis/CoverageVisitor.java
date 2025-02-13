@@ -20,4 +20,6 @@ public interface CoverageVisitor {
     boolean isCoveredBy(MethodNode node, ResolvedMethodDeclaration methodCall);
 
     boolean isCoveredBy(OverridesEdge overridesEdge, ResolvedMethodDeclaration methodDeclaration);
+
+    boolean isCoveredBy(FieldAccessEdge fieldAccessEdge, ResolvedMethodDeclaration methodDeclaration);
 }

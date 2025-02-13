@@ -2,8 +2,10 @@ package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.NodeType;
 
 public class FullGraphCoverage extends Coverage {
     @Override
@@ -13,7 +15,9 @@ public class FullGraphCoverage extends Coverage {
 
     @Override
     protected void filterEdges(Graph newGraph, Graph graph) {
-        // No filtering necessary, as we are analyzing the entire graph
+        graph.getEdges().stream()
+                .filter(edge -> (edge.getType().equals(EdgeType.FIELD))) // TEMPORARILY DO NOT LOOK AT FIELDS
+                .forEach(newGraph::removeEdge);
     }
 
     /**
@@ -36,8 +40,8 @@ public class FullGraphCoverage extends Coverage {
      * @param untestedNode The method node representing a method in the graph to be checked and marked for coverage.
      **/
     private void analyzeNode(ResolvedMethodDeclaration testMethod, Node untestedNode) {
-        if (untestedNode.accept(coverageVisitor, testMethod)) {
-            coverageGraph.markNode(untestedNode);
+        if (isCoveredBy(untestedNode, testMethod)) {
+            markNode(untestedNode);
         }
     }
 
@@ -45,24 +49,8 @@ public class FullGraphCoverage extends Coverage {
      * Analyzes an edge to detect coverage relationships.
      **/
     private void analyzeEdge(ResolvedMethodDeclaration testMethod, Edge untestedEdge) {
-        if (untestedEdge.accept(coverageVisitor, testMethod)) {
-            coverageGraph.markEdge(untestedEdge);
+        if (isCoveredBy(untestedEdge, testMethod)) {
+            markEdge(untestedEdge);
         }
     }
-
-    /**
-     * Analyzes the class relationship (type resolution) for coverage between a test class and a tested class.
-     *
-     private void analyzeClassCoverage(ResolvedReferenceTypeDeclaration testedClass, MethodNode untestedDest,
-     MethodCallEdge untestedEdge, CoverageGraph coverageGraph) {
-     String untestedClassName = untestedDest.getClassName();
-     SymbolReference<ResolvedReferenceTypeDeclaration> untestedClassRef = solver.tryToSolveType(untestedClassName);
-
-     if (untestedClassRef.isSolved()) {
-     ResolvedReferenceTypeDeclaration untestedClass = untestedClassRef.getCorrespondingDeclaration();
-     if (testedClass.isAssignableBy(untestedClass) || untestedClass.isAssignableBy(testedClass)) {
-     coverageGraph.markEdge(untestedEdge);
-     }
-     }
-     }**/
 }

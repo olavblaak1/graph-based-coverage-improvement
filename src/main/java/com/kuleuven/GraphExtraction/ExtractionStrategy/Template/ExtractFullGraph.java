@@ -28,6 +28,7 @@ public class ExtractFullGraph extends ExtractionTemplate<com.github.javaparser.a
         getMethodDeclarations(nodes).forEach(node -> {
                     edges.addAll(ExtractGraphHelper.extractMethodCallEdges(node));
                     edges.addAll(ExtractGraphHelper.extractOverridesEdges(node));
+                    edges.addAll(ExtractGraphHelper.extractFieldAccessEdge(node));
         });
 
 
