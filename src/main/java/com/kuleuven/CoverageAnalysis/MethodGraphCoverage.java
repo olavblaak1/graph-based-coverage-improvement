@@ -1,5 +1,11 @@
 package com.kuleuven.CoverageAnalysis;
 
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.resolution.MethodAmbiguityException;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
@@ -17,6 +23,19 @@ import java.util.Set;
 
 public class MethodGraphCoverage extends Coverage {
 
+
+    @Override
+    protected void analyzeTestMethod(MethodDeclaration testMethod) {
+        // Collect all method calls within the test method
+        testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
+            try {
+                ResolvedMethodDeclaration resolvedTestMethod = testCall.resolve();
+                analyzeMethodCall(resolvedTestMethod);
+            } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
+                System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());
+            }
+        });
+    }
 
     @Override
     public void filterNodes(Graph newGraph, Graph graph) {
@@ -44,6 +63,12 @@ public class MethodGraphCoverage extends Coverage {
     protected void analyzeMethodCall(ResolvedMethodDeclaration resolvedTestMethod) {
         coverageGraph.getNodes()
                 .forEach(untestedNode -> analyzeNode(resolvedTestMethod, untestedNode));
+    }
+
+    @Override
+    protected void analyzeRemainingGraph() {
+        // TODO: Technically, any information gathered from such a step would be duplicate work, as it is just derived
+        // from the previous information.
     }
 
     /**

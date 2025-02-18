@@ -1,5 +1,6 @@
 package com.kuleuven.Graph.Edge;
 
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
@@ -28,7 +29,12 @@ public class OwnedByEdge extends Edge {
     }
 
     @Override
-    public boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration) {
+    public boolean accept(CoverageVisitor<ResolvedFieldDeclaration> visitor, ResolvedFieldDeclaration fieldDeclaration) {
+        return visitor.isCoveredBy(this, fieldDeclaration);
+    }
+
+    @Override
+    public boolean accept(CoverageVisitor<ResolvedMethodDeclaration> visitor, ResolvedMethodDeclaration methodDeclaration) {
         return visitor.isCoveredBy(this, methodDeclaration);
     }
 

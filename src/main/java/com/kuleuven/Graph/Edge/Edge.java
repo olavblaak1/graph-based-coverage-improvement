@@ -1,5 +1,7 @@
 package com.kuleuven.Graph.Edge;
 
+import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
@@ -45,7 +47,8 @@ public abstract class Edge {
         return source.equals(edge.getSource()) && destination.equals(edge.getDestination());
     }
 
-    public abstract boolean accept(CoverageVisitor visitor, ResolvedMethodDeclaration methodDeclaration);
+    public abstract boolean accept(CoverageVisitor<ResolvedMethodDeclaration> visitor,  ResolvedMethodDeclaration methodDeclaration);
+    public abstract boolean accept(CoverageVisitor<ResolvedFieldDeclaration> visitor,  ResolvedFieldDeclaration fieldDeclaration);
     public abstract void accept(MarkVisitor visitor, CoverageGraph graph);
 
     @Override

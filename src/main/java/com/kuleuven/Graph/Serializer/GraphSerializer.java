@@ -38,6 +38,8 @@ public interface GraphSerializer<T extends Graph> {
                 return new MethodCallEdge(sourceNode, destinationNode);
             case OVERRIDES:
                 return new OverridesEdge(sourceNode, destinationNode);
+            case FIELD_ACCESS:
+                return new FieldAccessEdge(sourceNode, destinationNode);
             default:
                 throw new IllegalArgumentException("EdgeType " + edge.getEdgeType() +  " serialization not supported");
         }

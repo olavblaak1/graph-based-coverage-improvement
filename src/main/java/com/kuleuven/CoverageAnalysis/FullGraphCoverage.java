@@ -1,5 +1,11 @@
 package com.kuleuven.CoverageAnalysis;
 
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.resolution.MethodAmbiguityException;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
@@ -7,7 +13,33 @@ import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.NodeType;
 
+import javax.management.RuntimeErrorException;
+
 public class FullGraphCoverage extends Coverage {
+    @Override
+    protected void analyzeTestMethod(MethodDeclaration testMethod) {
+        // Collect all method calls within the test method
+        testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
+            try {
+                ResolvedMethodDeclaration resolvedTestMethod = testCall.resolve();
+                analyzeMethodCall(resolvedTestMethod);
+            } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
+                System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());
+            }
+        });
+        testMethod.findAll(FieldAccessExpr.class).forEach(testCall -> {
+            try {
+                if (testCall.resolve().isField()) {
+                    ResolvedFieldDeclaration resolvedFieldDeclaration = (ResolvedFieldDeclaration) testCall.resolve();
+                    analyzeFieldAccess(resolvedFieldDeclaration);
+                }
+            } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
+                System.err.println(e.getMessage());
+            }
+        });
+    }
+
+
     @Override
     protected void filterNodes(Graph newGraph, Graph graph) {
         // No filtering necessary, as we are analyzing the entire graph
@@ -15,42 +47,46 @@ public class FullGraphCoverage extends Coverage {
 
     @Override
     protected void filterEdges(Graph newGraph, Graph graph) {
-        graph.getEdges().stream()
-                .filter(edge -> (edge.getType().equals(EdgeType.FIELD))) // TEMPORARILY DO NOT LOOK AT FIELDS
-                .forEach(newGraph::removeEdge);
     }
 
-    /**
-     * Analyzes a single resolved method call for coverage relationships between nodes and edges
-     */
     @Override
     protected void analyzeMethodCall(ResolvedMethodDeclaration resolvedTestMethod) {
         coverageGraph.getNodes()
-                .forEach(untestedNode -> analyzeNode(resolvedTestMethod, untestedNode));
+                .forEach(untestedNode -> {
+                    if (isCoveredBy(untestedNode, resolvedTestMethod)) {
+                        markNode(untestedNode);
+                    }
+                });
 
         coverageGraph.getEdges()
-                .forEach(untestedEdge -> analyzeEdge(resolvedTestMethod, untestedEdge));
+                .forEach(untestedEdge -> {
+                    if (isCoveredBy(untestedEdge, resolvedTestMethod)) {
+                        markEdge(untestedEdge);
+                    }
+                });
     }
 
-    /**
-     * Analyzes a method node to determine if it matches the given method call name
-     * and marks the node in the coverage graph if they match.
-     *
-     * @param testMethod   The resolved method declaration.
-     * @param untestedNode The method node representing a method in the graph to be checked and marked for coverage.
-     **/
-    private void analyzeNode(ResolvedMethodDeclaration testMethod, Node untestedNode) {
-        if (isCoveredBy(untestedNode, testMethod)) {
-            markNode(untestedNode);
-        }
+
+    private void analyzeFieldAccess(ResolvedFieldDeclaration resolvedFieldDeclaration) {
+        coverageGraph.getNodes()
+                .forEach(untestedNode -> {
+                    if (isCoveredBy(untestedNode, resolvedFieldDeclaration)) {
+                        markNode(untestedNode);
+                    }
+                });
+
+
+        coverageGraph.getEdges()
+                .forEach(untestedEdge -> {
+                    if (isCoveredBy(untestedEdge, resolvedFieldDeclaration)) {
+                        markEdge(untestedEdge);
+                    }
+                });
     }
 
-    /**
-     * Analyzes an edge to detect coverage relationships.
-     **/
-    private void analyzeEdge(ResolvedMethodDeclaration testMethod, Edge untestedEdge) {
-        if (isCoveredBy(untestedEdge, testMethod)) {
-            markEdge(untestedEdge);
-        }
+    @Override
+    protected void analyzeRemainingGraph() {
+        // TODO: Technically, any information gathered from such a step would be duplicate work, as it is just derived
+        // from the previous information.
     }
 }

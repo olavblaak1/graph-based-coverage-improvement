@@ -1,14 +1,16 @@
 package com.kuleuven.Graph;
 
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.NodeType;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Graph {
-    private final Map<Node, Set<Edge>> outgoingEdges;
-    private final Map<Node, Set<Edge>> incomingEdges;
+    private final Map<Node, Map<EdgeType, Set<Edge>>> outgoingEdges;
+    private final Map<Node, Map<EdgeType, Set<Edge>>> incomingEdges;
 
     public Graph(Graph graph) {
         incomingEdges = new HashMap<>();
@@ -31,23 +33,31 @@ public class Graph {
     }
 
     public Collection<Edge> getEdges() {
-        return incomingEdges.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        return incomingEdges.values().stream().flatMap(map -> map.values().stream().flatMap(Collection::stream)).collect(Collectors.toList());
     }
 
     public void addNode(Node node) {
         if (!incomingEdges.containsKey(node) && !outgoingEdges.containsKey(node)) {
-            incomingEdges.put(node, new HashSet<>());
-            outgoingEdges.put(node, new HashSet<>());
+            initializeNode(node);
         } else if (!incomingEdges.containsKey(node) ^ !outgoingEdges.containsKey(node)) {
             throw new IllegalStateException("Graph is inconsistent");
+        }
+    }
+
+    private void initializeNode(Node node) {
+        incomingEdges.put(node, new HashMap<>());
+        outgoingEdges.put(node, new HashMap<>());
+        for (EdgeType type : EdgeType.values()) {
+            incomingEdges.get(node).put(type, new HashSet<>());
+            outgoingEdges.get(node).put(type, new HashSet<>());
         }
     }
 
 
     public void addEdge(Edge edge) {
         if (nodeExists(edge.getSource()) && nodeExists(edge.getDestination())) {
-            outgoingEdges.get(edge.getSource()).add(edge);
-            incomingEdges.get(edge.getDestination()).add(edge);
+            incomingEdges.get(edge.getDestination()).get(edge.getType()).add(edge);
+            outgoingEdges.get(edge.getSource()).get(edge.getType()).add(edge);
         }
     }
 
@@ -68,18 +78,48 @@ public class Graph {
     }
 
     private boolean nodeExists(Node node) {
-        return incomingEdges.containsKey(node) || outgoingEdges.containsKey(node);
+        return incomingEdges.containsKey(node) && outgoingEdges.containsKey(node);
     }
 
     public Optional<Node> getNode(String id) {
         return incomingEdges.keySet().stream().filter(node -> node.getId().equals(id)).findFirst();
     }
 
+    public Set<Edge> getOutgoingEdgesOfType(Node node, EdgeType type) {
+        return outgoingEdges.get(node).get(type);
+    }
+
     public Set<Edge> getOutgoingEdges(Node node) {
-        return outgoingEdges.get(node);
+        return outgoingEdges.get(node).values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public Set<Edge> getIncomingEdges(Node node) {
-        return incomingEdges.get(node);
+        return incomingEdges.get(node).values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
+
+    public Set<Edge> getIncomingEdgesOfType(Node node, EdgeType type) {
+        return outgoingEdges.get(node).get(type);
+    }
+
+    public int getFanInPlusFanOut(Node node) {
+        return getOutgoingEdges(node).size() + getIncomingEdges(node).size();
+    }
+
+    public int getFanIn(Node node) {
+        return getIncomingEdges(node).size();
+    }
+
+    public int getFanOut(Node node) {
+        return getOutgoingEdges(node).size();
+    }
+
+    public Set<Edge> getEdgesOfType(EdgeType type) {
+        Set<Edge> edges = new HashSet<>();
+        for (Node node : incomingEdges.keySet()) {
+            edges.addAll(incomingEdges.get(node).get(type));
+            edges.addAll(outgoingEdges.get(node).get(type));
+        }
+        return edges;
+    }
+
 }

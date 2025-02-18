@@ -2,12 +2,15 @@ package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.MethodAmbiguityException;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageChecker;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.FieldCoverageChecker;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.MethodCoverageChecker;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.Marker;
 import com.kuleuven.Graph.CoverageGraph;
@@ -21,7 +24,8 @@ import java.util.Set;
 
 public abstract class Coverage {
     CoverageGraph coverageGraph;
-    private CoverageVisitor coverageVisitor = new CoverageChecker();
+    private CoverageVisitor<ResolvedMethodDeclaration> methodCoverageVisitor = new MethodCoverageChecker();
+    private CoverageVisitor<ResolvedFieldDeclaration> fieldCoverageVisitor = new FieldCoverageChecker();
     private MarkVisitor markVisitor = new Marker();
 
     public Set<Edge> getOutgoingEdges(Node node) {
@@ -29,11 +33,19 @@ public abstract class Coverage {
     }
 
     public boolean isCoveredBy(Edge edge, ResolvedMethodDeclaration method) {
-        return edge.accept(coverageVisitor, method);
+        return edge.accept(methodCoverageVisitor, method);
     }
 
     public boolean isCoveredBy(Node node, ResolvedMethodDeclaration method) {
-        return node.accept(coverageVisitor, method);
+        return node.accept(methodCoverageVisitor, method);
+    }
+
+    public boolean isCoveredBy(Node node, ResolvedFieldDeclaration field) {
+        return node.accept(fieldCoverageVisitor, field);
+    }
+
+    public boolean isCoveredBy(Edge edge, ResolvedFieldDeclaration field) {
+        return edge.accept(fieldCoverageVisitor, field);
     }
 
     public void markEdge(Edge edge) {
@@ -58,23 +70,14 @@ public abstract class Coverage {
     private CoverageGraph analyzeFilteredGraph(List<CompilationUnit> cus) {
         // Iterate over each CompilationUnit and analyze test method relationships
         cus.forEach(cu -> cu.findAll(MethodDeclaration.class).forEach(this::analyzeTestMethod));
+        analyzeRemainingGraph();
         return coverageGraph;
     }
 
     /**
      * Analyzes a single test method for coverage
      */
-    private void analyzeTestMethod(MethodDeclaration testMethod) {
-        // Collect all method calls within the test method
-        testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
-            try {
-                ResolvedMethodDeclaration resolvedTestMethod = testCall.resolve();
-                analyzeMethodCall(resolvedTestMethod);
-            } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
-                System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());
-            }
-        });
-    }
+    protected abstract void analyzeTestMethod(MethodDeclaration testMethod);
 
     public Graph filterGraph(Graph graph) {
         Graph newGraph = new Graph(graph);
@@ -89,5 +92,7 @@ public abstract class Coverage {
     protected abstract void filterEdges(Graph newGraph, Graph graph);
 
     protected abstract void analyzeMethodCall(ResolvedMethodDeclaration testMethod);
+
+    protected abstract void analyzeRemainingGraph();
 
 }

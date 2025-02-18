@@ -4,7 +4,6 @@ import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
-import com.kuleuven.Graph.Node.Node;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -16,6 +15,11 @@ public class Marker implements MarkVisitor {
     // Mark one edge and all of its called methods recursively
     @Override
     public void mark(MethodCallEdge startEdge, CoverageGraph graph) {
+        // TODO: decide what to do here, do we cover all possible method calls that could possibly come from this one?
+        // or just one? or none?
+        // if none -> We focus on UNIT tests, if > 0 we start to look at integration testing, both might be interesting
+        graph.markEdge(startEdge);
+        /*
         Deque<Edge> stack = new ArrayDeque<>();
         Set<Edge> visitedEdges = new HashSet<>();
 
@@ -29,11 +33,8 @@ public class Marker implements MarkVisitor {
             }
 
             graph.markEdge(currentEdge);
-            graph.getOutgoingEdges(currentEdge.getDestination())
-                    .stream()
-                    .filter(edge -> edge instanceof MethodCallEdge && !graph.isEdgeMarked(edge))
-                    .forEach(stack::push);
-        }
+            graph.markNode(currentEdge.getDestination()); // This allows for integration testing coverage, may not be necessary..
+        }*/
     }
 
     @Override
@@ -43,7 +44,7 @@ public class Marker implements MarkVisitor {
 
     @Override
     public void mark(FieldEdge edge, CoverageGraph graph) {
-        // Figure this one out (need extra info)
+        graph.markEdge(edge);
     }
 
     @Override
@@ -60,32 +61,17 @@ public class Marker implements MarkVisitor {
     @Override
     public void mark(MethodNode node, CoverageGraph graph) {
         graph.markNode(node);
+        // If a method is marked, mark all of it's outgoing edges, this assumes all branches are taken!
         graph.getOutgoingEdges(node).forEach(edge -> edge.accept(this, graph));
     }
 
     @Override
     public void mark(OverridesEdge overridesEdge, CoverageGraph graph) {
         graph.markEdge(overridesEdge);
-        Node destination = overridesEdge.getDestination();
-
-        String classID = graph.getOutgoingEdges(destination).stream().filter(e -> (e.getType().equals(EdgeType.OWNED_BY))).findFirst().get().getDestination().getId();
-
-        // This covers the inheritance edge associated with the method override, in essence this is very conservative
-        // For example, if class1 overrides a method of class2, it must inherit from class2
-        // The following ensures the inheritance is also marked, although very conservatively
-        // As it already marks an entire inheritance edge when only one overridden method is covered
-        graph.getOutgoingEdges(destination).stream().filter(edge ->
-                edge.getType().equals(EdgeType.OWNED_BY)).forEach(edge -> {
-                    edge.accept(this, graph);
-                    graph.getIncomingEdges(edge.getDestination()).stream().filter(e ->
-                            (e.getType().equals(EdgeType.INHERITANCE))).filter(inheritanceEdge ->
-                            inheritanceEdge.getDestination().getId().equals(classID)).forEach(matchingInheritanceEdge ->
-                                matchingInheritanceEdge.accept(this, graph));
-                });
     }
 
     @Override
     public void mark(FieldAccessEdge fieldAccessEdge, CoverageGraph graph) {
-
+        graph.markEdge(fieldAccessEdge);
     }
 }

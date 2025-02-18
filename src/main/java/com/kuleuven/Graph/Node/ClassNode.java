@@ -1,5 +1,6 @@
 package com.kuleuven.Graph.Node;
 
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
@@ -23,5 +24,10 @@ public class ClassNode extends Node {
     @Override
     public void accept(MarkVisitor visitor, CoverageGraph graph) {
         visitor.mark(this, graph);
+    }
+
+    @Override
+    public boolean accept(CoverageVisitor coverageVisitor, ResolvedFieldDeclaration field) {
+        return coverageVisitor.isCoveredBy(this, field);
     }
 }

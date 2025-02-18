@@ -1,16 +1,17 @@
 package com.kuleuven.CoverageAnalysis.EdgeAnalysis;
 
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
 
-public class CoverageChecker implements CoverageVisitor {
+public class MethodCoverageChecker implements CoverageVisitor<ResolvedMethodDeclaration> {
 
 
     @Override
     public boolean isCoveredBy(MethodCallEdge edge, ResolvedMethodDeclaration methodDeclaration) {
-        return (edge.getDestination().accept(this, methodDeclaration));
+        return false;
     }
 
     @Override
@@ -27,7 +28,6 @@ public class CoverageChecker implements CoverageVisitor {
     public boolean isCoveredBy(OwnedByEdge edge, ResolvedMethodDeclaration methodDeclaration) {
         return false;
     }
-
 
     // Nodes
     @Override
@@ -53,7 +53,7 @@ public class CoverageChecker implements CoverageVisitor {
     }
 
     @Override
-    public boolean isCoveredBy(FieldAccessEdge fieldAccessEdge, ResolvedMethodDeclaration methodDeclaration) {
+    public boolean isCoveredBy(FieldAccessEdge fieldAccessEdge, ResolvedMethodDeclaration declaration) {
         return false;
     }
 }

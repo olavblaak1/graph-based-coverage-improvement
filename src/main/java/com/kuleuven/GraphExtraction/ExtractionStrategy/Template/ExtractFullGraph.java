@@ -19,11 +19,14 @@ public class ExtractFullGraph extends ExtractionTemplate<com.github.javaparser.a
     @Override
     public Collection<Edge> extractEdges(List<com.github.javaparser.ast.Node> nodes) {
         LinkedList<Edge> edges = new LinkedList<>();
-        getClassOrInterfaceDeclarations(nodes).forEach(node -> {
+        /* This is commented out as it is essentially duplicate information, and we want the graph to contain as little
+        double counts as possible.
+
+         getClassOrInterfaceDeclarations(nodes).forEach(node -> {
             // edges.addAll(ExtractGraphHelper.extractMethodCallEdges(node)); now encapsulated by method declarations
-            edges.addAll(ExtractGraphHelper.extractInheritanceEdges(node));
-            edges.addAll(ExtractGraphHelper.extractFieldEdges(node));
-        });
+            // edges.addAll(ExtractGraphHelper.extractInheritanceEdges(node));
+            // edges.addAll(ExtractGraphHelper.extractFieldEdges(node));
+        }); */
 
         getMethodDeclarations(nodes).forEach(node -> {
                     edges.addAll(ExtractGraphHelper.extractMethodCallEdges(node));
