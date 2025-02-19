@@ -1,11 +1,10 @@
 package com.kuleuven.Graph.Edge;
 
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
-import com.kuleuven.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.Node;
 
 public class FieldAccessEdge extends Edge {
@@ -32,5 +31,10 @@ public class FieldAccessEdge extends Edge {
     @Override
     public void accept(MarkVisitor visitor, CoverageGraph graph) {
         visitor.mark(this, graph);
+    }
+
+    @Override
+    public int getWeight() {
+        return 1;
     }
 }

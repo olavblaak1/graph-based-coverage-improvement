@@ -3,7 +3,7 @@ package com.kuleuven.GraphExtraction.ExtractionStrategy.Template;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 
 import java.util.Collection;

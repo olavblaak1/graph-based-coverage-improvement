@@ -1,25 +1,15 @@
 package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.MethodAmbiguityException;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
-import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
-import com.kuleuven.Graph.Edge.MethodCallEdge;
-import com.kuleuven.Graph.Edge.OverridesEdge;
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.NodeType;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MethodGraphCoverage extends Coverage {
 

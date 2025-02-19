@@ -1,11 +1,10 @@
 package com.kuleuven.Graph.Edge;
 
-import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
-import com.kuleuven.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.Node;
 
 /**
@@ -14,6 +13,7 @@ import com.kuleuven.Graph.Node.Node;
 public abstract class Edge {
     private final Node source;
     private final Node destination;
+    private int weight;
 
     public Edge(Node source, Node destination) {
         this.source = source;
@@ -50,6 +50,7 @@ public abstract class Edge {
     public abstract boolean accept(CoverageVisitor<ResolvedMethodDeclaration> visitor,  ResolvedMethodDeclaration methodDeclaration);
     public abstract boolean accept(CoverageVisitor<ResolvedFieldDeclaration> visitor,  ResolvedFieldDeclaration fieldDeclaration);
     public abstract void accept(MarkVisitor visitor, CoverageGraph graph);
+    public abstract int getWeight();
 
     @Override
     public String toString() {

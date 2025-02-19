@@ -1,88 +1,57 @@
 package com.kuleuven.Graph.Serializer;
 
 import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Edge.EdgeType;
+import com.kuleuven.Graph.Graph.Graph;
+import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.Graph.Node.NodeType;
 import com.kuleuven.Graph.Serializer.Edge.*;
-import com.kuleuven.Graph.Serializer.Node.ClassNodeSerializer;
-import com.kuleuven.Graph.Serializer.Node.MethodNodeSerializer;
-import com.kuleuven.Graph.Serializer.Node.NodeSerializer;
+import com.kuleuven.Graph.Serializer.Graph.GraphSerializerManager;
+import com.kuleuven.Graph.Serializer.Graph.RankedGraphSerializer;
+import com.kuleuven.Graph.Serializer.Node.NodeSerializerManager;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SerializeManager {
-    private final Map<EdgeType, EdgeSerializer<? extends Edge>> edgeSerializers = new HashMap<>();
-    private final Map<NodeType, NodeSerializer<? extends Node>> nodeSerializers = new HashMap<>();
-
+    private final EdgeSerializerManager edgeSerializerManager;
+    private final NodeSerializerManager nodeSerializerManager;
+    private final GraphSerializerManager graphSerializerManager;
 
     public SerializeManager() {
-        edgeSerializers.put(EdgeType.METHOD_CALL, new MethodCallEdgeSerializer());
-        edgeSerializers.put(EdgeType.INHERITANCE, new InheritanceEdgeSerializer());
-        edgeSerializers.put(EdgeType.FIELD, new FieldEdgeSerializer());
-        edgeSerializers.put(EdgeType.OWNED_BY, new OwnsEdgeSerializer());
-        edgeSerializers.put(EdgeType.OVERRIDES, new OverridesEdgeSerializer());
-        edgeSerializers.put(EdgeType.FIELD_ACCESS, new FieldAccessEdgeSerializer());
-
-        nodeSerializers.put(NodeType.CLASS, new ClassNodeSerializer());
-        nodeSerializers.put(NodeType.METHOD, new MethodNodeSerializer());
+        this.edgeSerializerManager = new EdgeSerializerManager();
+        this.nodeSerializerManager = new NodeSerializerManager();
+        this.graphSerializerManager = new GraphSerializerManager(new RankedGraphSerializer(this));
     }
 
     public JSONObject serializeEdge(Edge edge) {
-        EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(edge.getType());
-        return serializeEdgeInternal(serializer, edge);
+        return edgeSerializerManager.serializeEdge(edge);
     }
 
-    private <T extends Edge> JSONObject serializeEdgeInternal(EdgeSerializer<T> serializer, Edge edge) {
-        @SuppressWarnings("unchecked")
-        T typedEdge = (T) edge;
-        return serializer.serialize(typedEdge);
+    public SerializedEdge deserializeEdge(JSONObject json) {
+        return edgeSerializerManager.deserializeEdge(json);
     }
 
-
-    SerializedEdge deserializeEdge(JSONObject json) {
-        EdgeType type = EdgeType.valueOf(json.getString("type"));
-        EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(type);
-        return serializer.deserialize(json);
-    }
-
-    JSONObject serializeNode(Node node) {
-        NodeSerializer<? extends Node> serializer = getNodeSerializer(node.getType());
-        return serializeNodeInternal(serializer, node);
-    }
-
-    private <T extends Node> JSONObject serializeNodeInternal(NodeSerializer<T> serializer, Node node) {
-        @SuppressWarnings("unchecked")
-        T typedNode = (T) node;
-        return serializer.serialize(typedNode);
+    public JSONObject serializeNode(Node node) {
+        return nodeSerializerManager.serializeNode(node);
     }
 
 
-    Node deserializeNode(JSONObject json) {
-        NodeSerializer<? extends Node> serializer = nodeSerializers.get(NodeType.valueOf(json.getString("type")));
-        return serializer.deserialize(json);
+    public Node deserializeNode(JSONObject json) {
+        return nodeSerializerManager.deserializeNode(json);
     }
 
-
-    private <T extends Edge> EdgeSerializer<T> getEdgeSerializer(EdgeType type) {
-        @SuppressWarnings("unchecked")
-        EdgeSerializer<T> serializer = (EdgeSerializer<T>) edgeSerializers.get(type);
-        if (serializer == null) {
-            throw new IllegalArgumentException("No serializer found for edge type: " + type);
-        }
-        return serializer;
+    public <T extends Graph> JSONObject serializeGraph(T graph) {
+        return graphSerializerManager.serializeGraph(graph);
     }
 
+    public <T extends Graph> T deserializeGraph(JSONObject json) {
+        return graphSerializerManager.deserializeGraph(json);
+    }
 
-    private <T extends Node> NodeSerializer<T> getNodeSerializer(NodeType type) {
-        @SuppressWarnings("unchecked")
-        NodeSerializer<T> serializer = (NodeSerializer<T>) nodeSerializers.get(type);
-        if (serializer == null) {
-            throw new IllegalArgumentException("No serializer found for node type: " + type);
-        }
-        return serializer;
+    public JSONObject serializeRankedGraph(RankedGraph<? extends Graph> graph) {
+        return graphSerializerManager.serializeRankedGraph(graph);
+    }
+
+    public RankedGraph<? extends Graph> deserializeRankedGraph(JSONObject json) {
+        return graphSerializerManager.deserializeRankedGraph(json);
     }
 
 

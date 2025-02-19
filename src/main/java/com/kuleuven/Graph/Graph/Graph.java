@@ -1,9 +1,8 @@
-package com.kuleuven.Graph;
+package com.kuleuven.Graph.Graph;
 
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.Graph.Node.NodeType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -122,4 +121,7 @@ public class Graph {
         return edges;
     }
 
+    public GraphType getType() {
+        return GraphType.BASIC;
+    }
 }

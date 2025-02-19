@@ -4,7 +4,7 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
-import com.kuleuven.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 
 public class ClassNode extends Node {
     public ClassNode(String name) {
