@@ -1,4 +1,4 @@
-package com.kuleuven.Graph;
+package com.kuleuven.Graph.Graph;
 
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
@@ -6,7 +6,6 @@ import com.kuleuven.Graph.Node.Node;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CoverageGraph extends Graph {
     private Set<Node> markedNodes;
@@ -74,5 +73,10 @@ public class CoverageGraph extends Graph {
         return (double) coveredCountOfType(node, type)
                         /
                         (getOutgoingEdgesOfType(node, type).size() + getIncomingEdgesOfType(node, type).size());
+    }
+
+    @Override
+    public GraphType getType() {
+        return GraphType.COVERAGE;
     }
 }

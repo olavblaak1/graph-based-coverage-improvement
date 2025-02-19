@@ -1,7 +1,7 @@
 package com.kuleuven.CoverageAnalysis.MarkVisitor;
 
-import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.*;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
 

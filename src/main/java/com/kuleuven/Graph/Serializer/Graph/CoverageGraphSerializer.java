@@ -1,43 +1,51 @@
-package com.kuleuven.Graph.Serializer;
+package com.kuleuven.Graph.Serializer.Graph;
 
-import com.kuleuven.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Serializer.Edge.SerializedEdge;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class BasicGraphSerializer implements GraphSerializer<Graph> {
+public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
+
+
     @Override
-    public Graph deserializeGraph(JSONObject jsonGraph) {
-        Graph graph = new CoverageGraph();
+    public CoverageGraph deserializeGraph(JSONObject jsonGraph) {
+        CoverageGraph graph = new CoverageGraph();
 
         JSONArray jsonNodes = jsonGraph.getJSONArray("nodes");
         for (int i = 0; i < jsonNodes.length(); i++) {
             JSONObject jsonNode = jsonNodes.getJSONObject(i);
             Node node = serializeManager.deserializeNode(jsonNode);
-            graph.addNode(node);
+            if (jsonNode.getBoolean("covered")) {
+                graph.markNode(node);
+            }
         }
 
         JSONArray jsonEdges = jsonGraph.getJSONArray("edges");
         for (int i = 0; i < jsonEdges.length(); i++) {
             JSONObject jsonEdge = jsonEdges.getJSONObject(i);
-            SerializedEdge edge = serializeManager.deserializeEdge(jsonEdge);
-            graph.addEdge(getEdge(edge, graph));
+            SerializedEdge serializedEdge = serializeManager.deserializeEdge(jsonEdge);
+            Edge edge = getEdge(serializedEdge, graph);
+            graph.addEdge(edge);
+            if (jsonEdge.getBoolean("covered")) {
+                graph.markEdge(edge);
+            }
         }
 
         return graph;
     }
 
     @Override
-    public JSONObject serializeGraph(Graph graph) {
+    public JSONObject serializeGraph(CoverageGraph graph) {
         JSONObject json = new JSONObject();
-        json.put("graph_type", "basic");
+        json.put("graphType", graph.getType());
 
         JSONArray jsonNodes = new JSONArray();
         for (Node node : graph.getNodes()) {
             JSONObject jsonNode = serializeManager.serializeNode(node);
+            jsonNode.put("covered", graph.isNodeMarked(node));
             jsonNodes.put(jsonNode);
         }
         json.put("nodes", jsonNodes);
@@ -45,6 +53,7 @@ public class BasicGraphSerializer implements GraphSerializer<Graph> {
         JSONArray jsonEdges = new JSONArray();
         for (Edge edge : graph.getEdges()) {
             JSONObject jsonEdge = serializeManager.serializeEdge(edge);
+            jsonEdge.put("covered", graph.isEdgeMarked(edge));
             jsonEdges.put(jsonEdge);
         }
         json.put("edges", jsonEdges);

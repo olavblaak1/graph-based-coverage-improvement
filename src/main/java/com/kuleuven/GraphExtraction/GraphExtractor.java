@@ -2,7 +2,7 @@ package com.kuleuven.GraphExtraction;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionStrategy;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.Template.*;
 

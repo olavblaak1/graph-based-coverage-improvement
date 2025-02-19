@@ -1,9 +1,9 @@
 package com.kuleuven.GraphExtraction;
 
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.GraphUtils;
-import com.kuleuven.Graph.Serializer.BasicGraphSerializer;
-import com.kuleuven.Graph.Serializer.GraphSerializer;
+import com.kuleuven.Graph.Serializer.Graph.BasicGraphSerializer;
+import com.kuleuven.Graph.Serializer.Graph.GraphSerializer;
 import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.Metric;
 import com.kuleuven.GraphAnalyzer.NodeRanker;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionStrategy;
@@ -27,10 +27,8 @@ public class ExtractGraph {
         File mainDirectory = new File(args[1]);
         Path jarPath = Paths.get(args[2]);
         ExtractionStrategy extractionStrategy = ExtractionStrategy.valueOf(args[3]);
-        Metric metric = Metric.valueOf(args[4]);
 
         GraphExtractor extractor = new GraphExtractor(extractionStrategy);
-        NodeRanker nodeRanker = new NodeRanker(metric);
         ParseManager parseManager = new ParseManager();
 
         List<Path> jarPaths = Arrays.asList(jarPath,

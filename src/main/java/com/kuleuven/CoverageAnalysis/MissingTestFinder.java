@@ -1,12 +1,12 @@
 package com.kuleuven.CoverageAnalysis;
 
-import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.EdgeType;
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.GraphUtils;
-import com.kuleuven.Graph.Serializer.BasicGraphSerializer;
-import com.kuleuven.Graph.Serializer.CoverageGraphSerializer;
-import com.kuleuven.Graph.Serializer.GraphSerializer;
+import com.kuleuven.Graph.Serializer.Graph.BasicGraphSerializer;
+import com.kuleuven.Graph.Serializer.Graph.CoverageGraphSerializer;
+import com.kuleuven.Graph.Serializer.Graph.GraphSerializer;
 import com.kuleuven.ParseManager;
 import org.json.JSONObject;
 

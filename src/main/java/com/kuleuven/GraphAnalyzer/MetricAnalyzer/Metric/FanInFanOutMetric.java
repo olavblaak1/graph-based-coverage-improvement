@@ -1,6 +1,8 @@
 package com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric;
 
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Graph.Graph;
+import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.RankedNode;
 
@@ -18,23 +20,11 @@ public class FanInFanOutMetric implements MetricStrategy {
      * Currently, fan-in is weighted 0.2 and fan-out is weighted 0.8.
      * This is becaue fan-out has a more significant impact on bug-proneness than fan-in.
      */
+
     @Override
-    public List<RankedNode> calculateMetric(List<Node> nodes, List<Edge> edges) {
-        List<RankedNode> rankedNodes = new LinkedList<RankedNode>();
-        for (Node node : nodes) {
-            float fanIn = 0;
-            float fanOut = 0;
-            for (Edge edge : edges) {
-                if (edge.getDestination().equals(node.getName())) {
-                    fanIn++;
-                }
-                if (edge.getSource().equals(node.getName())) {
-                    fanOut++;
-                }
-            }
-            double rank = 0.2 * fanIn + 0.8 * fanOut;
-            rankedNodes.add(new RankedNode(node, rank));
-        }
-        return rankedNodes;
+    public double calculateRank(Node node, Graph graph) {
+        double fanIn = graph.getIncomingEdges(node).size();
+        double fanOut = graph.getOutgoingEdges(node).size();
+        return 0.2 * fanIn + 0.8 * fanOut;
     }
 }

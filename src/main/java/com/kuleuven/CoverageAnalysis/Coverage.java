@@ -2,10 +2,6 @@ package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.resolution.MethodAmbiguityException;
-import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
@@ -13,10 +9,9 @@ import com.kuleuven.CoverageAnalysis.EdgeAnalysis.FieldCoverageChecker;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.MethodCoverageChecker;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.Marker;
-import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Edge.EdgeType;
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 
 import java.util.List;

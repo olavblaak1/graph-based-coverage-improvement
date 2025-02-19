@@ -1,14 +1,9 @@
 package com.kuleuven.CoverageAnalysis.MarkVisitor;
 
-import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.*;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Marker implements MarkVisitor {
 

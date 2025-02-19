@@ -1,9 +1,10 @@
-package com.kuleuven.Graph.Serializer;
+package com.kuleuven.Graph.Serializer.Graph;
 
 import com.kuleuven.Graph.Edge.*;
-import com.kuleuven.Graph.Graph;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Serializer.Edge.SerializedEdge;
+import com.kuleuven.Graph.Serializer.SerializeManager;
 import org.json.JSONObject;
 
 import java.util.Optional;

@@ -7,13 +7,7 @@ import com.github.javaparser.resolution.MethodAmbiguityException;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Edge.EdgeType;
-import com.kuleuven.Graph.Graph;
-import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.Graph.Node.NodeType;
-
-import javax.management.RuntimeErrorException;
+import com.kuleuven.Graph.Graph.Graph;
 
 public class FullGraphCoverage extends Coverage {
     @Override
@@ -47,6 +41,7 @@ public class FullGraphCoverage extends Coverage {
 
     @Override
     protected void filterEdges(Graph newGraph, Graph graph) {
+        // TODO: Choose what edges to keep for coverage
     }
 
     @Override

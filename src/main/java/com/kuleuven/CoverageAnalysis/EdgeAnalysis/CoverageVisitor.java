@@ -1,9 +1,6 @@
 package com.kuleuven.CoverageAnalysis.EdgeAnalysis;
 
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.kuleuven.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
