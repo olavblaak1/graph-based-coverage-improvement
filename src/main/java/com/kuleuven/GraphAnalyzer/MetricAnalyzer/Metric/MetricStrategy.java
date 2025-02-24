@@ -14,7 +14,7 @@ public interface MetricStrategy {
 
 
     default <T extends Graph> RankedGraph<T> calculateMetric(T graph) {
-        RankedGraph<T> rankedGraph = new RankedGraph<T>(graph);
+        RankedGraph<T> rankedGraph = new RankedGraph<>(graph);
         graph.getNodes().forEach(node -> {
             double rank = calculateRank(node, graph);
             rankedGraph.setRank(node, rank);

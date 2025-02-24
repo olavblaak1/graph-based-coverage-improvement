@@ -15,6 +15,7 @@ public class NOOMMetric implements MetricStrategy {
     public double calculateRank(Node node, Graph graph) {
         double noom = 0;
         if (node.getType().equals(NodeType.CLASS)) {
+            System.out.println(graph.getIncomingEdgesOfType(node, EdgeType.OWNED_BY).size());
             // Iterate over all methods of the class, and check if they override a method
             noom += graph.getIncomingEdgesOfType(node, EdgeType.OWNED_BY).stream().filter(
                     edge -> !graph.getOutgoingEdgesOfType(edge.getSource(), EdgeType.OVERRIDES).isEmpty()

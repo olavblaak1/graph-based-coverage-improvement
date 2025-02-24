@@ -31,10 +31,7 @@ public class ExtractGraph {
         GraphExtractor extractor = new GraphExtractor(extractionStrategy);
         ParseManager parseManager = new ParseManager();
 
-        List<Path> jarPaths = Arrays.asList(jarPath,
-                Paths.get("target/libs/javax.servlet-api-4.0.1.jar"),
-                Paths.get("target/libs/xercesImpl-2.8.0.jar"),
-                Paths.get("target/libs/xml-apis-1.3.03.jar"));
+        List<Path> jarPaths = parseManager.getClasspathJars(jarPath);
         parseManager.setupParser(jarPaths, mainDirectory);
         parseManager.parseDirectory(mainDirectory);
 
@@ -47,22 +44,6 @@ public class ExtractGraph {
 
         GraphUtils.writeFile(outputFilePath, graph.toString(4).getBytes());
         System.out.println("Graph has been saved to " + outputFilePath);
-        /*
-        Commented out for now
-
-        System.out.println("Calculating " + metric + " metric...");
-        
-        List<RankedNode> rankedNodes = nodeRanker.rankNodes(extractor.getNodes(), extractor.getEdges());
-
-        JSONObject rankedGraph = new JSONObject();
-        rankedGraph.put("nodes", serializeManager.serializeRankedNodes(rankedNodes));
-        rankedGraph.put("edges", serializeManager.serializeEdges(extractor.getEdges()));
-
-       GraphUtils.writeFile(outputFilePath.replace(".json", "_ranked.json"), rankedGraph.toString(4).getBytes());
-       System.out.println("RankedGraph has been saved to " + outputFilePath.replace(".json", "_ranked.json"));
-        */
-
-
     }
 
 }

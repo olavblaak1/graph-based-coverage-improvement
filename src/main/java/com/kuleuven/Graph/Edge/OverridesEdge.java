@@ -4,7 +4,9 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
+import com.kuleuven.TestMinimization.TestCaseVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
 
 public class OverridesEdge extends Edge {
@@ -27,6 +29,11 @@ public class OverridesEdge extends Edge {
     @Override
     public boolean accept(CoverageVisitor<ResolvedFieldDeclaration> visitor, ResolvedFieldDeclaration fieldDeclaration) {
         return visitor.isCoveredBy(this, fieldDeclaration);
+    }
+
+    @Override
+    public double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph) {
+        return visitor.calculateImportance(this, graph);
     }
 
 

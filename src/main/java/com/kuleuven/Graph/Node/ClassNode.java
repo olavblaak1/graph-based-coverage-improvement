@@ -4,7 +4,9 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
+import com.kuleuven.TestMinimization.TestCaseVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.RankedGraph;
 
 public class ClassNode extends Node {
     public ClassNode(String name) {
@@ -14,6 +16,11 @@ public class ClassNode extends Node {
     @Override
     public NodeType getType() {
         return NodeType.CLASS;
+    }
+
+    @Override
+    public double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph) {
+        return visitor.calculateImportance(this, graph);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
@@ -15,14 +16,28 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ParseManager {
 
     private JavaParser javaParser;
     private List<CompilationUnit> compilationUnits;
 
+
+    public List<Path> getClasspathJars(Path classPaths) {
+        try {
+            String classpath = new String(Files.readAllBytes(classPaths));
+            return Arrays.stream(classpath.split(File.pathSeparator))
+                    .map(Paths::get)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read classpath file", e);
+        }
+    }
 
     public void setupParser(List<Path> jarPaths, File mainDirectory) {
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
@@ -79,5 +94,13 @@ public class ParseManager {
 
     public List<CompilationUnit> getCompilationUnits() {
         return new LinkedList<>(compilationUnits);
+    }
+
+    public List<MethodDeclaration> getTestCases() {
+        return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
+                .filter(method ->
+                        method.isAnnotationPresent("Test")
+                        || method.getNameAsString().startsWith("test"))
+                .collect(Collectors.toList());
     }
 }

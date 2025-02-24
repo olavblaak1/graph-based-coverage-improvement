@@ -1,9 +1,9 @@
 package com.kuleuven.Graph.Graph;
 
+import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Node.Node;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class RankedGraph<T extends Graph> {
 
@@ -13,6 +13,11 @@ public class RankedGraph<T extends Graph> {
     public RankedGraph(T graph) {
         this.graph = graph;
         this.nodeRanks = new HashMap<>();
+    }
+
+    public RankedGraph(RankedGraph<T> rankedGraph) {
+        this.graph = rankedGraph.getGraph();
+        this.nodeRanks = new HashMap<>(rankedGraph.getRanks());
     }
 
     private Map<Node, Double> getRanks() {
@@ -37,4 +42,14 @@ public class RankedGraph<T extends Graph> {
     public T getGraph() {
         return graph;
     }
+
+    public Collection<Node> getNodes() {
+        return graph.getNodes();
+    }
+
+    public Collection<Edge> getEdges() {
+        return graph.getEdges();
+    }
+
+
 }

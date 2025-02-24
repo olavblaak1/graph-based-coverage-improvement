@@ -97,7 +97,7 @@ public class Graph {
     }
 
     public Set<Edge> getIncomingEdgesOfType(Node node, EdgeType type) {
-        return outgoingEdges.get(node).get(type);
+        return incomingEdges.get(node).get(type);
     }
 
     public int getFanInPlusFanOut(Node node) {

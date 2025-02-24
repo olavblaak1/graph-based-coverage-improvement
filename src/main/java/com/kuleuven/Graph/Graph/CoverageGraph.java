@@ -4,12 +4,12 @@ import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Node.Node;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CoverageGraph extends Graph {
-    private Set<Node> markedNodes;
-    private Set<Edge> markedEdges;
+    private Map<Node, Integer> markedNodes;
+    private Map<Edge, Integer> markedEdges;
 
 
     /*
@@ -18,62 +18,62 @@ public class CoverageGraph extends Graph {
      */
     public CoverageGraph(Graph graph) {
         super(graph);
-        markedNodes = new HashSet<>();
-        markedEdges = new HashSet<>();
+        markedNodes = new HashMap<>();
+        markedEdges = new HashMap<>();
     }
 
     public CoverageGraph() {
         super();
+        this.markedEdges = new HashMap<>();
+        this.markedNodes = new HashMap<>();
     }
 
     public void markNode(Node node) {
-        markedNodes.add(node);
+        if (!markedNodes.containsKey(node)) {
+            markedNodes.put(node, 1);
+        }
+        else {
+            markedNodes.put(node, markedNodes.get(node) + 1);
+        }
     }
 
     public void markEdge(Edge edge) {
-        markedEdges.add(edge);
+        if (!markedEdges.containsKey(edge)) {
+            markedEdges.put(edge, 1);
+        }
+        else {
+            markedEdges.put(edge, markedEdges.get(edge) + 1);
+        }
+    }
+
+    public void setMarkCount(Node node, int count) {
+        markedNodes.put(node, count);
+    }
+
+    public void setMarkCount(Edge edge, int count) {
+        markedEdges.put(edge, count);
+    }
+
+    public int getMarkedNodeCount(Node node) {
+        return markedNodes.getOrDefault(node, 0);
+    }
+
+    public int getMarkedEdgeCount(Edge edge) {
+        return markedEdges.getOrDefault(edge, 0);
     }
 
     public boolean isNodeMarked(Node node) {
-        return markedNodes.contains(node);
+        return markedNodes.containsKey(node);
     }
 
     public boolean isEdgeMarked(Edge edge) {
-        return markedEdges.contains(edge);
+        return markedEdges.containsKey(edge);
     }
 
     public double getEdgeTypeCoveragePercentage(EdgeType edgeType) {
         return (double) getEdgesOfType(edgeType).stream().filter(this::isEdgeMarked).count() / getEdgesOfType(edgeType).size();
     }
 
-
-    public long getCoveredEdgesOfNodeCount(Node node) {
-        return super.getOutgoingEdges(node).stream().filter(this::isEdgeMarked).count()
-                +
-                super.getIncomingEdges(node).stream().filter(this::isEdgeMarked).count();
-    }
-
-    public long coveredCountOfType(Node node, EdgeType type) {
-        return super.getOutgoingEdgesOfType(node, type).stream().filter(this::isEdgeMarked).count()
-                +
-                super.getIncomingEdgesOfType(node, type).stream().filter(this::isEdgeMarked).count();
-    }
-
-    public double coveredPercentage(Node node) {
-        if (!markedNodes.contains(node)) {
-            return 1.0;
-        }
-        return (double) getCoveredEdgesOfNodeCount(node) / getFanInPlusFanOut(node);
-    }
-
-    public double coveredPercentageOfType(Node node, EdgeType type) {
-        if (!markedNodes.contains(node)) {
-            return 1.0;
-        }
-        return (double) coveredCountOfType(node, type)
-                        /
-                        (getOutgoingEdgesOfType(node, type).size() + getIncomingEdgesOfType(node, type).size());
-    }
 
     @Override
     public GraphType getType() {

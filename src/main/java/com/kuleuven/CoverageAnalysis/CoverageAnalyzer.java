@@ -1,6 +1,7 @@
 package com.kuleuven.CoverageAnalysis;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.Graph;
 
@@ -23,7 +24,7 @@ public class CoverageAnalyzer {
         }
     }
 
-    public CoverageGraph analyze(List<CompilationUnit> cus, Graph SUTGraph) {
+    public CoverageGraph analyze(List<MethodDeclaration> cus, Graph SUTGraph) {
         return strategy.analyze(cus, SUTGraph);
     }
 }

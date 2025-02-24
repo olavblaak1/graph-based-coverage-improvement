@@ -5,6 +5,11 @@ import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
+
 public class Marker implements MarkVisitor {
 
     // Mark one edge and all of its called methods recursively
@@ -14,7 +19,6 @@ public class Marker implements MarkVisitor {
         // or just one? or none?
         // if none -> We focus on UNIT tests, if > 0 we start to look at integration testing, both might be interesting
         graph.markEdge(startEdge);
-        /*
         Deque<Edge> stack = new ArrayDeque<>();
         Set<Edge> visitedEdges = new HashSet<>();
 
@@ -26,10 +30,9 @@ public class Marker implements MarkVisitor {
             if (!visitedEdges.add(currentEdge)) {
                 continue;
             }
-
             graph.markEdge(currentEdge);
-            graph.markNode(currentEdge.getDestination()); // This allows for integration testing coverage, may not be necessary..
-        }*/
+            graph.getOutgoingEdges(currentEdge.getDestination()).forEach(stack::push);
+        }
     }
 
     @Override
@@ -57,6 +60,7 @@ public class Marker implements MarkVisitor {
     public void mark(MethodNode node, CoverageGraph graph) {
         graph.markNode(node);
         // If a method is marked, mark all of it's outgoing edges, this assumes all branches are taken!
+        graph.getIncomingEdgesOfType(node, EdgeType.OWNED_BY).forEach(graph::markEdge);
         graph.getOutgoingEdges(node).forEach(edge -> edge.accept(this, graph));
     }
 

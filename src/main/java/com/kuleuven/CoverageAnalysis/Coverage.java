@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageManager;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.FieldCoverageChecker;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.MethodCoverageChecker;
@@ -19,28 +20,27 @@ import java.util.Set;
 
 public abstract class Coverage {
     CoverageGraph coverageGraph;
-    private CoverageVisitor<ResolvedMethodDeclaration> methodCoverageVisitor = new MethodCoverageChecker();
-    private CoverageVisitor<ResolvedFieldDeclaration> fieldCoverageVisitor = new FieldCoverageChecker();
+    CoverageManager coverageManager;
     private MarkVisitor markVisitor = new Marker();
 
     public Set<Edge> getOutgoingEdges(Node node) {
         return coverageGraph.getOutgoingEdges(node);
     }
 
-    public boolean isCoveredBy(Edge edge, ResolvedMethodDeclaration method) {
-        return edge.accept(methodCoverageVisitor, method);
+    protected boolean isCoveredBy(Edge edge, ResolvedMethodDeclaration method) {
+        return coverageManager.isCoveredBy(edge, method);
     }
 
-    public boolean isCoveredBy(Node node, ResolvedMethodDeclaration method) {
-        return node.accept(methodCoverageVisitor, method);
+    protected boolean isCoveredBy(Node node, ResolvedMethodDeclaration method) {
+        return coverageManager.isCoveredBy(node, method);
     }
 
-    public boolean isCoveredBy(Node node, ResolvedFieldDeclaration field) {
-        return node.accept(fieldCoverageVisitor, field);
+    protected boolean isCoveredBy(Node node, ResolvedFieldDeclaration field) {
+        return coverageManager.isCoveredBy(node, field);
     }
 
-    public boolean isCoveredBy(Edge edge, ResolvedFieldDeclaration field) {
-        return edge.accept(fieldCoverageVisitor, field);
+    protected boolean isCoveredBy(Edge edge, ResolvedFieldDeclaration field) {
+        return coverageManager.isCoveredBy(edge, field);
     }
 
     public void markEdge(Edge edge) {
@@ -56,15 +56,15 @@ public abstract class Coverage {
      * first the generic graph is filtered only to contain the relevant nodes and (possibly) edges
      * then the graph is analyzed to determine which relevant nodes and edges are covered
      */
-    public CoverageGraph analyze(List<CompilationUnit> cus, Graph graph) {
+    public CoverageGraph analyze(List<MethodDeclaration> testMethods, Graph graph) {
         Graph filteredGraph = filterGraph(graph);
         this.coverageGraph = new CoverageGraph(filteredGraph);
-        return analyzeFilteredGraph(cus);
+        return analyzeFilteredGraph(testMethods);
     }
 
-    private CoverageGraph analyzeFilteredGraph(List<CompilationUnit> cus) {
+    private CoverageGraph analyzeFilteredGraph(List<MethodDeclaration> testMethods) {
         // Iterate over each CompilationUnit and analyze test method relationships
-        cus.forEach(cu -> cu.findAll(MethodDeclaration.class).forEach(this::analyzeTestMethod));
+        testMethods.forEach(this::analyzeTestMethod);
         analyzeRemainingGraph();
         return coverageGraph;
     }

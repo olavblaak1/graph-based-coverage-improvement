@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 public class MissingTestFinder {
@@ -25,7 +24,7 @@ public class MissingTestFinder {
         }
         String graphPath = args[0];
         File testDirectory = new File(args[1]);
-        Path jarPath = Paths.get(args[2]);
+        Path classPaths = Paths.get(args[2]);
         File srcDir = new File(args[3]);
         AnalysisMethod analysisMethod = AnalysisMethod.valueOf(args[4]);
         String outputPath = args[5];
@@ -37,18 +36,14 @@ public class MissingTestFinder {
         Graph SUTGraph = graphSerializer.deserializeGraph(graphJson);
 
         ParseManager parseManager = new ParseManager();
-        List<Path> jarPaths = Arrays.asList(jarPath,
-                Paths.get("target/libs/junit-4.13.2.jar"),
-                Paths.get("target/libs/junit-jupiter-engine-5.2.0.jar"),
-                Paths.get("target/libs/junit-platform-runner-1.2.0.jar"),
-                Paths.get("target/libs/junit-jupiter-api-5.2.0.jar")
-        );
+        List<Path> jarPaths = parseManager.getClasspathJars(classPaths);
+
         parseManager.setupParser(jarPaths, srcDir);
         parseManager.parseDirectory(testDirectory);
 
 
         CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(analysisMethod);
-        CoverageGraph coverageGraph = coverageAnalyzer.analyze(parseManager.getCompilationUnits(), SUTGraph);
+        CoverageGraph coverageGraph = coverageAnalyzer.analyze(parseManager.getTestCases(), SUTGraph);
 
 
         int totalEdges = coverageGraph.getEdges().size();
@@ -92,5 +87,4 @@ public class MissingTestFinder {
 
         GraphUtils.writeFile(outputPath, coverageGraphJson.toString(4).getBytes());
     }
-
 }

@@ -22,7 +22,7 @@ public interface GraphSerializer<T extends Graph> {
         Optional<Node> destination = graph.getNode(edge.getDestinationID());
 
         if (!source.isPresent() || !destination.isPresent()) {
-            throw new IllegalArgumentException("Edge does not have corresponding edges");
+            throw new IllegalArgumentException("Edge does not have corresponding nodes");
         }
 
         Node sourceNode = source.get();

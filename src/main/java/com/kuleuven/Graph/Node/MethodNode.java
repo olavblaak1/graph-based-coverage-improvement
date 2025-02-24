@@ -4,7 +4,9 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
+import com.kuleuven.TestMinimization.TestCaseVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.RankedGraph;
 
 public class MethodNode extends Node {
 
@@ -51,6 +53,11 @@ public class MethodNode extends Node {
     @Override
     public boolean accept(CoverageVisitor<ResolvedMethodDeclaration> visitor, ResolvedMethodDeclaration methodDeclaration) {
         return visitor.isCoveredBy(this, methodDeclaration);
+    }
+
+    @Override
+    public double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph) {
+        return visitor.calculateImportance(this, graph);
     }
 
     @Override

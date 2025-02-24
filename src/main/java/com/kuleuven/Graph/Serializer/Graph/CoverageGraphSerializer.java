@@ -18,8 +18,9 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
         for (int i = 0; i < jsonNodes.length(); i++) {
             JSONObject jsonNode = jsonNodes.getJSONObject(i);
             Node node = serializeManager.deserializeNode(jsonNode);
+            graph.addNode(node);
             if (jsonNode.getBoolean("covered")) {
-                graph.markNode(node);
+                graph.setMarkCount(node, jsonNode.getInt("coverageCount"));
             }
         }
 
@@ -27,10 +28,11 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
         for (int i = 0; i < jsonEdges.length(); i++) {
             JSONObject jsonEdge = jsonEdges.getJSONObject(i);
             SerializedEdge serializedEdge = serializeManager.deserializeEdge(jsonEdge);
+            System.out.println("Edge : " + serializedEdge.getSourceID() + " -> " + serializedEdge.getDestinationID());
             Edge edge = getEdge(serializedEdge, graph);
             graph.addEdge(edge);
             if (jsonEdge.getBoolean("covered")) {
-                graph.markEdge(edge);
+                graph.setMarkCount(edge, jsonEdge.getInt("coverageCount"));
             }
         }
 
@@ -46,6 +48,7 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
         for (Node node : graph.getNodes()) {
             JSONObject jsonNode = serializeManager.serializeNode(node);
             jsonNode.put("covered", graph.isNodeMarked(node));
+            jsonNode.put("coverageCount", graph.getMarkedNodeCount(node));
             jsonNodes.put(jsonNode);
         }
         json.put("nodes", jsonNodes);
@@ -54,6 +57,7 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
         for (Edge edge : graph.getEdges()) {
             JSONObject jsonEdge = serializeManager.serializeEdge(edge);
             jsonEdge.put("covered", graph.isEdgeMarked(edge));
+            jsonEdge.put("coverageCount", graph.getMarkedEdgeCount(edge));
             jsonEdges.put(jsonEdge);
         }
         json.put("edges", jsonEdges);
