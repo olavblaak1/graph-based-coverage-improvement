@@ -28,7 +28,7 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
         for (int i = 0; i < jsonEdges.length(); i++) {
             JSONObject jsonEdge = jsonEdges.getJSONObject(i);
             SerializedEdge serializedEdge = serializeManager.deserializeEdge(jsonEdge);
-            System.out.println("Edge : " + serializedEdge.getSourceID() + " -> " + serializedEdge.getDestinationID());
+            // System.out.println("Edge : " + serializedEdge.getSourceID() + " -> " + serializedEdge.getDestinationID());
             Edge edge = getEdge(serializedEdge, graph);
             graph.addEdge(edge);
             if (jsonEdge.getBoolean("covered")) {

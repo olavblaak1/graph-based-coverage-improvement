@@ -11,15 +11,20 @@ import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.NodeType;
 
+import java.util.List;
+
 public class MethodGraphCoverage extends Coverage {
 
 
     @Override
-    protected void analyzeTestMethod(MethodDeclaration testMethod) {
+    protected void analyzeTestMethod(MethodDeclaration testMethod, List<MethodDeclaration> testMethods) {
         // Collect all method calls within the test method
         testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
             try {
                 ResolvedMethodDeclaration resolvedTestMethod = testCall.resolve();
+                getTestMethod(resolvedTestMethod, testMethods).ifPresentOrElse(
+                        e -> analyzeTestMethod(e, testMethods),
+                        () -> analyzeMethodCall(resolvedTestMethod));
                 analyzeMethodCall(resolvedTestMethod);
             } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
                 System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());

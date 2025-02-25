@@ -1,13 +1,9 @@
 package com.kuleuven.CoverageAnalysis;
 
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageManager;
-import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
-import com.kuleuven.CoverageAnalysis.EdgeAnalysis.FieldCoverageChecker;
-import com.kuleuven.CoverageAnalysis.EdgeAnalysis.MethodCoverageChecker;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.Marker;
 import com.kuleuven.Graph.Edge.Edge;
@@ -16,12 +12,13 @@ import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public abstract class Coverage {
     CoverageGraph coverageGraph;
-    CoverageManager coverageManager;
-    private MarkVisitor markVisitor = new Marker();
+    CoverageManager coverageManager = new CoverageManager();
+    private final MarkVisitor markVisitor = new Marker();
 
     public Set<Edge> getOutgoingEdges(Node node) {
         return coverageGraph.getOutgoingEdges(node);
@@ -64,7 +61,7 @@ public abstract class Coverage {
 
     private CoverageGraph analyzeFilteredGraph(List<MethodDeclaration> testMethods) {
         // Iterate over each CompilationUnit and analyze test method relationships
-        testMethods.forEach(this::analyzeTestMethod);
+        testMethods.forEach(testMethod -> analyzeTestMethod(testMethod, testMethods));
         analyzeRemainingGraph();
         return coverageGraph;
     }
@@ -72,7 +69,7 @@ public abstract class Coverage {
     /**
      * Analyzes a single test method for coverage
      */
-    protected abstract void analyzeTestMethod(MethodDeclaration testMethod);
+    protected abstract void analyzeTestMethod(MethodDeclaration testMethod, List<MethodDeclaration> testMethods);
 
     public Graph filterGraph(Graph graph) {
         Graph newGraph = new Graph(graph);
@@ -89,5 +86,16 @@ public abstract class Coverage {
     protected abstract void analyzeMethodCall(ResolvedMethodDeclaration testMethod);
 
     protected abstract void analyzeRemainingGraph();
+
+
+    protected Optional<MethodDeclaration> getTestMethod(ResolvedMethodDeclaration methodDeclaration, List<MethodDeclaration> testMethods) {
+        for (MethodDeclaration testMethod : testMethods) {
+            if (testMethod.resolve().getQualifiedSignature().equals(methodDeclaration.getQualifiedSignature())) {
+                return Optional.of(testMethod);
+            }
+        }
+        return Optional.empty();
+    }
+
 
 }

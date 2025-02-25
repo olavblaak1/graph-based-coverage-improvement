@@ -7,8 +7,8 @@ import java.util.*;
 
 public class RankedGraph<T extends Graph> {
 
-    private T graph;
-    private Map<Node, Double> nodeRanks;
+    private final T graph;
+    private final Map<Node, Double> nodeRanks;
 
     public RankedGraph(T graph) {
         this.graph = graph;

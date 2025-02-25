@@ -9,14 +9,18 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Graph.Graph;
 
+import java.util.List;
+
 public class FullGraphCoverage extends Coverage {
     @Override
-    protected void analyzeTestMethod(MethodDeclaration testMethod) {
+    protected void analyzeTestMethod(MethodDeclaration testMethod, List<MethodDeclaration> testMethods) {
         // Collect all method calls within the test method
         testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
             try {
-                ResolvedMethodDeclaration resolvedTestMethod = testCall.resolve();
-                analyzeMethodCall(resolvedTestMethod);
+                ResolvedMethodDeclaration calledMethod = testCall.resolve();
+                getTestMethod(calledMethod, testMethods).ifPresentOrElse(
+                        e -> analyzeTestMethod(e, testMethods),
+                        () -> analyzeMethodCall(calledMethod));
             } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
                 System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());
             }

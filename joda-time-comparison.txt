@@ -1,0 +1,70 @@
+
+ORIGINAL ANALYSIS
+
+Total number of nodes: 4044
+Total number of nodes covered: 2149
+Percentage of nodes tested: 0.531404549950544
+Total number of edges: 12536
+Total number of edges covered: 7852
+Percentage of edges covered: 0.62635609
+Total number of overrides edges: 1336
+Percentage of overrides edges covered: 0.3495508982035928
+Total number of field access edges: 330
+Percentage of field access edges covered: 0.6575757575757576
+Total number of method call edges: 7082
+Percentage of method calls edges covered: 0.6765038124823496
+Total number of owned_by edges: 3788
+Percentage of owned by edges covered: 0.627507919746568
+
+Total number of nodes: 4044
+Total number of nodes covered: 1543
+Percentage of nodes tested: 0.3815529179030663  (28.273585% decrease) -> ~ ratio 2.65
+Total number of edges: 12536
+Total number of edges covered: 5890
+Percentage of edges covered: 0.46984684  (15.6% decrease) -> ~ ratio 4.86
+Total number of overrides edges: 1336
+Percentage of overrides edges covered: 0.23652694610778444  (32.3% decrease) -> ~ ratio 2.32
+Total number of field access edges: 330
+Percentage of field access edges covered: 0.5242424242424243
+Total number of method call edges: 7082
+Percentage of method calls edges covered: 0.5021180457497882
+Total number of owned_by edges: 3788
+Percentage of owned by edges covered: 0.48706441393875394
+
+RANK ONLY ANALYSIS
+
+
+Total number of nodes: 4044
+Total number of nodes covered: 1065 (50.44% decrease) -> ~ ratio 1.4869
+Percentage of nodes tested: 0.263353115727003
+Total number of edges: 12536
+Total number of edges covered: 4153
+Percentage of edges covered: 0.3312859 (47.2% decrease) -> ~ ratio 1.588
+Total number of overrides edges: 1336
+Percentage of overrides edges covered: 0.15269461077844312
+Total number of field access edges: 330
+Percentage of field access edges covered: 0.33636363636363636
+Total number of method call edges: 7082
+Percentage of method calls edges covered: 0.3571025134142897 -> also around 1.4
+Total number of owned_by edges: 3788
+Percentage of owned by edges covered: 0.3455649419218585
+
+
+COVERAGE EXP ONLY ANALYSIS
+
+Total number of nodes: 4044
+Total number of nodes covered: 1549
+Percentage of nodes tested: 0.3830365974282888
+Total number of edges: 12536
+Total number of edges covered: 5736
+Percentage of edges covered: 0
+Total number of overrides edges: 1336
+Percentage of overrides edges covered: 0.2342814371257485
+Total number of field access edges: 330
+Percentage of field access edges covered: 0.49696969696969695
+Total number of method call edges: 7082
+Percentage of method calls edges covered: 0.48164360350183566
+Total number of owned_by edges: 3788
+Percentage of owned by edges covered: 0.48785638859556496
+
+

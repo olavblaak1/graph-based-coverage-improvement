@@ -5,7 +5,7 @@ srcDir="systems/joda-time/src/main/java"
 graphPath="data/joda-time/graph/graph.json"
 
 analysisStrategy="FULL"
-coverageGraph="data/joda-time/analysis/coverageGraph.json"
+coverageGraphPath="data/joda-time/analysis"
 
 mvn dependency:build-classpath -Dmdep.outputFile=$jarPath
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$graphPath $testInput $jarPath $srcDir $analysisStrategy $coverageGraph"
+mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$graphPath $testInput $jarPath $srcDir $analysisStrategy $coverageGraphPath"

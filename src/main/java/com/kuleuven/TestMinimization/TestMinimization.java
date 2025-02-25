@@ -11,10 +11,10 @@ import java.util.Map;
 public class TestMinimization {
     private Minimizer minimizer;
 
-    public TestMinimization(MinimizationMethod minimizationMethod) {
+    public TestMinimization(MinimizationMethod minimizationMethod, double discountFactor, double coverageFactor) {
         switch (minimizationMethod) {
             case STANDARD:
-                minimizer = new Minimizer(new StandardTestCaseVisitor());
+                minimizer = new Minimizer(new StandardTestCaseVisitor(discountFactor, coverageFactor));
                 break;
             default:
                 break;

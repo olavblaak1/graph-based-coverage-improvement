@@ -1,6 +1,5 @@
 package com.kuleuven.TestMinimization;
 
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -13,11 +12,11 @@ import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
-import javassist.expr.MethodCall;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Minimizer {
 
@@ -30,19 +29,37 @@ public class Minimizer {
     }
 
 
-    public Map<MethodDeclaration, Double> minimizeTests(RankedGraph<CoverageGraph> graph, List<MethodDeclaration> testClasses) {
+    public Map<MethodDeclaration, Double> minimizeTests(RankedGraph<CoverageGraph> graph, List<MethodDeclaration> testMethods) {
         Map<MethodDeclaration, Double> minimizedTests = new HashMap<>();
-        testClasses.forEach(methodDeclaration ->
-                                minimizedTests.put(methodDeclaration, analyzeTestMethod(methodDeclaration, graph)));
+        testMethods.forEach(methodDeclaration ->
+                                minimizedTests.put(methodDeclaration, analyzeTestMethod(methodDeclaration, graph, testMethods)));
         return minimizedTests;
     }
 
-    private double analyzeTestMethod(MethodDeclaration methodDeclaration, RankedGraph<CoverageGraph> graph) {
+    private Optional<MethodDeclaration> getTestMethod(ResolvedMethodDeclaration methodDeclaration, List<MethodDeclaration> testMethods) {
+        for (MethodDeclaration testMethod : testMethods) {
+            if (testMethod.resolve().getQualifiedSignature().equals(methodDeclaration.getQualifiedSignature())) {
+                return Optional.of(testMethod);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private double analyzeTestMethod(MethodDeclaration methodDeclaration, RankedGraph<CoverageGraph> graph, List<MethodDeclaration> testMethods) {
         double testMethodImportance = 0.0;
         for (MethodCallExpr methodCallExpr : methodDeclaration.findAll(MethodCallExpr.class)) {
             try {
                 ResolvedMethodDeclaration calledMethod = methodCallExpr.resolve();
-                testMethodImportance += calculateMethodCallImportance(graph, calledMethod);
+                // We need to check if the called method is a test method, because if so,
+                // we need to also analyze the effects of that test method that is called,
+                // otherwise structural methods (methods in a test suite that only call other test methods) have an importance of 0.
+                Optional<MethodDeclaration> correspondingTestMethod = getTestMethod(calledMethod, testMethods);
+                if(correspondingTestMethod.isPresent()) {
+                    testMethodImportance += analyzeTestMethod(correspondingTestMethod.get(), graph, testMethods);
+                }
+                else {
+                    testMethodImportance += calculateMethodCallImportance(graph, calledMethod);
+                }
             }
             catch (UnsolvedSymbolException e) {
                 System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());

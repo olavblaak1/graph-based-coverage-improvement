@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CoverageGraph extends Graph {
-    private Map<Node, Integer> markedNodes;
-    private Map<Edge, Integer> markedEdges;
+    private final Map<Node, Integer> markedNodes;
+    private final Map<Edge, Integer> markedEdges;
 
 
     /*

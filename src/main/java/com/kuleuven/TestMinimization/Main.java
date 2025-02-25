@@ -1,6 +1,9 @@
 package com.kuleuven.TestMinimization;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.kuleuven.CoverageAnalysis.AnalysisMethod;
+import com.kuleuven.CoverageAnalysis.AnalysisResult;
+import com.kuleuven.CoverageAnalysis.CoverageAnalyzer;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Graph.RankedGraph;
@@ -9,14 +12,13 @@ import com.kuleuven.Graph.Serializer.SerializeManager;
 import com.kuleuven.ParseManager;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /*
@@ -51,6 +53,8 @@ public class Main {
             System.err.println("Usage: java TestMinimization <graphPath> <test_directory_path> <jar_path> <src_dir> <testcase_importance>");
             return;
         }
+        AnalysisResult coverageOriginal = AnalysisResult.createFromJson(Objects.requireNonNull(GraphUtils.readAnalysisResults("data/joda-time/analysis/coverageAnalysisResults.json")));
+
         String graphPath = args[0];
         File testDirectory = new File(args[1]);
         Path jarPath = Paths.get(args[2]);
@@ -64,30 +68,39 @@ public class Main {
         SerializeManager serializeManager = new SerializeManager();
         RankedGraph<? extends Graph> SUTGraph = serializeManager.deserializeRankedGraph(graphJson);
 
-       ParseManager parseManager = new ParseManager();
+        ParseManager parseManager = new ParseManager();
         List<Path> jarPaths = parseManager.getClasspathJars(jarPath);
         parseManager.setupParser(jarPaths, srcDir);
         parseManager.parseDirectory(testDirectory);
 
-        TestMinimization testMinimization = new TestMinimization(minimizationMethod);
+        TestMinimization testMinimization = new TestMinimization(minimizationMethod, 1, 0);
         Map<MethodDeclaration, Double> rankedTests = testMinimization.minimizeTests((RankedGraph<CoverageGraph>) SUTGraph, parseManager.getTestCases());
 
-        rankedTests.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(entry -> System.out.println(entry.getKey().resolve().getQualifiedName() + " : " + entry.getValue()));
-        // output to a txt:
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("tests.txt"))) {
-            rankedTests.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue())
-                    .forEach(entry -> {
-                        try {
-                            writer.write(entry.getKey().resolve().getQualifiedName() + " : " + entry.getValue());
-                            writer.newLine();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        double testMinimizationPercentage = 0.25; // keep x% of the most important test cases
+        List<MethodDeclaration> filteredTests = rankedTests.entrySet().stream()
+                .sorted(Map.Entry.<MethodDeclaration, Double>comparingByValue().reversed())
+                .filter(entry -> entry.getValue() > 0)
+                .limit((int) Math.ceil(rankedTests.size() * testMinimizationPercentage))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        long relevantTestCount = rankedTests.entrySet().stream().filter(entry -> entry.getValue() > 0).count();
+        double realMinimizationPercentage = (double) filteredTests.size() / relevantTestCount;
+
+        CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(AnalysisMethod.FULL);
+
+
+        JSONObject SUTGraphOriginalJSON = GraphUtils.readGraph("data/joda-time/graph/graph.json");
+        Graph SUTGraphOriginal = serializeManager.deserializeGraph(SUTGraphOriginalJSON);
+        CoverageGraph coverageGraph = coverageAnalyzer.analyze(filteredTests, SUTGraphOriginal);
+
+        AnalysisResult coverageAfterMinimization = new AnalysisResult(coverageGraph);
+
+        MinimizationResult minimizationResults = new MinimizationResult(coverageOriginal, coverageAfterMinimization, realMinimizationPercentage);
+
+        GraphUtils.writeFile("data/joda-time/minimizationResults/minimizationResults.json", minimizationResults.toJSON().toString(4).getBytes());
+
+
     }
 
 }
