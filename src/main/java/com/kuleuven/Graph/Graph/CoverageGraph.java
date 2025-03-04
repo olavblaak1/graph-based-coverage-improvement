@@ -71,6 +71,9 @@ public class CoverageGraph extends Graph {
     }
 
     public double getEdgeTypeCoveragePercentage(EdgeType edgeType) {
+        if (getEdgesOfType(edgeType).isEmpty()) {
+            return 0;
+        }
         return (double) getEdgesOfType(edgeType).stream().filter(this::isEdgeMarked).count() / getEdgesOfType(edgeType).size();
     }
 

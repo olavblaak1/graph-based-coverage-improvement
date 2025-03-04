@@ -8,8 +8,10 @@ import com.github.javaparser.resolution.MethodAmbiguityException;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.resolution.types.ResolvedWildcard;
 import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
@@ -41,20 +43,31 @@ public class ExtractGraphHelper {
     // Method for extracting method nodes
     public static List<Node> extractMethodNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
-        nodes.forEach(node -> {
-            graphNodes.add(createMethodNode(node));
-        });
+        nodes.forEach(node -> graphNodes.add(createMethodNode(node)));
         return graphNodes;
     }
 
     public static MethodNode createMethodNode(MethodDeclaration node) {
+        ResolvedMethodDeclaration resolvedMethod = node.resolve();
         String name = node.resolve().getQualifiedName();
         String signature = node.resolve().getSignature();
         isOverride overwrite = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
         if (overwrite == isOverride.YES) {
-            Optional<ResolvedMethodDeclaration> overriddenMethod = getOverriddenMethod(node.resolve());
+            Optional<ResolvedMethodDeclaration> overriddenMethod = Optional.empty();
+            if (resolvedMethod.declaringType().isEnum()) {
+                // Because enum constants can actually override methods inside the same enum (thus not in its parents)
+                // we need to handle this case separately
+                overriddenMethod = getEnumOverriddenMethod(resolvedMethod);
+            }
             if (!overriddenMethod.isPresent()) {
-                throw new RuntimeException("Could not find overridden method");
+                // If the method is not an enum or is not overriding a method in the same enum, we can look for
+                // overridden methods in the ancestor(s) (enums can also implement Interfaces)
+                overriddenMethod = getOverriddenMethod(resolvedMethod);
+            }
+
+            if (!overriddenMethod.isPresent()) {
+                // If it is finally not found, there must be an edge-case that we did not consider
+                throw new RuntimeException("Could not find overridden method for method: " + resolvedMethod.getQualifiedName());
             }
             MethodNode overriddenMethodNode = new MethodNode(overriddenMethod.get().getQualifiedName(),
                                                              overriddenMethod.get().getSignature());
@@ -62,6 +75,15 @@ public class ExtractGraphHelper {
         }
 
         return new MethodNode(name, signature, overwrite);
+    }
+
+    private static Optional<ResolvedMethodDeclaration> getEnumOverriddenMethod(ResolvedMethodDeclaration resolvedMethod) {
+        for (ResolvedMethodDeclaration method : resolvedMethod.declaringType().getDeclaredMethods()) {
+            if (isMethodOverride(method, resolvedMethod)) {
+                return Optional.of(method);
+            }
+        }
+        return Optional.empty();
     }
 
     // Method for extracting class definitions from compilation units
@@ -106,8 +128,8 @@ public class ExtractGraphHelper {
 
     private static Optional<ResolvedMethodDeclaration> getOverriddenMethod(ResolvedMethodDeclaration methodDeclaration) {
         for (ResolvedReferenceType ancestor : methodDeclaration.declaringType().getAncestors()) {
-            for (ResolvedMethodDeclaration method : ancestor.getAllMethods()) {
-                if (method.getSignature().equals(methodDeclaration.getSignature())) {
+            for (ResolvedMethodDeclaration method : ancestor.getAllMethodsVisibleToInheritors()) {
+                if (isMethodOverride(method, methodDeclaration)) {
                     return Optional.of(method); // Found a match, return immediately
                 }
             }
@@ -121,12 +143,31 @@ public class ExtractGraphHelper {
 
     private static Optional<ResolvedMethodDeclaration> getOverriddenMethodFromAncestor(
             ResolvedReferenceType ancestor, ResolvedMethodDeclaration methodDeclaration) {
-        for (ResolvedMethodDeclaration method : ancestor.getAllMethods()) {
-            if (method.getSignature().equals(methodDeclaration.getSignature())) {
+        for (ResolvedMethodDeclaration method : ancestor.getAllMethodsVisibleToInheritors()) {
+            if (isMethodOverride(method, methodDeclaration)) {
                 return Optional.of(method);
             }
         }
         return Optional.empty();
+    }
+
+    private static boolean isMethodOverride(ResolvedMethodDeclaration method, ResolvedMethodDeclaration methodDeclaration) {
+        if (method.getSignature().equals(methodDeclaration.getSignature())) {
+            return true;
+        }
+
+        if (methodDeclaration.getNumberOfParams() == method.getNumberOfParams() &&
+                methodDeclaration.getName().equals(method.getName())) {
+            for (int i = 0; i < methodDeclaration.getNumberOfParams(); i++) {
+                ResolvedParameterDeclaration methodParam = methodDeclaration.getParam(i);
+                ResolvedParameterDeclaration ancestorParam = method.getParam(i);
+                if (!ancestorParam.getType().erasure().isAssignableBy(methodParam.getType().erasure())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     // Auxiliary method for extracting referenced types
@@ -151,6 +192,9 @@ public class ExtractGraphHelper {
             return true;
         } catch (MethodAmbiguityException e) {
             System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
+            return true;
+        } catch (UnsupportedOperationException e) {
+            System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
             return true;
         }
     }

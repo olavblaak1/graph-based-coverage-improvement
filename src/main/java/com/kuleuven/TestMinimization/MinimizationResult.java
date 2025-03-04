@@ -15,38 +15,38 @@ public class MinimizationResult {
     private final double testMinimizationPercentage;
 
     public MinimizationResult(AnalysisResult originalResult, AnalysisResult minimizationResult, double testMinimizationPercentage) {
-        this.nodeCoverageDecrease = (originalResult.getNodesCoveredPercentage() - minimizationResult.getNodesCoveredPercentage()) / originalResult.getNodesCoveredPercentage();
-        this.edgeCoverageDecrease = (originalResult.getEdgesCoveredPercentage() - minimizationResult.getEdgesCoveredPercentage()) / originalResult.getEdgesCoveredPercentage();
-        this.overridesEdgeCoverageDecrease = (originalResult.getOverridesEdgeCoveredPercentage() - minimizationResult.getOverridesEdgeCoveredPercentage()) / originalResult.getOverridesEdgeCoveredPercentage();
-        this.methodCallEdgeCoverageDecrease = (originalResult.getMethodCallEdgeCoveredPercentage() - minimizationResult.getMethodCallEdgeCoveredPercentage()) / originalResult.getMethodCallEdgeCoveredPercentage();
-        this.ownedByEdgeCoverageDecrease = (originalResult.getOwnedByEdgeCoveredPercentage() - minimizationResult.getOwnedByEdgeCoveredPercentage()) / originalResult.getOwnedByEdgeCoveredPercentage();
-        this.fieldAccessEdgeCoverageDecrease = (originalResult.getFieldAccessEdgeCoveredPercentage() - minimizationResult.getFieldAccessEdgeCoveredPercentage()) / originalResult.getFieldAccessEdgeCoveredPercentage();
+        this.nodeCoverageDecrease = sanitize((originalResult.getNodesCoveredPercentage() - minimizationResult.getNodesCoveredPercentage()), originalResult.getNodesCoveredPercentage());
+        this.edgeCoverageDecrease = sanitize((originalResult.getEdgesCoveredPercentage() - minimizationResult.getEdgesCoveredPercentage()), originalResult.getEdgesCoveredPercentage());
+        this.overridesEdgeCoverageDecrease = sanitize((originalResult.getOverridesEdgeCoveredPercentage() - minimizationResult.getOverridesEdgeCoveredPercentage()), originalResult.getOverridesEdgeCoveredPercentage());
+        this.methodCallEdgeCoverageDecrease = sanitize((originalResult.getMethodCallEdgeCoveredPercentage() - minimizationResult.getMethodCallEdgeCoveredPercentage()), originalResult.getMethodCallEdgeCoveredPercentage());
+        this.ownedByEdgeCoverageDecrease = sanitize((originalResult.getOwnedByEdgeCoveredPercentage() - minimizationResult.getOwnedByEdgeCoveredPercentage()), originalResult.getOwnedByEdgeCoveredPercentage());
+        this.fieldAccessEdgeCoverageDecrease = sanitize((originalResult.getFieldAccessEdgeCoveredPercentage() - minimizationResult.getFieldAccessEdgeCoveredPercentage()), originalResult.getFieldAccessEdgeCoveredPercentage());
 
-        this.testMinimizationPercentage = (1- testMinimizationPercentage);
+        this.testMinimizationPercentage = (1- sanitize(testMinimizationPercentage, 1));
     }
 
     public double getNodeCoverageRatio() {
-        return testMinimizationPercentage / nodeCoverageDecrease;
+        return sanitize(testMinimizationPercentage, nodeCoverageDecrease);
     }
 
     public double getEdgeCoverageRatio() {
-        return testMinimizationPercentage / edgeCoverageDecrease;
+        return sanitize(testMinimizationPercentage, edgeCoverageDecrease);
     }
 
     public double getOverridesEdgeCoverageRatio() {
-        return testMinimizationPercentage / overridesEdgeCoverageDecrease;
+        return sanitize(testMinimizationPercentage, overridesEdgeCoverageDecrease);
     }
 
     public double getMethodCallEdgeCoverageRatio() {
-        return testMinimizationPercentage / methodCallEdgeCoverageDecrease;
+        return sanitize(testMinimizationPercentage, methodCallEdgeCoverageDecrease);
     }
 
     public double getOwnedByEdgeCoverageRatio() {
-        return testMinimizationPercentage / ownedByEdgeCoverageDecrease;
+        return sanitize(testMinimizationPercentage, ownedByEdgeCoverageDecrease);
     }
 
     public double getFieldAccessEdgeCoverageRatio() {
-        return testMinimizationPercentage / fieldAccessEdgeCoverageDecrease;
+        return sanitize(testMinimizationPercentage, fieldAccessEdgeCoverageDecrease);
     }
 
 
@@ -74,5 +74,16 @@ public class MinimizationResult {
 
         json.put("coverageRatios", coverageRatios);
         return json;
+    }
+
+    private double sanitize(double numerator, double denominator) {
+
+        if (denominator == 0 && numerator == 0) {
+            return 1;
+        }
+        if (denominator == 0) {
+            return 0;
+        }
+        return numerator / denominator;
     }
 }

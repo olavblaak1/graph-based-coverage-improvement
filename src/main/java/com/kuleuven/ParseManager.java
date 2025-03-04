@@ -3,6 +3,7 @@ package com.kuleuven;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -10,6 +11,8 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,9 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ParseManager {
@@ -39,24 +40,31 @@ public class ParseManager {
         }
     }
 
-    public void setupParser(List<Path> jarPaths, File mainDirectory) {
+    public void setupParser(List<Path> jarPaths, List<File> srcDirs) {
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
 
-        if (mainDirectory.exists() && mainDirectory.isDirectory()) {
-            combinedSolver.add(new JavaParserTypeSolver(mainDirectory));
-        } else {
-            System.err.println("Directory does not exist: " + mainDirectory.getPath());
+        for (File srcDir : srcDirs) {
+            if (srcDir.exists() && srcDir.isDirectory()) {
+                combinedSolver.add(new JavaParserTypeSolver(srcDir));
+                System.out.println("Added source directory to type solver: " + srcDir.getPath());
+            } else {
+                System.err.println("Directory does not exist: " + srcDir.getPath());
+            }
         }
 
-        try {
-            for (Path path : jarPaths) {
+        for (Path path : jarPaths) {
+            try {
                 combinedSolver.add(new JarTypeSolver(path));
+                System.out.println(("Added jar to type solver: " + path));
+            } catch (IOException e) {
+                System.err.println("Failed to add jar to type solver: " + path);
+                System.err.println("Error message: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.err.println("Failed to load JAR for type resolution: " + e.getMessage());
         }
+
 
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
+        StaticJavaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         ParserConfiguration parserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver);
         this.javaParser = new JavaParser(parserConfiguration);
         this.compilationUnits = new LinkedList<>();
@@ -99,8 +107,27 @@ public class ParseManager {
     public List<MethodDeclaration> getTestCases() {
         return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
                 .filter(method ->
-                        method.isAnnotationPresent("Test")
+                        method.isAnnotationPresent("org.junit.jupiter.api.Test")
                         || method.getNameAsString().startsWith("test"))
+                .filter(method -> !method.isPrivate())
+                .collect(Collectors.toList());
+    }
+
+
+    public List<MethodDeclaration> getFilteredTestCases(Path testMethodListPath) throws IOException {
+        Set<String> testMethodList = new HashSet<>();
+        JSONObject testMethodListJson = new JSONObject(new String(Files.readAllBytes(testMethodListPath)));
+        JSONArray testMethods = testMethodListJson.getJSONArray("minimizedTests");
+        for (int i = 0; i < testMethods.length(); i++) {
+            JSONObject testMethod = testMethods.getJSONObject(i);
+            testMethodList.add(testMethod.getString("name"));
+        }
+        return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
+                .filter(method ->
+                        method.isAnnotationPresent("org.junit.jupiter.api.Test")
+                        || method.getNameAsString().startsWith("test"))
+                .filter(method -> !method.isPrivate())
+                .filter(method -> testMethodList.contains(method.resolve().getQualifiedName()))
                 .collect(Collectors.toList());
     }
 }

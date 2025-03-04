@@ -22,10 +22,19 @@ public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
 
     @Override
     public MethodNode deserialize(JSONObject json) {
-        return new MethodNode(
-                json.getString("name"),
-                json.getString("signature"),
-                json.getBoolean("override") ? isOverride.YES : isOverride.NO
-        );
+        if (json.getBoolean("override")) {
+            return new MethodNode(
+                    json.getString("name"),
+                    isOverride.YES,
+                    json.getString("signature"),
+                    json.getString("overriddenMethod")
+            );
+        } else {
+            return new MethodNode(
+                    json.getString("name"),
+                    json.getString("signature"),
+                    isOverride.NO
+            );
+        }
     }
 }

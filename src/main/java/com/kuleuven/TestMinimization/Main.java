@@ -10,6 +10,7 @@ import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.GraphUtils;
 import com.kuleuven.Graph.Serializer.SerializeManager;
 import com.kuleuven.ParseManager;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /*
@@ -49,34 +51,39 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) {
-        if (args.length != 5) {
-            System.err.println("Usage: java TestMinimization <graphPath> <test_directory_path> <jar_path> <src_dir> <testcase_importance>");
+        if (args.length != 2) {
+            System.err.println("Usage: java TestMinimization <systemName> <minimizationMetric>");
             return;
         }
-        AnalysisResult coverageOriginal = AnalysisResult.createFromJson(Objects.requireNonNull(GraphUtils.readAnalysisResults("data/joda-time/analysis/coverageAnalysisResults.json")));
+        String systemName = args[0];
 
-        String graphPath = args[0];
-        File testDirectory = new File(args[1]);
-        Path jarPath = Paths.get(args[2]);
-        File srcDir = new File(args[3]);
-        //String outputPath = args[4];
-        MinimizationMethod minimizationMethod = MinimizationMethod.valueOf(args[4]);
+        String originalGraphPath = "data/" + systemName + "/analysis/rankedGraph.json";
+        String originalAnalysisResults = "data/" + systemName + "/analysis/coverageAnalysisResults.json";
+        File testDirectory = new File("systems/" + systemName + "/src/test/java");
+        Path classPaths = Paths.get("systems/" + systemName + "/target/classpath.txt");
+        File srcDir = new File("systems/" + systemName + "/src/main/java");
+        String outputPath = "data/" + systemName + "/minimization/minimizationResults.json";
+        MinimizationMethod minimizationMethod = MinimizationMethod.valueOf(args[1]);
+        Path jarPath = Paths.get("systems/" + systemName + "/target/targetjars.txt");
 
 
-        JSONObject graphJson = GraphUtils.readGraph(graphPath);
+        JSONObject graphJson = GraphUtils.readGraph(originalGraphPath);
 
         SerializeManager serializeManager = new SerializeManager();
         RankedGraph<? extends Graph> SUTGraph = serializeManager.deserializeRankedGraph(graphJson);
 
         ParseManager parseManager = new ParseManager();
-        List<Path> jarPaths = parseManager.getClasspathJars(jarPath);
-        parseManager.setupParser(jarPaths, srcDir);
+        List<Path> dependencyJarPaths = parseManager.getClasspathJars(classPaths);
+        List<Path> compiledJarPaths = parseManager.getClasspathJars(jarPath);
+        List<Path> jarPaths = Stream.of(dependencyJarPaths, compiledJarPaths).flatMap(List::stream).collect(Collectors.toList());
+
+        parseManager.setupParser(jarPaths, List.of(srcDir, testDirectory));
         parseManager.parseDirectory(testDirectory);
 
         TestMinimization testMinimization = new TestMinimization(minimizationMethod, 1, 0);
         Map<MethodDeclaration, Double> rankedTests = testMinimization.minimizeTests((RankedGraph<CoverageGraph>) SUTGraph, parseManager.getTestCases());
 
-        double testMinimizationPercentage = 0.25; // keep x% of the most important test cases
+        double testMinimizationPercentage = 0.5; // keep x% of the most important test cases
         List<MethodDeclaration> filteredTests = rankedTests.entrySet().stream()
                 .sorted(Map.Entry.<MethodDeclaration, Double>comparingByValue().reversed())
                 .filter(entry -> entry.getValue() > 0)
@@ -90,17 +97,29 @@ public class Main {
         CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(AnalysisMethod.FULL);
 
 
-        JSONObject SUTGraphOriginalJSON = GraphUtils.readGraph("data/joda-time/graph/graph.json");
+        JSONObject SUTGraphOriginalJSON = GraphUtils.readGraph(originalGraphPath);
         Graph SUTGraphOriginal = serializeManager.deserializeGraph(SUTGraphOriginalJSON);
         CoverageGraph coverageGraph = coverageAnalyzer.analyze(filteredTests, SUTGraphOriginal);
 
         AnalysisResult coverageAfterMinimization = new AnalysisResult(coverageGraph);
 
+        AnalysisResult coverageOriginal = AnalysisResult.createFromJson(Objects.requireNonNull(GraphUtils.readAnalysisResults(originalAnalysisResults)));
         MinimizationResult minimizationResults = new MinimizationResult(coverageOriginal, coverageAfterMinimization, realMinimizationPercentage);
 
-        GraphUtils.writeFile("data/joda-time/minimizationResults/minimizationResults.json", minimizationResults.toJSON().toString(4).getBytes());
+        GraphUtils.writeFile(outputPath, minimizationResults.toJSON().toString(4).getBytes());
 
+        JSONObject tests = new JSONObject();
 
+        JSONArray minimizedTests = new JSONArray();
+        filteredTests.forEach(test -> {
+            JSONObject testObject = new JSONObject();
+            testObject.put("name", test.resolve().getQualifiedName());
+            testObject.put("rank", rankedTests.get(test));
+            minimizedTests.put(testObject);
+        });
+
+        tests.put("minimizedTests", minimizedTests);
+        GraphUtils.writeFile("data/" + systemName + "/minimization/minimizedTests.json", tests.toString(4).getBytes());
     }
 
 }

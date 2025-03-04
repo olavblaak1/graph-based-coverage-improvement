@@ -61,7 +61,9 @@ public abstract class Coverage {
 
     private CoverageGraph analyzeFilteredGraph(List<MethodDeclaration> testMethods) {
         // Iterate over each CompilationUnit and analyze test method relationships
-        testMethods.forEach(testMethod -> analyzeTestMethod(testMethod, testMethods));
+        testMethods.stream()
+                /*.filter(e -> !e.isPrivate()) */
+                .forEach(testMethod -> analyzeTestMethod(testMethod, testMethods));
         analyzeRemainingGraph();
         return coverageGraph;
     }

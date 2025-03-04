@@ -21,6 +21,7 @@ public class CoverageGraphSerializer implements GraphSerializer<CoverageGraph> {
             graph.addNode(node);
             if (jsonNode.getBoolean("covered")) {
                 graph.setMarkCount(node, jsonNode.getInt("coverageCount"));
+
             }
         }
 

@@ -10,12 +10,14 @@ import org.json.JSONObject;
 public class Main {
 
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.out.println("Usage: java -jar GraphAnalyzer.jar <path-to-graph-file> <metric> <output-file>");
+        if (args.length != 2) {
+            System.out.println("Usage: java -jar GraphAnalyzer.jar <systemName> <metric>");
         }
-        String graphPath = args[0];
+        String systemName = args[0];
+
+        String graphPath = "data/" + systemName + "/analysis/coverageGraph.json";
         Metric metric = Metric.valueOf(args[1]);
-        String outputPath = args[2];
+        String outputPath = "data/" + systemName + "/analysis/rankedGraph.json";
 
         JSONObject graphJson = GraphUtils.readGraph(graphPath);
         SerializeManager serializeManager = new SerializeManager();
