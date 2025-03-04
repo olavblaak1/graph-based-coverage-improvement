@@ -17,6 +17,7 @@ mkdir -p "data/$systemName/analysis";
 mkdir -p "data/$systemName/graph";
 
 # GRAPH EXTRACTION
+
 mainClass="com.kuleuven.GraphExtraction.ExtractGraph"
 extractionMethod="FULL_GRAPH"
 classPaths="target/classpath.txt"
@@ -27,10 +28,12 @@ cd systems/$systemName || exit
 
 OUTPUT_FILE="target/targetjars.txt"
 
+echo "--- COMPILING PROJECT ---"
 # Build all JARs (main, sources, test-sources, tests)
 mvn clean install -DskipTests
 
 
+echo "--- RETRIEVING DEPENDENCIES ---"
 # Get all dependency jars
 mvn dependency:build-classpath -Dmdep.outputFile=$classPaths
 
@@ -46,18 +49,23 @@ jarPaths=$(find "$TARGET_DIR" -name "*.jar" | tr '\n' ':' | sed 's/:$//')
 echo "$jarPaths" > "$OUTPUT_FILE"
 
 cd "$currentDir" || exit
+
+
+echo "--- RUNNING GRAPH EXTRACTION ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $extractionMethod"
 
 # COVERAGE ANALYSIS
 mainClass="com.kuleuven.CoverageAnalysis.MissingTestFinder"
 analysisStrategy="FULL"
 
+echo "--- RUNNING GRAPH COVERAGE ANALYSIS ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $analysisStrategy"
 
 # METRIC ANALYSIS
 mainClass="com.kuleuven.GraphAnalyzer.Main"
 metric="FAN_IN_AND_FAN_OUT"
 
+echo "--- RUNNING GRAPH METRIC ANALYSIS ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $metric"
 
 # MISSING TEST IDENTIFICATION
@@ -65,9 +73,39 @@ mainClass="com.kuleuven.TestMinimization.Main"
 
 minimizationStrategy="STANDARD"
 
+echo "--- RUNNING TEST SUITE MINIMIZATION AND ANALYSIS ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $minimizationStrategy"
 
 # EVALUATION
 
+echo "--- EVALUATING COVERAGE OF MINIMIZED SUITE WITH INDEPENDENT COVERAGE METRIC ---"
+echo "Running original test suite"
+cd systems/$systemName || exit
+mvn clean test
+echo "Creating original independent coverage report"
 mvn jacoco:report
+
+mkdir -p $currentDir/data/$systemName/metrics/jacoco-report-original
+cp -r target/site/jacoco $currentDir/data/$systemName/metrics/jacoco-report-original
+cd "$currentDir" || exit
+
+mainClass="com.kuleuven.TestMinimization.MarkReducedTestSuite"
+
+echo "Marking reduced test suite"
+mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
+
+echo "Running reduced test suite"
+cd systems/$systemName || exit
+mvn clean test -Dgroups=minimized
+mvn jacoco:report
+mkdir -p $currentDir/data/$systemName/metrics/jacoco-report-minimized
+cp -r target/site/jacoco $currentDir/data/$systemName/metrics/jacoco-report-minimized
+
+echo "Unmarking reduced test suite"
+cd "$currentDir" || exit
+mainClass="com.kuleuven.TestMinimization.UnmarkReducedTestSuite"
+mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
+
+echo "Done!"
+
 

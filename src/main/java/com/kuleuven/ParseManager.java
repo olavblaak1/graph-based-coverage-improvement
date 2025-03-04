@@ -6,11 +6,14 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.github.javaparser.utils.SourceRoot;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,6 +30,7 @@ public class ParseManager {
 
     private JavaParser javaParser;
     private List<CompilationUnit> compilationUnits;
+    private List<SourceRoot> sourceRoots;
 
 
     public List<Path> getClasspathJars(Path classPaths) {
@@ -41,11 +45,13 @@ public class ParseManager {
     }
 
     public void setupParser(List<Path> jarPaths, List<File> srcDirs) {
+        this.sourceRoots = new ArrayList<>(srcDirs.size());
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
 
         for (File srcDir : srcDirs) {
             if (srcDir.exists() && srcDir.isDirectory()) {
                 combinedSolver.add(new JavaParserTypeSolver(srcDir));
+                sourceRoots.add(new SourceRoot(srcDir.toPath()));
                 System.out.println("Added source directory to type solver: " + srcDir.getPath());
             } else {
                 System.err.println("Directory does not exist: " + srcDir.getPath());
@@ -66,6 +72,7 @@ public class ParseManager {
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         StaticJavaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         ParserConfiguration parserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver);
+        sourceRoots.forEach(root -> root.setParserConfiguration(parserConfiguration));
         this.javaParser = new JavaParser(parserConfiguration);
         this.compilationUnits = new LinkedList<>();
     }
@@ -89,9 +96,6 @@ public class ParseManager {
 
             ParseResult<CompilationUnit> parseResult = javaParser.parse(in);
             parseResult.ifSuccessful(cu -> compilationUnits.add(cu));
-            if (file.getAbsolutePath().contains("TestLocalTime")) {
-                System.out.println("Added " + file.getAbsolutePath());
-            }
 
         } catch (Exception e) {
             System.err.println("Error processing file: " + file.getName());
@@ -118,10 +122,13 @@ public class ParseManager {
         Set<String> testMethodList = new HashSet<>();
         JSONObject testMethodListJson = new JSONObject(new String(Files.readAllBytes(testMethodListPath)));
         JSONArray testMethods = testMethodListJson.getJSONArray("minimizedTests");
+        System.out.println(testMethods.length());
         for (int i = 0; i < testMethods.length(); i++) {
             JSONObject testMethod = testMethods.getJSONObject(i);
             testMethodList.add(testMethod.getString("name"));
         }
+        testMethodList.forEach(System.out::println);
+        compilationUnits.forEach(System.out::println);
         return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
                 .filter(method ->
                         method.isAnnotationPresent("org.junit.jupiter.api.Test")
@@ -129,5 +136,65 @@ public class ParseManager {
                 .filter(method -> !method.isPrivate())
                 .filter(method -> testMethodList.contains(method.resolve().getQualifiedName()))
                 .collect(Collectors.toList());
+    }
+
+
+
+    public void markTestMethodsInSourceRoots(List<MethodDeclaration> testMethods) {
+        sourceRoots.forEach(sourceRoot -> {
+            for (MethodDeclaration testMethod : testMethods) {
+                try {
+                    sourceRoot.tryToParse().forEach(parseResult -> {
+                        parseResult.getProblems().forEach(System.out::println);
+                        System.out.println(parseResult.isSuccessful());
+                        parseResult.ifSuccessful(cu -> {
+                            cu.findAll(MethodDeclaration.class).forEach(
+                                    method -> {
+                                        System.out.println("Found Method " + method.resolve().getQualifiedName());
+                                        if (method.resolve().getQualifiedName().equals(testMethod.resolve().getQualifiedName())) {
+                                            method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"minimized\"");
+                                        }
+                                    }
+                            );
+                        });
+                    });
+                } catch (IOException e) {
+                    System.err.println("Error marking test method: " + testMethod.resolve().getQualifiedName());
+                    System.err.println("Error message: " + e.getMessage());
+                }
+            }
+        });
+        sourceRoots.forEach(SourceRoot::saveAll);
+    }
+
+    public void unmarkTestMethods() {
+        sourceRoots.forEach(sourceRoot -> {
+            try {
+                sourceRoot.tryToParse().forEach(parseResult ->
+                    parseResult.ifSuccessful(cu ->
+                        cu.findAll(MethodDeclaration.class).forEach(
+                        method -> method.findAll(SingleMemberAnnotationExpr.class).forEach(
+                            annotation -> {
+                                System.out.println(("Found annotation: " + annotation.getNameAsString()));
+                                System.out.println(("Name: " + annotation.getNameAsString()));
+                                System.out.println(("Value: " + annotation.getMemberValue()));
+                                if (annotation.getNameAsString().equals("org.junit.jupiter.api.Tag") &&
+                                        annotation.getMemberValue() instanceof StringLiteralExpr &&
+                                        ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized")
+                                ) {
+                                    System.out.println("Removing annotation");
+                                    annotation.remove();
+                                }
+                            }
+                            )
+                        )
+                    )
+                );
+            } catch (IOException e) {
+                System.err.println("Error unmarking test methods");
+                System.err.println("Error message: " + e.getMessage());
+            }
+        });
+        sourceRoots.forEach(SourceRoot::saveAll);
     }
 }
