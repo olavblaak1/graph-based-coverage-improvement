@@ -1,6 +1,7 @@
 package com.kuleuven.TestMinimization;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.kuleuven.CoverageAnalysis.AnalysisMethod;
 import com.kuleuven.ParseManager;
 
 import java.io.File;
@@ -20,16 +21,19 @@ public class MarkReducedTestSuite {
 
         String systemName = args[0];
         File testDirectory = new File("systems/" + systemName + "/src/test/java");
+        Path classPaths = Paths.get("systems/" + systemName + "/target/classpath.txt");
+        File srcDir = new File("systems/" + systemName + "/src/main/java");
+        Path jarPath = Paths.get("systems/" + systemName + "/target/targetjars.txt");
+
 
 
         Path retainedMethodsListPath = Paths.get("data/" + systemName + "/minimization/minimizedTests.json");
         ParseManager parseManager = new ParseManager();
 
         // We just want to mark all tests, so no jars necessary
-        parseManager.setupParser(List.of(), List.of(testDirectory));
+        parseManager.setupParser(List.of(classPaths, jarPath), List.of(testDirectory, srcDir));
         parseManager.parseDirectory(testDirectory);
         List<MethodDeclaration> minimizedTests = parseManager.getFilteredTestCases(retainedMethodsListPath);
-        System.out.println(minimizedTests);
 
         parseManager.markTestMethodsInSourceRoots(minimizedTests);
     }

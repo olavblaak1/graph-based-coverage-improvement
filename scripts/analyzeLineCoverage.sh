@@ -1,9 +1,12 @@
+#!/bin/bash
+
 systemName="$1"
 
 if [ -z "$systemName" ]; then
   echo "Usage: $0 <systemName>"
   exit 1
 fi
+
 
 # Check if data/ directory exists
 if [ ! -d "data" ]; then
@@ -16,21 +19,44 @@ mkdir -p "data/$systemName/metrics";
 mkdir -p "data/$systemName/analysis";
 mkdir -p "data/$systemName/graph";
 
-# GRAPH EXTRACTION
-
-mainClass="com.kuleuven.GraphExtraction.ExtractGraph"
-extractionMethod="FULL_GRAPH"
 classPaths="target/classpath.txt"
 
 
 currentDir=$(pwd)
 cd systems/$systemName || exit
 
+# Path to the pom.xml file
+POM_FILE="pom.xml"
+
+# Check if the pom.xml file exists
+if [ ! -f "$POM_FILE" ]; then
+  echo "Error: $POM_FILE does not exist."
+  exit 1
+fi
+
+# Extract the JUnit version from the effective POM
+JUnit_VERSION=$(mvn help:effective-pom | grep -A 1 '<artifactId>junit-jupiter-api</artifactId>' | grep '<version>' | awk -F '[<>]' '{print $3}')
+
+# Check if the version was found
+if [ -n "$JUnit_VERSION" ]; then
+  echo "JUnit version: $JUnit_VERSION"
+else
+  JUnit_VERSION=$(mvn help:effective-pom | grep -A 1 '<artifactId>org-junit-vintage</artifactId>' | grep '<version>' | awk -F '[<>]' '{print $3}')
+  if [ -n "$JUnit_VERSION" ]; then
+    echo "JUnit version: $JUnit_VERSION"
+  else
+    echo "Error: JUnit version not found."
+    exit 1
+  fi
+
+fi
+
+
 OUTPUT_FILE="target/targetjars.txt"
 
 echo "--- COMPILING PROJECT ---"
 # Build all JARs (main, sources, test-sources, tests)
-mvn clean install
+mvn clean install -DskipTests
 
 
 echo "--- RETRIEVING DEPENDENCIES ---"
@@ -48,39 +74,10 @@ jarPaths=$(find "$TARGET_DIR" -name "*.jar" | tr '\n' ':' | sed 's/:$//')
 # Save the formatted JAR paths to the output file
 echo "$jarPaths" > "$OUTPUT_FILE"
 
-cd "$currentDir" || exit
-
-
-echo "--- RUNNING GRAPH EXTRACTION ---"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $extractionMethod"
-
-# COVERAGE ANALYSIS
-mainClass="com.kuleuven.CoverageAnalysis.MissingTestFinder"
-analysisStrategy="FULL"
-
-echo "--- RUNNING GRAPH COVERAGE ANALYSIS ---"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $analysisStrategy"
-
-# METRIC ANALYSIS
-mainClass="com.kuleuven.GraphAnalyzer.Main"
-metric="FAN_IN_AND_FAN_OUT"
-
-echo "--- RUNNING GRAPH METRIC ANALYSIS ---"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $metric"
-
-# MISSING TEST IDENTIFICATION
-mainClass="com.kuleuven.TestMinimization.Main"
-
-minimizationStrategy="STANDARD"
-
-echo "--- RUNNING TEST SUITE MINIMIZATION AND ANALYSIS ---"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $minimizationStrategy"
-
 # EVALUATION
 
 echo "--- EVALUATING COVERAGE OF MINIMIZED SUITE WITH INDEPENDENT COVERAGE METRIC ---"
 echo "Running original test suite"
-cd systems/$systemName || exit
 mvn test
 echo "Creating original independent coverage report"
 mvn jacoco:report
@@ -92,7 +89,7 @@ cd "$currentDir" || exit
 mainClass="com.kuleuven.TestMinimization.MarkReducedTestSuite"
 
 echo "Marking reduced test suite"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
+mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName" || exit
 
 echo "Running reduced test suite"
 cd systems/$systemName || exit
@@ -104,7 +101,7 @@ cp -r target/site/jacoco $currentDir/data/$systemName/metrics/jacoco-report-mini
 echo "Unmarking reduced test suite"
 cd "$currentDir" || exit
 mainClass="com.kuleuven.TestMinimization.UnmarkReducedTestSuite"
-mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
+mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName" || exit
 
 echo "Done!"
 

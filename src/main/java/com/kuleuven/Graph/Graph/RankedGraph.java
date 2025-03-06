@@ -9,15 +9,22 @@ public class RankedGraph<T extends Graph> {
 
     private final T graph;
     private final Map<Node, Double> nodeRanks;
+    private Double maxRank;
 
     public RankedGraph(T graph) {
         this.graph = graph;
         this.nodeRanks = new HashMap<>();
+        this.maxRank = 0.0;
     }
 
     public RankedGraph(RankedGraph<T> rankedGraph) {
         this.graph = rankedGraph.getGraph();
         this.nodeRanks = new HashMap<>(rankedGraph.getRanks());
+        this.maxRank = rankedGraph.getMaxRank();
+    }
+
+    public Double getMaxRank() {
+        return maxRank;
     }
 
     private Map<Node, Double> getRanks() {
@@ -33,6 +40,13 @@ public class RankedGraph<T extends Graph> {
 
     public void setRank(Node node, double rank) {
         getRanks().put(node, rank);
+        if (rank > maxRank) {
+            setMaxRank(rank);
+        }
+    }
+
+    private void setMaxRank(Double maxRank) {
+        this.maxRank = maxRank;
     }
 
     public GraphType graphType() {

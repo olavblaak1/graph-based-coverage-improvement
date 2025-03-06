@@ -86,13 +86,11 @@ public class Main {
         double testMinimizationPercentage = 0.5; // keep x% of the most important test cases
         List<MethodDeclaration> filteredTests = rankedTests.entrySet().stream()
                 .sorted(Map.Entry.<MethodDeclaration, Double>comparingByValue().reversed())
-                .filter(entry -> entry.getValue() > 0)
                 .limit((int) Math.ceil(rankedTests.size() * testMinimizationPercentage))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        long relevantTestCount = rankedTests.entrySet().stream().filter(entry -> entry.getValue() > 0).count();
-        double realMinimizationPercentage = (double) filteredTests.size() / relevantTestCount;
+        double realMinimizationPercentage = (double) filteredTests.size() / rankedTests.size();
 
         CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(AnalysisMethod.FULL);
 

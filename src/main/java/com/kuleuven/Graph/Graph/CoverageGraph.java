@@ -11,6 +11,9 @@ public class CoverageGraph extends Graph {
     private final Map<Node, Integer> markedNodes;
     private final Map<Edge, Integer> markedEdges;
 
+    private Integer maxNodeMarkCount;
+    private Integer maxEdgeMarkCount;
+
 
     /*
      * Creates a coverage graph with the given graph. Initially, all nodes and edges
@@ -20,12 +23,17 @@ public class CoverageGraph extends Graph {
         super(graph);
         markedNodes = new HashMap<>();
         markedEdges = new HashMap<>();
+        maxNodeMarkCount = 0;
+        maxEdgeMarkCount = 0;
     }
+
 
     public CoverageGraph() {
         super();
         this.markedEdges = new HashMap<>();
         this.markedNodes = new HashMap<>();
+        maxNodeMarkCount = 0;
+        maxEdgeMarkCount = 0;
     }
 
     public void markNode(Node node) {
@@ -35,6 +43,10 @@ public class CoverageGraph extends Graph {
         else {
             markedNodes.put(node, markedNodes.get(node) + 1);
         }
+
+        if (maxNodeMarkCount < markedNodes.get(node)) {
+            maxNodeMarkCount = markedNodes.get(node);
+        }
     }
 
     public void markEdge(Edge edge) {
@@ -43,6 +55,10 @@ public class CoverageGraph extends Graph {
         }
         else {
             markedEdges.put(edge, markedEdges.get(edge) + 1);
+        }
+
+        if (maxEdgeMarkCount < markedEdges.get(edge)) {
+            maxEdgeMarkCount = markedEdges.get(edge);
         }
     }
 
@@ -63,11 +79,11 @@ public class CoverageGraph extends Graph {
     }
 
     public boolean isNodeMarked(Node node) {
-        return markedNodes.containsKey(node);
+        return getMarkedNodeCount(node) != 0;
     }
 
     public boolean isEdgeMarked(Edge edge) {
-        return markedEdges.containsKey(edge);
+        return getMarkedEdgeCount(edge) != 0;
     }
 
     public double getEdgeTypeCoveragePercentage(EdgeType edgeType) {
@@ -75,6 +91,14 @@ public class CoverageGraph extends Graph {
             return 0;
         }
         return (double) getEdgesOfType(edgeType).stream().filter(this::isEdgeMarked).count() / getEdgesOfType(edgeType).size();
+    }
+
+    public Integer getMaxEdgeCoverCount() {
+        return maxEdgeMarkCount;
+    }
+
+    public Integer getMaxNodeCoverCount() {
+        return maxNodeMarkCount;
     }
 
 

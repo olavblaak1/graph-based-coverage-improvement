@@ -43,38 +43,51 @@ public class ExtractGraphHelper {
     // Method for extracting method nodes
     public static List<Node> extractMethodNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
-        nodes.forEach(node -> graphNodes.add(createMethodNode(node)));
+        nodes.forEach(node -> createMethodNode(node).ifPresent(graphNodes::add));
         return graphNodes;
     }
 
-    public static MethodNode createMethodNode(MethodDeclaration node) {
-        ResolvedMethodDeclaration resolvedMethod = node.resolve();
-        String name = node.resolve().getQualifiedName();
-        String signature = node.resolve().getSignature();
-        isOverride overwrite = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
-        if (overwrite == isOverride.YES) {
-            Optional<ResolvedMethodDeclaration> overriddenMethod = Optional.empty();
-            if (resolvedMethod.declaringType().isEnum()) {
-                // Because enum constants can actually override methods inside the same enum (thus not in its parents)
-                // we need to handle this case separately
-                overriddenMethod = getEnumOverriddenMethod(resolvedMethod);
-            }
-            if (!overriddenMethod.isPresent()) {
-                // If the method is not an enum or is not overriding a method in the same enum, we can look for
-                // overridden methods in the ancestor(s) (enums can also implement Interfaces)
-                overriddenMethod = getOverriddenMethod(resolvedMethod);
+    public static Optional<MethodNode> createMethodNode(MethodDeclaration node) {
+        try {
+            ResolvedMethodDeclaration resolvedMethod = node.resolve();
+            String name = node.resolve().getQualifiedName();
+            String signature = node.resolve().getSignature();
+
+            isOverride overwrite = node.getAnnotationByName("Override").isPresent() ? isOverride.YES : isOverride.NO;
+            if (overwrite == isOverride.YES) {
+                Optional<ResolvedMethodDeclaration> overriddenMethod = Optional.empty();
+                if (resolvedMethod.declaringType().isEnum()) {
+                    // Because enum constants can actually override methods inside the same enum (thus not in its parents)
+                    // we need to handle this case separately
+                    overriddenMethod = getEnumOverriddenMethod(resolvedMethod);
+                }
+                if (!overriddenMethod.isPresent()) {
+                    // If the method is not an enum or is not overriding a method in the same enum, we can look for
+                    // overridden methods in the ancestor(s) (enums can also implement Interfaces)
+                    overriddenMethod = getOverriddenMethod(resolvedMethod);
+                }
+
+                if (!overriddenMethod.isPresent()) {
+                    // If it is finally not found, there must be an edge-case that we did not consider
+                    throw new RuntimeException("Could not find overridden method for method: " + resolvedMethod.getQualifiedName());
+                }
+                MethodNode overriddenMethodNode = new MethodNode(overriddenMethod.get().getQualifiedName(),
+                        overriddenMethod.get().getSignature());
+                return Optional.of(new MethodNode(name, overwrite, signature, overriddenMethodNode.getId()));
             }
 
-            if (!overriddenMethod.isPresent()) {
-                // If it is finally not found, there must be an edge-case that we did not consider
-                throw new RuntimeException("Could not find overridden method for method: " + resolvedMethod.getQualifiedName());
-            }
-            MethodNode overriddenMethodNode = new MethodNode(overriddenMethod.get().getQualifiedName(),
-                                                             overriddenMethod.get().getSignature());
-            return new MethodNode(name, overwrite, signature, overriddenMethodNode.getId());
+            return Optional.of(new MethodNode(name, signature, overwrite));
         }
-
-        return new MethodNode(name, signature, overwrite);
+        catch (UnsolvedSymbolException e) {
+            System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + node);
+            return Optional.empty();
+        } catch (MethodAmbiguityException e) {
+            System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method: " + node);
+            return Optional.empty();
+        } catch (UnsupportedOperationException e) {
+            System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in method: " + node);
+            return Optional.empty();
+        }
     }
 
     private static Optional<ResolvedMethodDeclaration> getEnumOverriddenMethod(ResolvedMethodDeclaration resolvedMethod) {
@@ -267,10 +280,20 @@ public class ExtractGraphHelper {
                     resolvedMethodCall.getSignature());
 
             ResolvedMethodDeclaration resolvedSourceMethod = methodDeclaration.resolve();
-            MethodNode sourceMethodNode = new MethodNode(resolvedSourceMethod.getQualifiedName(),
-                    resolvedSourceMethod.getSignature());
 
-            edges.add(new MethodCallEdge(sourceMethodNode, destinationMethodNode));
+            try {
+                MethodNode sourceMethodNode = new MethodNode(resolvedSourceMethod.getQualifiedName(),
+                        resolvedSourceMethod.getSignature());
+
+                edges.add(new MethodCallEdge(sourceMethodNode, destinationMethodNode));
+            }
+            catch (UnsolvedSymbolException e) {
+                System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + methodDeclaration);
+            } catch (MethodAmbiguityException e) {
+                System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method: " + methodDeclaration);
+            } catch (UnsupportedOperationException e) {
+                System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in method: " + methodDeclaration);
+            }
         });
 
         return edges;
@@ -278,11 +301,20 @@ public class ExtractGraphHelper {
 
     public static List<Edge> extractOverridesEdges(MethodDeclaration methodDeclaration) {
         List<Edge> edges = new LinkedList<>();
-        Optional<ResolvedMethodDeclaration> overridden = getOverriddenMethod(methodDeclaration.resolve());
-        if (overridden.isPresent()) {
-            MethodNode overriddenNode = new MethodNode(overridden.get().getQualifiedName(), overridden.get().getSignature());
-            MethodNode overridingNode = new MethodNode(methodDeclaration.resolve().getQualifiedName(), methodDeclaration.resolve().getSignature());
-            edges.add(new OverridesEdge(overridingNode, overriddenNode));
+        try {
+            Optional<ResolvedMethodDeclaration> overridden = getOverriddenMethod(methodDeclaration.resolve());
+            if (overridden.isPresent()) {
+                MethodNode overriddenNode = new MethodNode(overridden.get().getQualifiedName(), overridden.get().getSignature());
+                MethodNode overridingNode = new MethodNode(methodDeclaration.resolve().getQualifiedName(), methodDeclaration.resolve().getSignature());
+                edges.add(new OverridesEdge(overridingNode, overriddenNode));
+            }
+        }
+        catch (UnsolvedSymbolException e) {
+            System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + methodDeclaration);
+        } catch (MethodAmbiguityException e) {
+            System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method: " + methodDeclaration);
+        } catch (UnsupportedOperationException e) {
+            System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in method: " + methodDeclaration);
         }
         return edges;
     }
@@ -310,8 +342,16 @@ public class ExtractGraphHelper {
         if (node instanceof MethodDeclaration) {
             ResolvedMethodDeclaration decl = ((MethodDeclaration) node).resolve();
 
-            return Optional.of(new OwnedByEdge(new MethodNode(decl.getQualifiedName(), decl.getSignature()),
-                    new ClassNode(decl.declaringType().getQualifiedName())));
+            try {
+                return Optional.of(new OwnedByEdge(new MethodNode(decl.getQualifiedName(), decl.getSignature()),
+                        new ClassNode(decl.declaringType().getQualifiedName())));
+            } catch (UnsolvedSymbolException e) {
+                System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + node);
+            } catch (MethodAmbiguityException e) {
+                System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method: " + node);
+            } catch (UnsupportedOperationException e) {
+                System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in method: " + node);
+            }
         }
         return Optional.empty();
     }
@@ -323,14 +363,13 @@ public class ExtractGraphHelper {
             FieldAccessVisitor fieldAccessVisitor = new FieldAccessVisitor();
             decl.accept(fieldAccessVisitor, null);
             fieldAccessVisitor.getAccessExprs().forEach(accessExpr -> {
-                MethodNode method = createMethodNode(decl);
                 if (doesNotResolve(accessExpr)) {
                     return;
                 }
 
                 if(accessExpr.resolve().isField()) {
                     ClassNode accessedClass = new ClassNode(accessExpr.resolve().asField().declaringType().getQualifiedName());
-                    edges.add(new FieldAccessEdge(method, accessedClass));
+                    createMethodNode(decl).ifPresent(method -> edges.add(new FieldAccessEdge(method, accessedClass)));
                 }
             });
         }

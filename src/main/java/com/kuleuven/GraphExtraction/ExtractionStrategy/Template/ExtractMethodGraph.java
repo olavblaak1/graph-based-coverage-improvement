@@ -33,7 +33,8 @@ public class ExtractMethodGraph extends ExtractionTemplate<MethodDeclaration> {
     @Override
     protected List<Node> convertNodes(List<MethodDeclaration> nodes) {
         List<Node> graphNodes = new LinkedList<>();
-        nodes.forEach(node -> graphNodes.add(ExtractGraphHelper.createMethodNode(node)));
+        nodes.forEach(node ->
+                ExtractGraphHelper.createMethodNode(node).ifPresent(graphNodes::add));
         return graphNodes;
     }
 
