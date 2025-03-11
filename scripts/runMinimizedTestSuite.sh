@@ -11,4 +11,5 @@ if [ ! -d "data" ]; then
   exit 1
 fi
 
+sh scripts/getDependencies.sh $systemName
 

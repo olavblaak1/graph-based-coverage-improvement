@@ -22,7 +22,7 @@ public class MinimizationResult {
         this.ownedByEdgeCoverageDecrease = sanitize((originalResult.getOwnedByEdgeCoveredPercentage() - minimizationResult.getOwnedByEdgeCoveredPercentage()), originalResult.getOwnedByEdgeCoveredPercentage());
         this.fieldAccessEdgeCoverageDecrease = sanitize((originalResult.getFieldAccessEdgeCoveredPercentage() - minimizationResult.getFieldAccessEdgeCoveredPercentage()), originalResult.getFieldAccessEdgeCoveredPercentage());
 
-        this.testMinimizationPercentage = (1- sanitize(testMinimizationPercentage, 1));
+        this.testMinimizationPercentage = (1 - sanitize(testMinimizationPercentage, 1));
     }
 
     public double getNodeCoverageRatio() {

@@ -1,13 +1,8 @@
 package com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric;
 
-import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.Graph.Node.RankedNode;
-
-import java.util.List;
 
 
 public interface MetricStrategy {
@@ -21,6 +16,5 @@ public interface MetricStrategy {
         });
         return rankedGraph;
     }
-
     double calculateRank(Node node, Graph graph);
 }

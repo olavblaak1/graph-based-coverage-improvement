@@ -16,39 +16,15 @@ mkdir -p "data/$systemName/metrics";
 mkdir -p "data/$systemName/analysis";
 mkdir -p "data/$systemName/graph";
 
+
+sh scripts/getDependencies.sh $systemName
+
+
+
 # GRAPH EXTRACTION
 
 mainClass="com.kuleuven.GraphExtraction.ExtractGraph"
 extractionMethod="FULL_GRAPH"
-classPaths="target/classpath.txt"
-
-
-currentDir=$(pwd)
-cd systems/$systemName || exit
-
-OUTPUT_FILE="target/targetjars.txt"
-
-echo "--- COMPILING PROJECT ---"
-# Build all JARs (main, sources, test-sources, tests)
-mvn clean install
-
-
-echo "--- RETRIEVING DEPENDENCIES ---"
-# Get all dependency jars
-mvn dependency:build-classpath -Dmdep.outputFile=$classPaths
-
-# Get target directory
-TARGET_DIR=$(mvn help:evaluate -Dexpression=project.build.directory -q -DforceStdout)
-
-# Find all JAR files in the target directory and format them as a colon-separated list
-jarPaths=$(find "$TARGET_DIR" -name "*.jar" | tr '\n' ':' | sed 's/:$//')
-
-
-
-# Save the formatted JAR paths to the output file
-echo "$jarPaths" > "$OUTPUT_FILE"
-
-cd "$currentDir" || exit
 
 
 echo "--- RUNNING GRAPH EXTRACTION ---"

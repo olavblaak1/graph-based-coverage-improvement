@@ -1,7 +1,6 @@
 package com.kuleuven.GraphExtraction.NodeVisitors;
 
 import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.LinkedList;

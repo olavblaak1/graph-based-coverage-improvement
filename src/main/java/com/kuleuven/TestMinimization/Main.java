@@ -24,29 +24,29 @@ import java.util.stream.Stream;
 
 
 /*
-    * This class is responsible for minimizing the test suite, it works as follows:
-    * 1. It ranks test cases based on the coverage they provide, including the importance of the nodes they cover.
-    *       The importance of a node is determined by the number of test cases that cover it and its rank in the graph.
-    *       The importance of an edge is determined by the number of test cases that cover it and the importance of the nodes it connects.
-    *
-    *  The formula used to calculate the importance of a node is:
-    *         importance(node) = exp(-number_of_test_cases_covering_node) * rank(node)
-    *         OR
-    *         importance(node) = exp(-number_of_test_cases_covering_node) * exp(rank(node)) but this would be no different from a linear rank.
-    *   Rationale: If a node is covered by many test cases, removing a test case is less likely to affect the coverage of the system, so it is less important.
-    *              If a node has a high rank, it is more important to test, so it is better to keep plenty of test-cases.
-    *
-    *
-    *   The formula used to calculate the importance of an edge is:
-    *        importance(edge) = exp(-number_of_test_cases_covering_edge) * ((importance(node1) + importance(node2)) / 2)
-    *
-    *
-    *  The importance of a test case is the sum of the importance of the nodes and edges it covers.
-    *
-    *
-    *
-    * 2. It returns a list of the most important test cases.
-    *
+ * This class is responsible for minimizing the test suite, it works as follows:
+ * 1. It ranks test cases based on the coverage they provide, including the importance of the nodes they cover.
+ *       The importance of a node is determined by the number of test cases that cover it and its rank in the graph.
+ *       The importance of an edge is determined by the number of test cases that cover it and the importance of the nodes it connects.
+ *
+ *  The formula used to calculate the importance of a node is:
+ *         importance(node) = exp(-number_of_test_cases_covering_node) * rank(node)
+ *         OR
+ *         importance(node) = exp(-number_of_test_cases_covering_node) * exp(rank(node)) but this would be no different from a linear rank.
+ *   Rationale: If a node is covered by many test cases, removing a test case is less likely to affect the coverage of the system, so it is less important.
+ *              If a node has a high rank, it is more important to test, so it is better to keep plenty of test-cases.
+ *
+ *
+ *   The formula used to calculate the importance of an edge is:
+ *        importance(edge) = exp(-number_of_test_cases_covering_edge) * ((importance(node1) + importance(node2)) / 2)
+ *
+ *
+ *  The importance of a test case is the sum of the importance of the nodes and edges it covers.
+ *
+ *
+ *
+ * 2. It returns a list of the most important test cases.
+ *
  */
 public class Main {
 

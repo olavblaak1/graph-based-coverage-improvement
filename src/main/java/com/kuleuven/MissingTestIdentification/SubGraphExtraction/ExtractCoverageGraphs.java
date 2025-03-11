@@ -1,10 +1,10 @@
-package com.kuleuven.SubGraphExtraction;
+package com.kuleuven.MissingTestIdentification.SubGraphExtraction;
 
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.GraphUtils;
 import com.kuleuven.Graph.Serializer.SerializeManager;
-import com.kuleuven.SubGraphExtraction.ExtractionAlgorithms.GraphExtractionManager;
+import com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractionAlgorithms.GraphExtractionManager;
 import org.json.JSONObject;
 
 public class ExtractCoverageGraphs {
@@ -25,8 +25,7 @@ public class ExtractCoverageGraphs {
         RankedGraph<CoverageGraph> rankedGraph;
         try {
             rankedGraph = (RankedGraph<CoverageGraph>) serializeManager.deserializeRankedGraph(graphJson);
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new RuntimeException("Graph is not a ranked coverage graph");
         }
 

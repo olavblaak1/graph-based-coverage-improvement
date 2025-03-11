@@ -7,7 +7,7 @@ import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.TestMinimization.TestCaseVisitor;
+import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
 
 public class FieldAccessEdge extends Edge {
     public FieldAccessEdge(Node source, Node destination) {
@@ -30,7 +30,7 @@ public class FieldAccessEdge extends Edge {
     }
 
     @Override
-    public double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph) {
+    public double accept(GraphImportanceVisitor visitor, RankedGraph<CoverageGraph> graph) {
         return visitor.calculateImportance(this, graph);
     }
 

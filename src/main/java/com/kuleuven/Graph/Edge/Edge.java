@@ -7,7 +7,7 @@ import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.TestMinimization.TestCaseVisitor;
+import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
 
 /**
  * Abstract class representing an edge in the system graph
@@ -49,10 +49,14 @@ public abstract class Edge {
         return source.equals(edge.getSource()) && destination.equals(edge.getDestination());
     }
 
-    public abstract boolean accept(CoverageVisitor<ResolvedMethodDeclaration> visitor,  ResolvedMethodDeclaration methodDeclaration);
-    public abstract boolean accept(CoverageVisitor<ResolvedFieldDeclaration> visitor,  ResolvedFieldDeclaration fieldDeclaration);
-    public abstract double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph);
+    public abstract boolean accept(CoverageVisitor<ResolvedMethodDeclaration> visitor, ResolvedMethodDeclaration methodDeclaration);
+
+    public abstract boolean accept(CoverageVisitor<ResolvedFieldDeclaration> visitor, ResolvedFieldDeclaration fieldDeclaration);
+
+    public abstract double accept(GraphImportanceVisitor visitor, RankedGraph<CoverageGraph> graph);
+
     public abstract void accept(MarkVisitor visitor, CoverageGraph graph);
+
     public abstract int getWeight();
 
     @Override

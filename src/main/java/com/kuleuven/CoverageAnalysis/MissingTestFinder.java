@@ -60,8 +60,7 @@ public class MissingTestFinder {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
-        else {
+        } else {
             testMethods = parseManager.getTestCases();
         }
 
@@ -78,8 +77,7 @@ public class MissingTestFinder {
         if (args.length == 3) {
             GraphUtils.writeFile(outputPath + "/coverageAfterMinimizationGraph.json", coverageGraphJson.toString(4).getBytes());
             GraphUtils.writeFile(outputPath + "/coverageAnalysisResults.json", analysisResults.toString(4).getBytes());
-        }
-        else {
+        } else {
             GraphUtils.writeFile(outputPath + "/coverageGraph.json", coverageGraphJson.toString(4).getBytes());
             GraphUtils.writeFile(outputPath + "/coverageAnalysisResults.json", analysisResults.toString(4).getBytes());
         }

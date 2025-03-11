@@ -11,7 +11,6 @@ import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
-import com.github.javaparser.resolution.types.ResolvedWildcard;
 import com.kuleuven.Graph.Edge.*;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
@@ -22,7 +21,6 @@ import com.kuleuven.GraphExtraction.NodeVisitors.FieldAccessVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodCallVisitor;
 import com.kuleuven.GraphExtraction.NodeVisitors.MethodVisitor;
 
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -77,8 +75,7 @@ public class ExtractGraphHelper {
             }
 
             return Optional.of(new MethodNode(name, signature, overwrite));
-        }
-        catch (UnsolvedSymbolException e) {
+        } catch (UnsolvedSymbolException e) {
             System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + node);
             return Optional.empty();
         } catch (MethodAmbiguityException e) {
@@ -136,7 +133,6 @@ public class ExtractGraphHelper {
 
         return edges;
     }
-
 
 
     private static Optional<ResolvedMethodDeclaration> getOverriddenMethod(ResolvedMethodDeclaration methodDeclaration) {
@@ -286,8 +282,7 @@ public class ExtractGraphHelper {
                         resolvedSourceMethod.getSignature());
 
                 edges.add(new MethodCallEdge(sourceMethodNode, destinationMethodNode));
-            }
-            catch (UnsolvedSymbolException e) {
+            } catch (UnsolvedSymbolException e) {
                 System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + methodDeclaration);
             } catch (MethodAmbiguityException e) {
                 System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method: " + methodDeclaration);
@@ -308,8 +303,7 @@ public class ExtractGraphHelper {
                 MethodNode overridingNode = new MethodNode(methodDeclaration.resolve().getQualifiedName(), methodDeclaration.resolve().getSignature());
                 edges.add(new OverridesEdge(overridingNode, overriddenNode));
             }
-        }
-        catch (UnsolvedSymbolException e) {
+        } catch (UnsolvedSymbolException e) {
             System.err.println("Could not resolve symbol: " + e.getName() + " in method: " + methodDeclaration);
         } catch (MethodAmbiguityException e) {
             System.err.println("Method ambiguity: " + e.getLocalizedMessage() + " in method: " + methodDeclaration);
@@ -367,7 +361,7 @@ public class ExtractGraphHelper {
                     return;
                 }
 
-                if(accessExpr.resolve().isField()) {
+                if (accessExpr.resolve().isField()) {
                     ClassNode accessedClass = new ClassNode(accessExpr.resolve().asField().declaringType().getQualifiedName());
                     createMethodNode(decl).ifPresent(method -> edges.add(new FieldAccessEdge(method, accessedClass)));
                 }

@@ -2,11 +2,8 @@ package com.kuleuven.GraphExtraction.ExtractionStrategy.Template;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
-import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.Graph.Node.isOverride;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractGraphHelper;
 
 import java.util.Collection;

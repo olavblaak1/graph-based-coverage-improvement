@@ -1,17 +1,39 @@
 package com.kuleuven.MissingTestIdentification;
 
-import com.kuleuven.TestMinimization.MinimizationMethod;
+import com.kuleuven.Graph.Graph.CoverageGraph;
+import com.kuleuven.Graph.Graph.RankedGraph;
+import com.kuleuven.Graph.Graph.RankedSharedPath;
+import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MissingTestIdentifier {
 
-    WeightingMethod weightingMethod;
+    GraphImportanceVisitor graphImportanceVisitor = new MissingTestImportanceVisitor();
 
-    public MissingTestIdentifier(MinimizationMethod method) {
-        switch (method) {
-            case STANDARD:
-                break;
-            default:
-                break;
-        }
+    public MissingTestList findMissingTests(RankedGraph<CoverageGraph> graph) {
+        Map<Node, Double> missingTests = new HashMap<>();
+        graph.getGraph().getNodes().forEach(node ->
+                        missingTests.put(node, analyzeMethod(node, graph)));
+        return new MissingTestList(missingTests);
     }
+
+    public MissingPathList findMissingPaths(RankedGraph<CoverageGraph> graph) {
+        Map<Node, Collection<RankedSharedPath>> missingPaths = new HashMap<>();
+        graph.getGraph().getNodes().forEach(node ->
+                        missingPaths.put(node, graphImportanceVisitor.getAllPathsWithImportance(node, graph)));
+        return new MissingPathList(missingPaths, findMissingTests(graph));
+    }
+
+    private Double analyzeMethod(Node node, RankedGraph<CoverageGraph> graph) {
+        if (graph.getGraph().isNodeMarked(node)) {
+            throw new RuntimeException("Graph should be uncovered, with no marked nodes");
+        }
+        return node.accept(graphImportanceVisitor, graph);
+    }
+
 }

@@ -45,7 +45,7 @@ public class MethodGraphCoverage extends Coverage {
         // Retain only MethodCallEdges where both endpoints are MethodNodes
         graph.getEdges().stream()
                 .filter(edge -> (!(edge.getType().equals(EdgeType.METHOD_CALL)) &&
-                                      !(edge.getType().equals(EdgeType.OVERRIDES))) ||
+                        !(edge.getType().equals(EdgeType.OVERRIDES))) ||
                         !(edge.getSource().getType().equals(NodeType.METHOD)) ||
                         !(edge.getDestination().getType().equals(NodeType.METHOD)))
                 .forEach(newGraph::removeEdge);

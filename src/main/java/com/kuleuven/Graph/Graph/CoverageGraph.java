@@ -39,8 +39,7 @@ public class CoverageGraph extends Graph {
     public void markNode(Node node) {
         if (!markedNodes.containsKey(node)) {
             markedNodes.put(node, 1);
-        }
-        else {
+        } else {
             markedNodes.put(node, markedNodes.get(node) + 1);
         }
 
@@ -52,8 +51,7 @@ public class CoverageGraph extends Graph {
     public void markEdge(Edge edge) {
         if (!markedEdges.containsKey(edge)) {
             markedEdges.put(edge, 1);
-        }
-        else {
+        } else {
             markedEdges.put(edge, markedEdges.get(edge) + 1);
         }
 

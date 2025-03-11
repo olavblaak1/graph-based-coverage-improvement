@@ -4,9 +4,9 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
-import com.kuleuven.TestMinimization.TestCaseVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
+import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
 
 public abstract class Node {
     private final String name;
@@ -49,7 +49,7 @@ public abstract class Node {
 
     public abstract boolean accept(CoverageVisitor<ResolvedMethodDeclaration> nodeCoverageVisitor, ResolvedMethodDeclaration methodDeclaration);
 
-    public abstract double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph);
+    public abstract double accept(GraphImportanceVisitor visitor, RankedGraph<CoverageGraph> graph);
 
     public abstract void accept(MarkVisitor nodeMarkVisitor, CoverageGraph graph);
 

@@ -1,7 +1,6 @@
 package com.kuleuven.TestMinimization;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.kuleuven.CoverageAnalysis.AnalysisMethod;
 import com.kuleuven.ParseManager;
 
 import java.io.File;
@@ -24,7 +23,6 @@ public class MarkReducedTestSuite {
         Path classPaths = Paths.get("systems/" + systemName + "/target/classpath.txt");
         File srcDir = new File("systems/" + systemName + "/src/main/java");
         Path jarPath = Paths.get("systems/" + systemName + "/target/targetjars.txt");
-
 
 
         Path retainedMethodsListPath = Paths.get("data/" + systemName + "/minimization/minimizedTests.json");

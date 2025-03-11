@@ -1,11 +1,13 @@
 package com.kuleuven.CoverageAnalysis;
 
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.resolution.MethodAmbiguityException;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
@@ -65,8 +67,6 @@ public class FullGraphCoverage extends Coverage {
     }
 
 
-
-
     private Optional<ResolvedType> getImplicitTypeOfNameExpr(NameExpr testScope) {
         if (testScope.resolve().isField()) {
             return getImplicitTypeFromFields(testScope);
@@ -105,17 +105,17 @@ public class FullGraphCoverage extends Coverage {
                         e -> analyzeTestMethod(e, testMethods),
                         () ->
                                 getImplicitType(testCall).ifPresentOrElse(resolvedType -> {
-                            try {
-                                ResolvedReferenceType resolvedClass = resolvedType.asReferenceType();
-                                resolvedClass.getAllMethods().forEach(resolvedMethod -> {
-                                    if (resolvedMethod.getName().equals(calledMethod.getName())) {
-                                        analyzeMethodCall(resolvedMethod);
-                                    }
-                                });
-                            } catch (UnsolvedSymbolException e) {
-                                System.err.println("Warning: Unsolved symbol during implicit type analysis - " + e.getMessage());
-                            }
-                        },
+                                            try {
+                                                ResolvedReferenceType resolvedClass = resolvedType.asReferenceType();
+                                                resolvedClass.getAllMethods().forEach(resolvedMethod -> {
+                                                    if (resolvedMethod.getName().equals(calledMethod.getName())) {
+                                                        analyzeMethodCall(resolvedMethod);
+                                                    }
+                                                });
+                                            } catch (UnsolvedSymbolException e) {
+                                                System.err.println("Warning: Unsolved symbol during implicit type analysis - " + e.getMessage());
+                                            }
+                                        },
                                         () -> analyzeMethodCall(calledMethod)));
             } catch (UnsolvedSymbolException | IllegalArgumentException | MethodAmbiguityException e) {
                 System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());

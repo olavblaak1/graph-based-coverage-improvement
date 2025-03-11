@@ -3,7 +3,9 @@ package com.kuleuven.Graph.Graph;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Node.Node;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RankedGraph<T extends Graph> {
 
@@ -17,6 +19,10 @@ public class RankedGraph<T extends Graph> {
         this.maxRank = 0.0;
     }
 
+    public boolean hasNode(Node node) {
+        return nodeRanks.containsKey(node);
+    }
+
     public RankedGraph(RankedGraph<T> rankedGraph) {
         this.graph = rankedGraph.getGraph();
         this.nodeRanks = new HashMap<>(rankedGraph.getRanks());
@@ -25,6 +31,10 @@ public class RankedGraph<T extends Graph> {
 
     public Double getMaxRank() {
         return maxRank;
+    }
+
+    private void setMaxRank(Double maxRank) {
+        this.maxRank = maxRank;
     }
 
     private Map<Node, Double> getRanks() {
@@ -43,10 +53,6 @@ public class RankedGraph<T extends Graph> {
         if (rank > maxRank) {
             setMaxRank(rank);
         }
-    }
-
-    private void setMaxRank(Double maxRank) {
-        this.maxRank = maxRank;
     }
 
     public GraphType graphType() {

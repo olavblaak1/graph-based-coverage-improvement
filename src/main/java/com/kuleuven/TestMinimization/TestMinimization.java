@@ -1,9 +1,9 @@
 package com.kuleuven.TestMinimization;
 
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
+import com.kuleuven.TestMinimization.ImportanceCalculation.MinimizationImportanceVisitor;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class TestMinimization {
     public TestMinimization(MinimizationMethod minimizationMethod, double discountFactor, double coverageFactor) {
         switch (minimizationMethod) {
             case STANDARD:
-                minimizer = new Minimizer(new StandardTestCaseVisitor(discountFactor, coverageFactor));
+                minimizer = new Minimizer(new MinimizationImportanceVisitor(discountFactor, coverageFactor));
                 break;
             default:
                 break;

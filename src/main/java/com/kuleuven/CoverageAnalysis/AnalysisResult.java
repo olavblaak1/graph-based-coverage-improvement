@@ -1,7 +1,7 @@
 package com.kuleuven.CoverageAnalysis;
 
-import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.EdgeType;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import org.json.JSONObject;
 
 public class AnalysisResult {
@@ -31,6 +31,17 @@ public class AnalysisResult {
         this.methodCallEdgeCoveredPercentage = coverageGraph.getEdgeTypeCoveragePercentage(EdgeType.METHOD_CALL);
         this.ownedByEdgeCoveredPercentage = coverageGraph.getEdgeTypeCoveragePercentage(EdgeType.OWNED_BY);
         this.fieldAccessEdgeCoveredPercentage = coverageGraph.getEdgeTypeCoveragePercentage(EdgeType.FIELD_ACCESS);
+    }
+
+    public static AnalysisResult createFromJson(JSONObject analysisResultJson) {
+        AnalysisResult analysisResult = new AnalysisResult();
+        analysisResult.nodesCoveredPercentage = analysisResultJson.getDouble("nodesCoveredPercentage");
+        analysisResult.edgesCoveredPercentage = analysisResultJson.getDouble("edgesCoveredPercentage");
+        analysisResult.overridesEdgeCoveredPercentage = analysisResultJson.getDouble("overridesEdgeCoveredPercentage");
+        analysisResult.methodCallEdgeCoveredPercentage = analysisResultJson.getDouble("methodCallEdgeCoveredPercentage");
+        analysisResult.ownedByEdgeCoveredPercentage = analysisResultJson.getDouble("ownedByEdgeCoveredPercentage");
+        analysisResult.fieldAccessEdgeCoveredPercentage = analysisResultJson.getDouble("fieldAccessEdgeCoveredPercentage");
+        return analysisResult;
     }
 
     public double getNodesCoveredPercentage() {
@@ -66,17 +77,6 @@ public class AnalysisResult {
         analysisResults.put("ownedByEdgeCoveredPercentage", ownedByEdgeCoveredPercentage);
         analysisResults.put("fieldAccessEdgeCoveredPercentage", fieldAccessEdgeCoveredPercentage);
         return analysisResults;
-    }
-
-    public static AnalysisResult createFromJson(JSONObject analysisResultJson) {
-        AnalysisResult analysisResult = new AnalysisResult();
-        analysisResult.nodesCoveredPercentage = analysisResultJson.getDouble("nodesCoveredPercentage");
-        analysisResult.edgesCoveredPercentage = analysisResultJson.getDouble("edgesCoveredPercentage");
-        analysisResult.overridesEdgeCoveredPercentage = analysisResultJson.getDouble("overridesEdgeCoveredPercentage");
-        analysisResult.methodCallEdgeCoveredPercentage = analysisResultJson.getDouble("methodCallEdgeCoveredPercentage");
-        analysisResult.ownedByEdgeCoveredPercentage = analysisResultJson.getDouble("ownedByEdgeCoveredPercentage");
-        analysisResult.fieldAccessEdgeCoveredPercentage = analysisResultJson.getDouble("fieldAccessEdgeCoveredPercentage");
-        return analysisResult;
     }
 
     public String toString() {

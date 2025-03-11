@@ -21,7 +21,7 @@ public class EdgeSerializerManager {
     }
 
     public JSONObject serializeEdge(Edge edge) {
-    EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(edge.getType());
+        EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(edge.getType());
         return serializeEdgeInternal(serializer, edge);
     }
 
@@ -37,7 +37,6 @@ public class EdgeSerializerManager {
         EdgeSerializer<? extends Edge> serializer = getEdgeSerializer(type);
         return serializer.deserialize(json);
     }
-
 
 
     private <T extends Edge> EdgeSerializer<T> getEdgeSerializer(EdgeType type) {

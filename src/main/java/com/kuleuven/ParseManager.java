@@ -113,7 +113,7 @@ public class ParseManager {
         return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
                 .filter(method ->
                         method.isAnnotationPresent("org.junit.jupiter.api.Test")
-                        || method.getNameAsString().startsWith("test"))
+                                || method.getNameAsString().startsWith("test"))
                 .filter(method -> !method.isPrivate())
                 .collect(Collectors.toList());
     }
@@ -133,7 +133,6 @@ public class ParseManager {
     }
 
 
-
     public void markTestMethodsInSourceRoots(List<MethodDeclaration> testMethods) {
         sourceRoots.forEach(sourceRoot -> {
             for (MethodDeclaration testMethod : testMethods) {
@@ -141,13 +140,13 @@ public class ParseManager {
                     sourceRoot.tryToParse().forEach(parseResult -> {
                         parseResult.ifSuccessful(cu ->
                                 cu.findAll(MethodDeclaration.class).forEach(
-                                method -> {
-                                    if (method.resolve().getQualifiedName().equals(testMethod.resolve().getQualifiedName())) {
-                                        System.out.println("Marked method: " + method.resolve().getQualifiedName());
-                                        method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"minimized\"");
-                                    }
-                                }
-                        ));
+                                        method -> {
+                                            if (method.resolve().getQualifiedName().equals(testMethod.resolve().getQualifiedName())) {
+                                                System.out.println("Marked method: " + method.resolve().getQualifiedName());
+                                                method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"minimized\"");
+                                            }
+                                        }
+                                ));
                     });
                 } catch (IOException | UnsolvedSymbolException e) {
                 }
@@ -160,20 +159,20 @@ public class ParseManager {
         sourceRoots.forEach(sourceRoot -> {
             try {
                 sourceRoot.tryToParse().forEach(parseResult ->
-                    parseResult.ifSuccessful(cu ->
-                        cu.findAll(MethodDeclaration.class).forEach(
-                        method -> method.findAll(SingleMemberAnnotationExpr.class).forEach(
-                            annotation -> {
-                                if (annotation.getNameAsString().equals("org.junit.jupiter.api.Tag") &&
-                                        annotation.getMemberValue() instanceof StringLiteralExpr &&
-                                        ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized")
-                                ) {
-                                    annotation.remove();
-                                }
-                            }
-                            )
+                        parseResult.ifSuccessful(cu ->
+                                cu.findAll(MethodDeclaration.class).forEach(
+                                        method -> method.findAll(SingleMemberAnnotationExpr.class).forEach(
+                                                annotation -> {
+                                                    if (annotation.getNameAsString().equals("org.junit.jupiter.api.Tag") &&
+                                                            annotation.getMemberValue() instanceof StringLiteralExpr &&
+                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized")
+                                                    ) {
+                                                        annotation.remove();
+                                                    }
+                                                }
+                                        )
+                                )
                         )
-                    )
                 );
             } catch (IOException e) {
                 System.err.println("Error unmarking test methods");

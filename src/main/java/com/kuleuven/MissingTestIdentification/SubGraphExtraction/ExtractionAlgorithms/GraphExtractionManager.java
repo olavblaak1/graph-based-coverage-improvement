@@ -1,4 +1,4 @@
-package com.kuleuven.SubGraphExtraction.ExtractionAlgorithms;
+package com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractionAlgorithms;
 
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Graph.CoverageGraph;
@@ -12,12 +12,12 @@ public class GraphExtractionManager {
 
     public RankedGraph<CoverageGraph> getFullyCoveredGraph(RankedGraph<CoverageGraph> graph) {
         return getGraphUnderCondition(graph, node -> graph.getGraph().isNodeMarked(node),
-                                             edge -> graph.getGraph().isEdgeMarked(edge));
+                edge -> graph.getGraph().isEdgeMarked(edge));
     }
 
     public RankedGraph<CoverageGraph> getUncoveredGraph(RankedGraph<CoverageGraph> graph) {
         return getGraphUnderCondition(graph, node -> !graph.getGraph().isNodeMarked(node),
-                                             edge -> !graph.getGraph().isEdgeMarked(edge));
+                edge -> !graph.getGraph().isEdgeMarked(edge));
     }
 
     public RankedGraph<CoverageGraph> getGraphUnderCondition(RankedGraph<CoverageGraph> graph, Predicate<Node> nodePred, Predicate<Edge> edgePred) {

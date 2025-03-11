@@ -14,7 +14,11 @@ if [ ! -d "data" ]; then
   exit 1
 fi
 
-mvn exec:java -Dexec.mainClass="com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractCoverageGraphs" -Dexec.args="$systemName"
+sh scripts/getDependencies.sh $systemName
+
+mkdir -p "data/$systemName/missing_tests";
+
+mvn exec:java -Dexec.mainClass="com.kuleuven.MissingTestIdentification.Main" -Dexec.args="$systemName"
 
 echo "Done!"
 

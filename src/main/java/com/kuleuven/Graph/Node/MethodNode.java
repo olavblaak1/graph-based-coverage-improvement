@@ -4,9 +4,9 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.CoverageAnalysis.EdgeAnalysis.CoverageVisitor;
 import com.kuleuven.CoverageAnalysis.MarkVisitor.MarkVisitor;
-import com.kuleuven.TestMinimization.TestCaseVisitor;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
+import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
 
 public class MethodNode extends Node {
 
@@ -36,7 +36,6 @@ public class MethodNode extends Node {
     }
 
 
-
     @Override
     public String getId() {
         return super.getName() + ":" + signature;
@@ -58,7 +57,7 @@ public class MethodNode extends Node {
     }
 
     @Override
-    public double accept(TestCaseVisitor visitor, RankedGraph<CoverageGraph> graph) {
+    public double accept(GraphImportanceVisitor visitor, RankedGraph<CoverageGraph> graph) {
         return visitor.calculateImportance(this, graph);
     }
 

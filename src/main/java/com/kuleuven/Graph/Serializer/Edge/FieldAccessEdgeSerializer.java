@@ -1,6 +1,5 @@
 package com.kuleuven.Graph.Serializer.Edge;
 
-import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Edge.FieldAccessEdge;
 import org.json.JSONObject;

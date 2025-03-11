@@ -1,7 +1,7 @@
 package com.kuleuven.Graph.Serializer.Graph;
 
-import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Serializer.Edge.SerializedEdge;
 import org.json.JSONArray;

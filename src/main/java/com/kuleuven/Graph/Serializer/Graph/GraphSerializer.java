@@ -42,7 +42,7 @@ public interface GraphSerializer<T extends Graph> {
             case FIELD_ACCESS:
                 return new FieldAccessEdge(sourceNode, destinationNode);
             default:
-                throw new IllegalArgumentException("EdgeType " + edge.getEdgeType() +  " serialization not supported");
+                throw new IllegalArgumentException("EdgeType " + edge.getEdgeType() + " serialization not supported");
         }
     }
 }

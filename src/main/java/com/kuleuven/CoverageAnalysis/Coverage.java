@@ -16,9 +16,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public abstract class Coverage {
+    private final MarkVisitor markVisitor = new Marker();
     CoverageGraph coverageGraph;
     CoverageManager coverageManager = new CoverageManager();
-    private final MarkVisitor markVisitor = new Marker();
 
     public Set<Edge> getOutgoingEdges(Node node) {
         return coverageGraph.getOutgoingEdges(node);

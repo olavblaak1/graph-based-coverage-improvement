@@ -1,13 +1,7 @@
 package com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric;
 
-import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Graph.Graph;
-import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
-import com.kuleuven.Graph.Node.RankedNode;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class FanInFanOutMetric implements MetricStrategy {
 

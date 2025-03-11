@@ -12,6 +12,7 @@ import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +21,11 @@ import java.util.Optional;
 
 public class Minimizer {
 
-    TestCaseVisitor testCaseVisitor;
+    GraphImportanceVisitor graphImportanceVisitor;
     CoverageManager coverageManager;
 
-    public Minimizer(TestCaseVisitor testCaseVisitor) {
-        this.testCaseVisitor = testCaseVisitor;
+    public Minimizer(GraphImportanceVisitor graphImportanceVisitor) {
+        this.graphImportanceVisitor = graphImportanceVisitor;
         this.coverageManager = new CoverageManager();
     }
 
@@ -32,7 +33,7 @@ public class Minimizer {
     public Map<MethodDeclaration, Double> minimizeTests(RankedGraph<CoverageGraph> graph, List<MethodDeclaration> testMethods) {
         Map<MethodDeclaration, Double> minimizedTests = new HashMap<>();
         testMethods.forEach(methodDeclaration ->
-                                minimizedTests.put(methodDeclaration, analyzeTestMethod(methodDeclaration, graph, testMethods)));
+                minimizedTests.put(methodDeclaration, analyzeTestMethod(methodDeclaration, graph, testMethods)));
         return minimizedTests;
     }
 
@@ -54,17 +55,14 @@ public class Minimizer {
                 // we need to also analyze the effects of that test method that is called,
                 // otherwise structural methods (methods in a test suite that only call other test methods) have an importance of 0.
                 Optional<MethodDeclaration> correspondingTestMethod = getTestMethod(calledMethod, testMethods);
-                if(correspondingTestMethod.isPresent()) {
+                if (correspondingTestMethod.isPresent()) {
                     testMethodImportance += analyzeTestMethod(correspondingTestMethod.get(), graph, testMethods);
-                }
-                else {
+                } else {
                     testMethodImportance += calculateMethodCallImportance(graph, calledMethod);
                 }
-            }
-            catch (UnsolvedSymbolException e) {
+            } catch (UnsolvedSymbolException e) {
                 System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());
-            }
-            catch (MethodAmbiguityException e) {
+            } catch (MethodAmbiguityException e) {
                 System.err.println("Warning: Ambiguous method call during test method analysis - " + e.getMessage());
             }
         }
@@ -75,11 +73,9 @@ public class Minimizer {
                     ResolvedFieldDeclaration fieldDeclaration = fieldAccessExpr.resolve().asField();
                     testMethodImportance += calculateFieldAccessImportance(graph, fieldDeclaration);
                 }
-            }
-            catch (UnsolvedSymbolException e) {
+            } catch (UnsolvedSymbolException e) {
                 System.err.println("Warning: Unsolved or invalid symbol during test method analysis - " + e.getMessage());
-            }
-            catch (MethodAmbiguityException e) {
+            } catch (MethodAmbiguityException e) {
                 System.err.println("Warning: Ambiguous field access during test method analysis - " + e.getMessage());
             }
         }
@@ -90,12 +86,12 @@ public class Minimizer {
         double fieldAccessImportance = 0.0;
         for (Node node : graph.getNodes()) {
             if (coverageManager.isCoveredBy(node, fieldDeclaration)) {
-                fieldAccessImportance += node.accept(testCaseVisitor, graph);
+                fieldAccessImportance += node.accept(graphImportanceVisitor, graph);
             }
         }
         for (Edge edge : graph.getEdges()) {
             if (coverageManager.isCoveredBy(edge, fieldDeclaration)) {
-                fieldAccessImportance += edge.accept(testCaseVisitor, graph);
+                fieldAccessImportance += edge.accept(graphImportanceVisitor, graph);
             }
         }
         return fieldAccessImportance;
@@ -105,12 +101,12 @@ public class Minimizer {
         double methodCallImportance = 0.0;
         for (Node node : graph.getNodes()) {
             if (coverageManager.isCoveredBy(node, calledMethod)) {
-                methodCallImportance += node.accept(testCaseVisitor, graph);
+                methodCallImportance += node.accept(graphImportanceVisitor, graph);
             }
         }
         for (Edge edge : graph.getEdges()) {
             if (coverageManager.isCoveredBy(edge, calledMethod)) {
-                methodCallImportance += edge.accept(testCaseVisitor, graph);
+                methodCallImportance += edge.accept(graphImportanceVisitor, graph);
             }
         }
         return methodCallImportance;

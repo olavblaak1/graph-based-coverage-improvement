@@ -4,8 +4,6 @@ import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.GraphUtils;
 import com.kuleuven.Graph.Serializer.Graph.BasicGraphSerializer;
 import com.kuleuven.Graph.Serializer.Graph.GraphSerializer;
-import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.Metric;
-import com.kuleuven.GraphAnalyzer.NodeRanker;
 import com.kuleuven.GraphExtraction.ExtractionStrategy.ExtractionStrategy;
 import com.kuleuven.ParseManager;
 import org.json.JSONObject;
@@ -13,7 +11,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
