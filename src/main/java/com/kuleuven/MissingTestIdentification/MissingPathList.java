@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,13 +35,23 @@ public class MissingPathList extends MissingTestList {
                     jsonObject.put("importance", entry.getValue());
 
                     JSONArray paths = new JSONArray();
-                    missingPaths.get(entry.getKey()).forEach(path -> {
+                    missingPaths.get(entry.getKey()).stream().
+                            sorted(Comparator.comparingDouble(RankedSharedPath::getRank))
+                            .forEach(path -> {
                         JSONObject pathObject = new JSONObject();
-                        pathObject.put("importance", path.getRank());
                         pathObject.put("path", path.toJSON());
                         paths.put(pathObject);
                     });
+                    jsonObject.put("paths", paths);
+                    json.put(jsonObject);
                 });
         return json;
+    }
+
+    @Override
+    public String toString() {
+        return "MissingPathList{" +
+                "missingPaths=" + missingPaths +
+                '}';
     }
 }

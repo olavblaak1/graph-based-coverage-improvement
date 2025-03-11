@@ -6,6 +6,7 @@ import com.kuleuven.Graph.Node.Node;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class RankedGraph<T extends Graph> {
 
@@ -21,6 +22,10 @@ public class RankedGraph<T extends Graph> {
 
     public boolean hasNode(Node node) {
         return nodeRanks.containsKey(node);
+    }
+
+    public void mapRanks(Function<Double, Double> f) {
+        nodeRanks.replaceAll((node, rank) -> f.apply(rank));
     }
 
     public RankedGraph(RankedGraph<T> rankedGraph) {

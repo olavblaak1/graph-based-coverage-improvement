@@ -11,6 +11,11 @@ public class RankedSharedPath extends SharedPath {
         this.rank = 0.0;
     }
 
+    public RankedSharedPath(Node node, double rank) {
+        super(node);
+        this.rank = rank;
+    }
+
     public RankedSharedPath(RankedSharedPath p) {
         super(p);
         this.rank = p.rank;
@@ -27,10 +32,23 @@ public class RankedSharedPath extends SharedPath {
     }
 
     @Override
+    public String toString() {
+        return super.toString() + " rank: " + rank;
+    }
+
+    @Override
     public JSONObject toJSON() {
         JSONObject jsonObject = super.toJSON();
-        jsonObject.put("rank", rank);
+        jsonObject.put("testingRedundancy", rank);
         return jsonObject;
     }
 
+    public void setRank(Double rank) {
+        this.rank = rank;
+    }
+
+    // Normalizes the rank relative to the path length
+    public void normalizeRank() {
+        this.rank = this.rank / getSize();
+    }
 }

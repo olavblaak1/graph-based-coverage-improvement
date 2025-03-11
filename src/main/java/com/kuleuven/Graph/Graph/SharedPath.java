@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 /*
@@ -15,78 +14,49 @@ import java.util.Optional;
     * Uses a LinkedHashSet to store the tail of the path in order, but with constant lookup, and a head to store the last node.
  */
 public class SharedPath {
-    private Node head;
-    private SharedPath tail;
+    private List<Node> nodes;
 
 
+    public int getSize() {
+        return nodes.size();
+    }
+
+    public List<Node> getNodes() {
+        return new ArrayList<>(nodes);
+    }
 
     public SharedPath(SharedPath sharedPath) {
-        if (!sharedPath.getLastNode().isPresent()) {
-            this.head = null;
-            this.tail = null;
-            return;
-        }
-        if (!sharedPath.getTail().isPresent()) {
-            this.head = sharedPath.getLastNode().get();
-            this.tail = null;
-            return;
-        }
-
-        this.head = sharedPath.head;
-        this.tail = sharedPath.tail;
+        this.nodes = new ArrayList<>(sharedPath.getNodes());
     }
 
     public SharedPath(Node head) {
-        this.head = head;
-        this.tail = null;
+        this.nodes = List.of(head);
     }
 
-    public SharedPath(Node head, SharedPath tail) {
-        this.head = head;
-        this.tail = tail;
-    }
 
-    public Optional<Node> getLastNode() {
-        return Optional.ofNullable(head);
-    }
-
-    public Optional<SharedPath> getTail() {
-        return Optional.ofNullable(tail);
-    }
 
 
 
     public void addNode(Node node) {
-        if (head == null) {
-            this.head = node;
-            return;
-        }
-
-        if (tail == null) {
-            this.tail = new SharedPath(head);
-        }
-        this.tail = this;
-        this.head = node;
+        nodes.add(node);
     }
 
 
     public JSONObject toJSON() {
-        JSONObject json = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
-        List<Node> nodes = new ArrayList<>();
-        Optional<SharedPath> current = Optional.of(this);
-        while (current.isPresent()) {
-            current = current.get().getTail();
-            current.ifPresent(sharedPath -> nodes.add(sharedPath.head));
-        }
-
-        for (Node node : nodes.reversed()) {
+        for (Node node : nodes) {
             jsonArray.put(node.getId());
         }
+        jsonObject.put("nodes", jsonArray);
+        return jsonObject;
+    }
 
-        json.put("nodes", jsonArray);
-
-        return json;
+    @Override
+    public String toString() {
+        return "SharedPath{" +
+                "nodes=" + nodes +
+                '}';
     }
 
 }

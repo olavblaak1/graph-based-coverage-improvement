@@ -16,7 +16,6 @@ public class RankedGraphSerializer {
     }
 
     public <T extends Graph> RankedGraph<T> deserializeGraph(JSONObject jsonGraph) {
-        // This is an infinite recursion TODO: FIX!
         T graph = serializeManager.deserializeGraph(jsonGraph);
         RankedGraph<T> rankedGraph = new RankedGraph<T>(graph);
         for (int i = 0; i < jsonGraph.getJSONArray("nodes").length(); i++) {

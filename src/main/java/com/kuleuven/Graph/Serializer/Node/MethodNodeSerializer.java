@@ -10,6 +10,7 @@ public class MethodNodeSerializer implements NodeSerializer<MethodNode> {
         JSONObject json = new JSONObject();
         json.put("id", node.getId());
         json.put("name", node.getName());
+        json.put("simpleName", node.getSimpleName());
         json.put("type", node.getType().toString());
         json.put("class", node.getClassName());
         json.put("override", node.isOverride());

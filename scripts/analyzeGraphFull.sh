@@ -19,6 +19,7 @@ mkdir -p "data/$systemName/graph";
 
 sh scripts/getDependencies.sh $systemName
 
+currentDir=$(pwd)
 
 
 # GRAPH EXTRACTION

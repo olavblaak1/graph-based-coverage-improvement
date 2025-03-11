@@ -9,6 +9,7 @@ public class ClassNodeSerializer implements NodeSerializer<ClassNode> {
         JSONObject json = new JSONObject();
         json.put("id", node.getId());
         json.put("name", node.getName());
+        json.put("simpleName", node.getSimpleName());
         json.put("type", node.getType().toString());
         return json;
     }

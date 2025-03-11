@@ -8,7 +8,6 @@ import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisito
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MissingTestIdentifier {
@@ -24,8 +23,17 @@ public class MissingTestIdentifier {
 
     public MissingPathList findMissingPaths(RankedGraph<CoverageGraph> graph) {
         Map<Node, Collection<RankedSharedPath>> missingPaths = new HashMap<>();
+
+        // Invert the ranks, so that the most important nodes have the lowest rank, this is
+        // necessary for Dijkstra's algorithm to work correctly (to transform the longest path problem to
+        // the shortest path problem). This is done by taking the reciprocal of the rank,
+        // it does not change the respective rankings of the nodes, but the total path rank may be different.
+        // compared to the test coverage ranking
+        graph.mapRanks(rank -> rank / graph.getMaxRank());
+        graph.mapRanks(rank -> 1 / rank);
         graph.getGraph().getNodes().forEach(node ->
                         missingPaths.put(node, graphImportanceVisitor.getAllPathsWithImportance(node, graph)));
+        graph.mapRanks(rank -> 1 / rank);
         return new MissingPathList(missingPaths, findMissingTests(graph));
     }
 

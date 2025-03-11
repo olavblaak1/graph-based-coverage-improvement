@@ -1,28 +1,17 @@
 package com.kuleuven.MissingTestIdentification;
 
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.kuleuven.CoverageAnalysis.AnalysisMethod;
-import com.kuleuven.CoverageAnalysis.AnalysisResult;
-import com.kuleuven.CoverageAnalysis.MissingTestFinder;
 import com.kuleuven.Graph.Graph.CoverageGraph;
-import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.GraphUtils;
-import com.kuleuven.Graph.Serializer.Graph.BasicGraphSerializer;
-import com.kuleuven.Graph.Serializer.Graph.GraphSerializer;
 import com.kuleuven.Graph.Serializer.SerializeManager;
 import com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractionAlgorithms.GraphExtractionManager;
 import com.kuleuven.ParseManager;
-import com.kuleuven.TestMinimization.MinimizationMethod;
-import javassist.compiler.ast.MethodDecl;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class Main {
 
@@ -78,6 +67,7 @@ public class Main {
         outputPath = "data/" + systemName + "/missing_tests/missingTestPaths.json";
         MissingPathList missingPaths = missingTestIdentifier.findMissingPaths(uncoveredGraph);
         GraphUtils.writeFile(outputPath, missingPaths.toJSON().toString(4).getBytes());
+
 
     }
 

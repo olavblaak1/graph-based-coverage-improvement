@@ -19,6 +19,10 @@ public abstract class Node {
         return name;
     }
 
+    public String getSimpleName() {
+        return name.split("\\.")[name.split("\\.").length - 1];
+    }
+
     public abstract NodeType getType();
 
     @Override

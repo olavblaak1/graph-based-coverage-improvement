@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Graph {
-    private final Map<Node, Map<EdgeType, Set<Edge>>> outgoingEdges;
-    private final Map<Node, Map<EdgeType, Set<Edge>>> incomingEdges;
+    private final Map<Node, Map<EdgeType, Collection<Edge>>> outgoingEdges;
+    private final Map<Node, Map<EdgeType, Collection<Edge>>> incomingEdges;
 
     public Graph(Graph graph) {
         incomingEdges = new HashMap<>();
@@ -76,7 +76,7 @@ public class Graph {
         }
     }
 
-    private boolean nodeExists(Node node) {
+    public boolean nodeExists(Node node) {
         return incomingEdges.containsKey(node) && outgoingEdges.containsKey(node);
     }
 
@@ -84,19 +84,19 @@ public class Graph {
         return incomingEdges.keySet().stream().filter(node -> node.getId().equals(id)).findFirst();
     }
 
-    public Set<Edge> getOutgoingEdgesOfType(Node node, EdgeType type) {
+    public Collection<Edge> getOutgoingEdgesOfType(Node node, EdgeType type) {
         return outgoingEdges.get(node).get(type);
     }
 
-    public Set<Edge> getOutgoingEdges(Node node) {
+    public Collection<Edge> getOutgoingEdges(Node node) {
         return outgoingEdges.get(node).values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    public Set<Edge> getIncomingEdges(Node node) {
+    public Collection<Edge> getIncomingEdges(Node node) {
         return incomingEdges.get(node).values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    public Set<Edge> getIncomingEdgesOfType(Node node, EdgeType type) {
+    public Collection<Edge> getIncomingEdgesOfType(Node node, EdgeType type) {
         return incomingEdges.get(node).get(type);
     }
 

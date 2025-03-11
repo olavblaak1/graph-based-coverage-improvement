@@ -72,47 +72,45 @@ public abstract class GraphImportanceVisitor {
     }
 
     // Gets all paths from a node using Dijkstra's algorithm
+    // Try adapted dijkstras: Assumes that the rank of a node is > 0 and that it is the reciprocal of the testing importance
     public Collection<RankedSharedPath> getAllPathsWithImportance(Node startNode, RankedGraph<CoverageGraph> graph) {
 
-        // We can do this if we assume the importance is always positive, which means that a longer path is always a better path
-
         Map<Node, RankedSharedPath> allPaths = new HashMap<>();
-        PriorityQueue<RankedSharedPath> queue = new PriorityQueue<>(Comparator.comparingDouble(RankedSharedPath::getRank).reversed());
+        Set<Node> visited = new HashSet<>();
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(node ->
+                allPaths.getOrDefault(node, new RankedSharedPath(node, Double.POSITIVE_INFINITY)).getRank()));
 
-        RankedSharedPath path = new RankedSharedPath(startNode);
-        queue.add(new RankedSharedPath(path));
-
-        allPaths.put(startNode, path);
+        RankedSharedPath initialPath = new RankedSharedPath(startNode, 0);
+        allPaths.put(startNode, initialPath);
+        queue.add(startNode);
 
         while (!queue.isEmpty()) {
-            RankedSharedPath currentPath = queue.poll();
-            Optional<Node> optCurrentNode = currentPath.getLastNode();
-            if (!optCurrentNode.isPresent()) {
-                continue;
-            }
-            Node currentNode = optCurrentNode.get();
+            Node currentNode = queue.poll();
+            if (visited.contains(currentNode)) continue;
+            visited.add(currentNode);
+            RankedSharedPath currentPath = allPaths.get(currentNode);
 
-            System.out.println("Checking node: " + currentNode);
             for (Edge edge : graph.getGraph().getOutgoingEdges(currentNode)) {
                 Node destNode = edge.getDestination();
-                if (!allPaths.containsKey(destNode) || allPaths.get(destNode).getRank() <= currentPath.getRank() +
-                                                                                        getImportance(edge, graph) +
-                                                                                        getImportance(destNode, graph)) {
+                if (visited.contains(destNode)) continue;
+                double newRank = currentPath.getRank() + getImportance(edge, graph) + getImportance(destNode, graph);
+
+                if (!allPaths.containsKey(destNode) || newRank < allPaths.get(destNode).getRank()) {
                     RankedSharedPath newPath = new RankedSharedPath(currentPath);
                     newPath.addNode(destNode, getImportance(edge, graph) + getImportance(destNode, graph));
                     allPaths.put(destNode, newPath);
-                    queue.add(newPath);
+                    queue.add(destNode);
                 }
             }
         }
-        System.out.println("Analyzed paths for node " + startNode);
-        System.out.println("Paths: " + allPaths.size());
-
-        return allPaths.values().stream()
-                .sorted(Comparator.comparingDouble(RankedSharedPath::getRank).reversed())
-                .limit(5) // Keep only top 5 paths
-                .collect(Collectors.toList());
+        // Perhaps not necessary, as the length of paths should be considered when looking for paths
+        // that are useful to test.
+        allPaths.forEach((node, path) -> path.setRank(path.getRank()/path.getSize()));
+        return allPaths.values().stream().filter(path -> Double.isFinite(path.getRank()) && path.getSize() > 1).collect(Collectors.toList());
     }
+
+
+
 
     protected abstract double getImportance(Edge edge, RankedGraph<CoverageGraph> graph);
 

@@ -2,6 +2,7 @@ package com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric;
 
 import com.kuleuven.Graph.Edge.EdgeType;
 import com.kuleuven.Graph.Graph.Graph;
+import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.NodeType;
 
@@ -23,4 +24,11 @@ public class NOOMMetric implements MetricStrategy {
         }
         return noom;
     }
+
+    @Override
+    public void normalizeGraph(RankedGraph<? extends Graph> rankedGraph) {
+        return;
+    }
+
+
 }

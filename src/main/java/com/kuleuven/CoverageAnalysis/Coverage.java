@@ -11,6 +11,7 @@ import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -20,7 +21,7 @@ public abstract class Coverage {
     CoverageGraph coverageGraph;
     CoverageManager coverageManager = new CoverageManager();
 
-    public Set<Edge> getOutgoingEdges(Node node) {
+    public Collection<Edge> getOutgoingEdges(Node node) {
         return coverageGraph.getOutgoingEdges(node);
     }
 

@@ -14,6 +14,11 @@ public class MethodNode extends Node {
     private final String overriddenMethodID;
     private final String signature;
 
+    @Override
+    public String getSimpleName() {
+        return getName().split("\\.")[getName().split("\\.").length - 2] + "." + getMethodName();
+    }
+
     public MethodNode(String name, isOverride isOverride, String signature, String overriddenMethodID) {
         super(name);
         this.signature = signature;
