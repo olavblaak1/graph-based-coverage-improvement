@@ -23,7 +23,6 @@ currentDir=$(pwd)
 
 
 # GRAPH EXTRACTION
-
 mainClass="com.kuleuven.GraphExtraction.ExtractGraph"
 extractionMethod="FULL_GRAPH"
 
@@ -54,7 +53,6 @@ echo "--- RUNNING TEST SUITE MINIMIZATION AND ANALYSIS ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $minimizationStrategy"
 
 # EVALUATION
-
 echo "--- EVALUATING COVERAGE OF MINIMIZED SUITE WITH INDEPENDENT COVERAGE METRIC ---"
 echo "Running original test suite"
 cd systems/$systemName || exit

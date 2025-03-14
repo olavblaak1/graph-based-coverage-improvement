@@ -36,7 +36,7 @@ public class MissingPathList extends MissingTestList {
 
                     JSONArray paths = new JSONArray();
                     missingPaths.get(entry.getKey()).stream().
-                            sorted(Comparator.comparingDouble(RankedSharedPath::getRank))
+                            sorted(Comparator.comparingDouble(RankedSharedPath::getDistance))
                             .forEach(path -> {
                         JSONObject pathObject = new JSONObject();
                         pathObject.put("path", path.toJSON());

@@ -4,51 +4,57 @@ import com.kuleuven.Graph.Node.Node;
 import org.json.JSONObject;
 
 public class RankedSharedPath extends SharedPath {
-    private double rank;
+    private double distance;
+    private double reciprocalDistance;
 
     public RankedSharedPath(Node node) {
         super(node);
-        this.rank = 0.0;
+        this.distance = 0.0;
+        this.reciprocalDistance = 0.0;
     }
+
 
     public RankedSharedPath(Node node, double rank) {
         super(node);
-        this.rank = rank;
+        this.distance = rank;
+        this.reciprocalDistance = 1/rank;
     }
 
     public RankedSharedPath(RankedSharedPath p) {
         super(p);
-        this.rank = p.rank;
+        this.distance = p.distance;
+        this.reciprocalDistance = p.reciprocalDistance;
     }
 
 
-    public double getRank() {
-        return rank;
+    public double getDistance() {
+        return distance;
     }
 
     public void addNode(Node node, double rank) {
         super.addNode(node);
-        this.rank += rank;
+        this.distance += rank;
+        this.reciprocalDistance += 1/rank;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " rank: " + rank;
+        return super.toString() + " distance: " + distance;
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject jsonObject = super.toJSON();
-        jsonObject.put("testingRedundancy", rank);
+        jsonObject.put("testingRedundancy", distance);
         return jsonObject;
     }
 
-    public void setRank(Double rank) {
-        this.rank = rank;
+    public void setRank(Double distance, Double multipliedDistance, Double reciprocalDistance) {
+        this.distance = distance;
+        this.reciprocalDistance = reciprocalDistance;
     }
 
-    // Normalizes the rank relative to the path length
-    public void normalizeRank() {
-        this.rank = this.rank / getSize();
+    public double getReciprocalDistance() {
+        return reciprocalDistance;
     }
 }

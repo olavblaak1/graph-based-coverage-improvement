@@ -4,7 +4,7 @@ from ClusteringMethod import ClusteringMethod
 
 
 def main():
-    graphName = "rankedGraph"
+    graphName = "coverageGraph"
     applicationName = "test_application"
     graph_analysis = GraphAnalysis.GraphAnalysis("../data/"+ applicationName + "/analysis/" + graphName + ".json", ClusteringMethod.LOUVAIN)
     graph_analysis.export_graph_to_gephi("../data/" + applicationName + "/gexf/" + graphName + ".gexf")

@@ -1,5 +1,6 @@
 package com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric;
 
+import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
@@ -18,8 +19,14 @@ public class FanInFanOutMetric implements MetricStrategy {
 
     @Override
     public double calculateRank(Node node, Graph graph) {
-        double fanIn = graph.getIncomingEdges(node).size();
-        double fanOut = graph.getOutgoingEdges(node).size();
+        double fanIn = 0;
+        double fanOut = 0;
+        for (Edge edge : graph.getIncomingEdges(node)) {
+            fanIn += edge.getWeight();
+        }
+        for (Edge edge : graph.getOutgoingEdges(node)) {
+            fanOut += edge.getWeight();
+        }
         return 0.2 * fanIn + 0.8 * fanOut;
     }
 

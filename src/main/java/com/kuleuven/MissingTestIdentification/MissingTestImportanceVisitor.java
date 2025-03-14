@@ -10,12 +10,12 @@ public class MissingTestImportanceVisitor extends GraphImportanceVisitor {
 
     @Override
     protected double getImportance(Edge edge, RankedGraph<CoverageGraph> graph) {
-        return (getImportance(edge.getDestination(), graph) + getImportance(edge.getSource(), graph)) / 2;
+        return getImportance(edge.getDestination(), graph);
     }
 
     @Override
     protected double getImportance(Node node, RankedGraph<CoverageGraph> graph) {
-        return Math.exp(normalizeNodeExponent(graph.getRank(node), graph));
+        return graph.getRank(node);
     }
 
 

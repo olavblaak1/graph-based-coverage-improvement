@@ -8,6 +8,7 @@ import com.kuleuven.Graph.Graph.SharedPath;
 import com.kuleuven.Graph.Node.ClassNode;
 import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.MissingTestIdentification.InverseDijkstra;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -78,26 +79,41 @@ public abstract class GraphImportanceVisitor {
         Map<Node, RankedSharedPath> allPaths = new HashMap<>();
         Set<Node> visited = new HashSet<>();
         PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(node ->
-                allPaths.getOrDefault(node, new RankedSharedPath(node, Double.POSITIVE_INFINITY)).getRank()));
+                allPaths.getOrDefault(node, new RankedSharedPath(node, Double.POSITIVE_INFINITY)).getReciprocalDistance()));
 
-        RankedSharedPath initialPath = new RankedSharedPath(startNode, 0);
+        RankedSharedPath initialPath = new RankedSharedPath(startNode, 0.0);
         allPaths.put(startNode, initialPath);
         queue.add(startNode);
 
+
+
         while (!queue.isEmpty()) {
             Node currentNode = queue.poll();
-            if (visited.contains(currentNode)) continue;
-            visited.add(currentNode);
+            System.out.println("Current node: " + currentNode.getSimpleName());
+            System.out.println("Outgoing edges: " + new HashSet<>(graph.getGraph().getOutgoingEdges(currentNode)));
             RankedSharedPath currentPath = allPaths.get(currentNode);
+            if (visited.contains(currentNode)) {
+                continue;
+            }
+            visited.add(currentNode);
 
             for (Edge edge : graph.getGraph().getOutgoingEdges(currentNode)) {
                 Node destNode = edge.getDestination();
-                if (visited.contains(destNode)) continue;
-                double newRank = currentPath.getRank() + getImportance(edge, graph) + getImportance(destNode, graph);
 
-                if (!allPaths.containsKey(destNode) || newRank < allPaths.get(destNode).getRank()) {
-                    RankedSharedPath newPath = new RankedSharedPath(currentPath);
-                    newPath.addNode(destNode, getImportance(edge, graph) + getImportance(destNode, graph));
+                if (visited.contains(destNode)) {
+                    continue;
+                }
+
+                System.out.println("Checking node: " + destNode.getSimpleName());
+                RankedSharedPath newPath = new RankedSharedPath(currentPath);
+                newPath.addNode(destNode, getImportance(edge, graph));
+                if (!InverseDijkstra.isEligible(newPath, allPaths.getOrDefault(destNode, new RankedSharedPath(destNode, Double.POSITIVE_INFINITY)))) {
+                    System.out.println("This graph is not eligible for inverse dijkstra, falling back to bruteforce");
+                    throw new RuntimeException("This graph is not eligible for inverse dijkstra");
+                }
+
+                if (!allPaths.containsKey(destNode) || newPath.getReciprocalDistance() < allPaths.get(destNode).getReciprocalDistance()) {
+                    System.out.println("New path: " + currentNode.getSimpleName() + " -> " + destNode.getSimpleName());
                     allPaths.put(destNode, newPath);
                     queue.add(destNode);
                 }
@@ -105,11 +121,8 @@ public abstract class GraphImportanceVisitor {
         }
         // Perhaps not necessary, as the length of paths should be considered when looking for paths
         // that are useful to test.
-        allPaths.forEach((node, path) -> path.setRank(path.getRank()/path.getSize()));
-        return allPaths.values().stream().filter(path -> Double.isFinite(path.getRank()) && path.getSize() > 1).collect(Collectors.toList());
+        return allPaths.values().stream().filter(path -> Double.isFinite(path.getDistance()) && path.getSize() > 1).collect(Collectors.toList());
     }
-
-
 
 
     protected abstract double getImportance(Edge edge, RankedGraph<CoverageGraph> graph);

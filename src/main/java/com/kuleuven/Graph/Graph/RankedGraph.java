@@ -26,6 +26,7 @@ public class RankedGraph<T extends Graph> {
 
     public void mapRanks(Function<Double, Double> f) {
         nodeRanks.replaceAll((node, rank) -> f.apply(rank));
+        this.maxRank = f.apply(this.maxRank);
     }
 
     public RankedGraph(RankedGraph<T> rankedGraph) {

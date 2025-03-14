@@ -29,11 +29,11 @@ public class MissingTestIdentifier {
         // the shortest path problem). This is done by taking the reciprocal of the rank,
         // it does not change the respective rankings of the nodes, but the total path rank may be different.
         // compared to the test coverage ranking
-        graph.mapRanks(rank -> rank / graph.getMaxRank());
-        graph.mapRanks(rank -> 1 / rank);
+        Double maxRank = graph.getMaxRank();
+        graph.mapRanks(rank -> rank / maxRank);
         graph.getGraph().getNodes().forEach(node ->
                         missingPaths.put(node, graphImportanceVisitor.getAllPathsWithImportance(node, graph)));
-        graph.mapRanks(rank -> 1 / rank);
+        graph.mapRanks(rank -> rank / maxRank);
         return new MissingPathList(missingPaths, findMissingTests(graph));
     }
 

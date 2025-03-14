@@ -23,7 +23,7 @@ public class MinimizationImportanceVisitor extends GraphImportanceVisitor {
     @Override
     protected double getImportance(Node node, RankedGraph<CoverageGraph> graph) {
         // e^(-markedNodes) * rank
-        return Math.exp(normalizeNodeExponent(-graph.getGraph().getMarkedNodeCount(node), graph)) * (coverageFactor + (1 - coverageFactor) * Math.exp(normalizeNodeExponent(graph.getRank(node), graph)));
+        return Math.exp(normalizeNodeExponent(-graph.getGraph().getMarkedNodeCount(node), graph)) * (coverageFactor + (1 - coverageFactor) * normalizeNodeExponent(graph.getRank(node), graph));
     }
 
     private double normalizeNodeExponent(double value, RankedGraph<CoverageGraph> graph) {
