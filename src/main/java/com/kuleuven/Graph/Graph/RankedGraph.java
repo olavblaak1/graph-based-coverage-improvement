@@ -24,6 +24,14 @@ public class RankedGraph<T extends Graph> {
         return nodeRanks.containsKey(node);
     }
 
+    public int getInDegree(Node node) {
+        return graph.getFanIn(node);
+    }
+
+    public int getOutDegree(Node node) {
+        return graph.getFanOut(node);
+    }
+
     public void mapRanks(Function<Double, Double> f) {
         nodeRanks.replaceAll((node, rank) -> f.apply(rank));
         this.maxRank = f.apply(this.maxRank);

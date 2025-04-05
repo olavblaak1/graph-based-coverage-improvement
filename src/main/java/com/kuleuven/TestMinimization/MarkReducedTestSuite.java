@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 public class MarkReducedTestSuite {
     public static void main(String[] args) throws IOException {
@@ -29,9 +30,9 @@ public class MarkReducedTestSuite {
         ParseManager parseManager = new ParseManager();
 
         // We just want to mark all tests, so no jars necessary
-        parseManager.setupParser(List.of(classPaths, jarPath), List.of(testDirectory, srcDir));
+        parseManager.setupParser(List.of(classPaths, jarPath), List.of(testDirectory));
         parseManager.parseDirectory(testDirectory);
-        List<MethodDeclaration> minimizedTests = parseManager.getFilteredTestCases(retainedMethodsListPath);
+        Set<MethodDeclaration> minimizedTests = parseManager.getFilteredTestCases(retainedMethodsListPath);
 
         parseManager.markTestMethodsInSourceRoots(minimizedTests);
     }

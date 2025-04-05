@@ -29,11 +29,17 @@ public class MissingTestIdentifier {
         // the shortest path problem). This is done by taking the reciprocal of the rank,
         // it does not change the respective rankings of the nodes, but the total path rank may be different.
         // compared to the test coverage ranking
-        Double maxRank = graph.getMaxRank();
-        graph.mapRanks(rank -> rank / maxRank);
-        graph.getGraph().getNodes().forEach(node ->
-                        missingPaths.put(node, graphImportanceVisitor.getAllPathsWithImportance(node, graph)));
-        graph.mapRanks(rank -> rank / maxRank);
+        if (InverseDijkstra.isDAG(graph)) {
+            System.out.println("Graph is a DAG!");
+            graph.mapRanks(r -> -r);
+            graph.getGraph().getNodes().forEach(node ->
+                            missingPaths.put(node, graphImportanceVisitor.getAllPathsWithImportance(node, graph)));
+            graph.mapRanks(r -> -r);
+        } else {
+            throw new RuntimeException("Graph is not a DAG");
+            //graph.getGraph().getNodes().forEach(node ->
+            //                missingPaths.put(node, graphImportanceVisitor.getAllPathsWithImportanceBruteForce(node, graph)));
+        }
         return new MissingPathList(missingPaths, findMissingTests(graph));
     }
 

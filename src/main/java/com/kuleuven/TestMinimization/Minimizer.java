@@ -14,10 +14,7 @@ import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.TestMinimization.ImportanceCalculation.GraphImportanceVisitor;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class Minimizer {
 
@@ -30,14 +27,14 @@ public class Minimizer {
     }
 
 
-    public Map<MethodDeclaration, Double> minimizeTests(RankedGraph<CoverageGraph> graph, List<MethodDeclaration> testMethods) {
+    public Map<MethodDeclaration, Double> minimizeTests(RankedGraph<CoverageGraph> graph, Collection<MethodDeclaration> testMethods) {
         Map<MethodDeclaration, Double> minimizedTests = new HashMap<>();
         testMethods.forEach(methodDeclaration ->
                 minimizedTests.put(methodDeclaration, analyzeTestMethod(methodDeclaration, graph, testMethods)));
         return minimizedTests;
     }
 
-    private Optional<MethodDeclaration> getTestMethod(ResolvedMethodDeclaration methodDeclaration, List<MethodDeclaration> testMethods) {
+    private Optional<MethodDeclaration> getTestMethod(ResolvedMethodDeclaration methodDeclaration, Collection<MethodDeclaration> testMethods) {
         for (MethodDeclaration testMethod : testMethods) {
             if (testMethod.resolve().getQualifiedSignature().equals(methodDeclaration.getQualifiedSignature())) {
                 return Optional.of(testMethod);
@@ -46,7 +43,7 @@ public class Minimizer {
         return Optional.empty();
     }
 
-    private double analyzeTestMethod(MethodDeclaration methodDeclaration, RankedGraph<CoverageGraph> graph, List<MethodDeclaration> testMethods) {
+    private double analyzeTestMethod(MethodDeclaration methodDeclaration, RankedGraph<CoverageGraph> graph, Collection<MethodDeclaration> testMethods) {
         double testMethodImportance = 0.0;
         for (MethodCallExpr methodCallExpr : methodDeclaration.findAll(MethodCallExpr.class)) {
             try {

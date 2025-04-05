@@ -14,8 +14,9 @@ public class UnmarkReducedTestSuite {
 
         String systemName = args[0];
         File testDirectory = new File("systems/" + systemName + "/src/test/java");
+        File srcDir = new File("systems/" + systemName + "/src/main/java");
         ParseManager parseManager = new ParseManager();
-        parseManager.setupParser(List.of(), List.of(testDirectory));
+        parseManager.setupParser(List.of(), List.of(testDirectory, srcDir));
         parseManager.parseDirectory(testDirectory);
         parseManager.unmarkTestMethods();
     }

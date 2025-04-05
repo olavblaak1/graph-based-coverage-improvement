@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.Graph;
 
+import java.util.Collection;
 import java.util.List;
 
 public class CoverageAnalyzer {
@@ -23,7 +24,7 @@ public class CoverageAnalyzer {
         }
     }
 
-    public CoverageGraph analyze(List<MethodDeclaration> cus, Graph SUTGraph) {
+    public CoverageGraph analyze(Collection<MethodDeclaration> cus, Graph SUTGraph) {
         return strategy.analyze(cus, SUTGraph);
     }
 }

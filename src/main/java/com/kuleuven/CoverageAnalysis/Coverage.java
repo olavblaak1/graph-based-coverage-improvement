@@ -54,13 +54,13 @@ public abstract class Coverage {
      * first the generic graph is filtered only to contain the relevant nodes and (possibly) edges
      * then the graph is analyzed to determine which relevant nodes and edges are covered
      */
-    public CoverageGraph analyze(List<MethodDeclaration> testMethods, Graph graph) {
+    public CoverageGraph analyze(Collection<MethodDeclaration> testMethods, Graph graph) {
         Graph filteredGraph = filterGraph(graph);
         this.coverageGraph = new CoverageGraph(filteredGraph);
         return analyzeFilteredGraph(testMethods);
     }
 
-    private CoverageGraph analyzeFilteredGraph(List<MethodDeclaration> testMethods) {
+    private CoverageGraph analyzeFilteredGraph(Collection<MethodDeclaration> testMethods) {
         // Iterate over each CompilationUnit and analyze test method relationships
         testMethods.stream()
                 /*.filter(e -> !e.isPrivate()) */
@@ -72,7 +72,7 @@ public abstract class Coverage {
     /**
      * Analyzes a single test method for coverage
      */
-    protected abstract void analyzeTestMethod(MethodDeclaration testMethod, List<MethodDeclaration> testMethods);
+    protected abstract void analyzeTestMethod(MethodDeclaration testMethod, Collection<MethodDeclaration> testMethods);
 
     public Graph filterGraph(Graph graph) {
         Graph newGraph = new Graph(graph);
@@ -91,7 +91,7 @@ public abstract class Coverage {
     protected abstract void analyzeRemainingGraph();
 
 
-    protected Optional<MethodDeclaration> getTestMethod(ResolvedMethodDeclaration methodDeclaration, List<MethodDeclaration> testMethods) {
+    protected Optional<MethodDeclaration> getTestMethod(ResolvedMethodDeclaration methodDeclaration, Collection<MethodDeclaration> testMethods) {
         for (MethodDeclaration testMethod : testMethods) {
             if (testMethod.resolve().getQualifiedSignature().equals(methodDeclaration.getQualifiedSignature())) {
                 return Optional.of(testMethod);

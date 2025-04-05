@@ -6,6 +6,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
@@ -109,17 +110,17 @@ public class ParseManager {
         return new LinkedList<>(compilationUnits);
     }
 
-    public List<MethodDeclaration> getTestCases() {
+    public Set<MethodDeclaration> getTestCases() {
         return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
                 .filter(method ->
                         method.isAnnotationPresent("org.junit.jupiter.api.Test")
                                 || method.getNameAsString().startsWith("test"))
                 .filter(method -> !method.isPrivate())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
 
-    public List<MethodDeclaration> getFilteredTestCases(Path testMethodListPath) throws IOException {
+    public Set<MethodDeclaration> getFilteredTestCases(Path testMethodListPath) throws IOException {
         Set<String> testMethodList = new HashSet<>();
         JSONObject testMethodListJson = new JSONObject(new String(Files.readAllBytes(testMethodListPath)));
         JSONArray testMethods = testMethodListJson.getJSONArray("minimizedTests");
@@ -129,29 +130,31 @@ public class ParseManager {
         }
         return getTestCases().stream()
                 .filter(method -> testMethodList.contains(method.resolve().getQualifiedName()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
 
-    public void markTestMethodsInSourceRoots(List<MethodDeclaration> testMethods) {
+    public void markTestMethodsInSourceRoots(Set<MethodDeclaration> testMethods) {
+        Set<MethodDeclaration> CUs = new HashSet<>(testMethods.size()*2);
         sourceRoots.forEach(sourceRoot -> {
-            for (MethodDeclaration testMethod : testMethods) {
-                try {
-                    sourceRoot.tryToParse().forEach(parseResult -> {
-                        parseResult.ifSuccessful(cu ->
-                                cu.findAll(MethodDeclaration.class).forEach(
-                                        method -> {
-                                            if (method.resolve().getQualifiedName().equals(testMethod.resolve().getQualifiedName())) {
-                                                System.out.println("Marked method: " + method.resolve().getQualifiedName());
-                                                method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"minimized\"");
-                                            }
-                                        }
-                                ));
-                    });
-                } catch (IOException | UnsolvedSymbolException e) {
-                }
+            try {
+                sourceRoot.tryToParse().forEach(compilationUnitParseResult ->
+                        compilationUnitParseResult.ifSuccessful(cu ->
+                                CUs.addAll(cu.findAll(MethodDeclaration.class))));
+            } catch (IOException e) {
             }
         });
+        CUs.forEach(
+            method -> {
+                if (testMethods.contains(method)) {
+                    System.out.println("Marked method: " + method.resolve().getQualifiedName());
+                    method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"minimized\"");
+                }
+                else {
+                    method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"redundant\"");
+                }
+            }
+        );
         sourceRoots.forEach(SourceRoot::saveAll);
     }
 
@@ -165,9 +168,11 @@ public class ParseManager {
                                                 annotation -> {
                                                     if (annotation.getNameAsString().equals("org.junit.jupiter.api.Tag") &&
                                                             annotation.getMemberValue() instanceof StringLiteralExpr &&
-                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized")
+                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized") ||
+                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("redundant")
                                                     ) {
                                                         annotation.remove();
+                                                        System.out.println("Unmarked method: " + method.resolve().getQualifiedName());
                                                     }
                                                 }
                                         )

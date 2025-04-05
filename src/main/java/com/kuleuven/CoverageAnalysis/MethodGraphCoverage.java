@@ -11,13 +11,14 @@ import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
 import com.kuleuven.Graph.Node.NodeType;
 
+import java.util.Collection;
 import java.util.List;
 
 public class MethodGraphCoverage extends Coverage {
 
 
     @Override
-    protected void analyzeTestMethod(MethodDeclaration testMethod, List<MethodDeclaration> testMethods) {
+    protected void analyzeTestMethod(MethodDeclaration testMethod, Collection<MethodDeclaration> testMethods) {
         // Collect all method calls within the test method
         testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
             try {

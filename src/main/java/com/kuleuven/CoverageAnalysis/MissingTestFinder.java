@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 public class MissingTestFinder {
 
@@ -52,7 +53,7 @@ public class MissingTestFinder {
         parseManager.setupParser(jarPaths, List.of(srcDir, testDirectory));
         parseManager.parseDirectory(testDirectory);
 
-        List<MethodDeclaration> testMethods;
+        Set<MethodDeclaration> testMethods;
         if (args.length == 3) {
             Path testMethodListPath = Paths.get(args[2]);
             try {

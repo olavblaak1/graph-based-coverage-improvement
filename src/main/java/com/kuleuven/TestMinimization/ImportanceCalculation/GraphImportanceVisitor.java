@@ -79,7 +79,7 @@ public abstract class GraphImportanceVisitor {
         Map<Node, RankedSharedPath> allPaths = new HashMap<>();
         Set<Node> visited = new HashSet<>();
         PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(node ->
-                allPaths.getOrDefault(node, new RankedSharedPath(node, Double.POSITIVE_INFINITY)).getReciprocalDistance()));
+                allPaths.getOrDefault(node, new RankedSharedPath(node, Double.POSITIVE_INFINITY)).getDistance()));
 
         RankedSharedPath initialPath = new RankedSharedPath(startNode, 0.0);
         allPaths.put(startNode, initialPath);
@@ -107,12 +107,8 @@ public abstract class GraphImportanceVisitor {
                 System.out.println("Checking node: " + destNode.getSimpleName());
                 RankedSharedPath newPath = new RankedSharedPath(currentPath);
                 newPath.addNode(destNode, getImportance(edge, graph));
-                if (!InverseDijkstra.isEligible(newPath, allPaths.getOrDefault(destNode, new RankedSharedPath(destNode, Double.POSITIVE_INFINITY)))) {
-                    System.out.println("This graph is not eligible for inverse dijkstra, falling back to bruteforce");
-                    throw new RuntimeException("This graph is not eligible for inverse dijkstra");
-                }
 
-                if (!allPaths.containsKey(destNode) || newPath.getReciprocalDistance() < allPaths.get(destNode).getReciprocalDistance()) {
+                if (!allPaths.containsKey(destNode) || newPath.getDistance() < allPaths.get(destNode).getDistance()) {
                     System.out.println("New path: " + currentNode.getSimpleName() + " -> " + destNode.getSimpleName());
                     allPaths.put(destNode, newPath);
                     queue.add(destNode);
@@ -128,4 +124,8 @@ public abstract class GraphImportanceVisitor {
     protected abstract double getImportance(Edge edge, RankedGraph<CoverageGraph> graph);
 
     protected abstract double getImportance(Node node, RankedGraph<CoverageGraph> graph);
+
+    public Collection<RankedSharedPath> getAllPathsWithImportanceBruteForce(Node node, RankedGraph<CoverageGraph> graph) {
+        throw new UnsupportedOperationException("Brute force path calculation not implemented");
+    }
 }

@@ -26,27 +26,27 @@ public class MinimizationResult {
     }
 
     public double getNodeCoverageRatio() {
-        return sanitize(testMinimizationPercentage, nodeCoverageDecrease);
+        return sanitize(nodeCoverageDecrease, testMinimizationPercentage);
     }
 
     public double getEdgeCoverageRatio() {
-        return sanitize(testMinimizationPercentage, edgeCoverageDecrease);
+        return sanitize(edgeCoverageDecrease, testMinimizationPercentage);
     }
 
     public double getOverridesEdgeCoverageRatio() {
-        return sanitize(testMinimizationPercentage, overridesEdgeCoverageDecrease);
+        return sanitize(overridesEdgeCoverageDecrease, testMinimizationPercentage);
     }
 
     public double getMethodCallEdgeCoverageRatio() {
-        return sanitize(testMinimizationPercentage, methodCallEdgeCoverageDecrease);
+        return sanitize(methodCallEdgeCoverageDecrease, testMinimizationPercentage);
     }
 
     public double getOwnedByEdgeCoverageRatio() {
-        return sanitize(testMinimizationPercentage, ownedByEdgeCoverageDecrease);
+        return sanitize(ownedByEdgeCoverageDecrease, testMinimizationPercentage);
     }
 
     public double getFieldAccessEdgeCoverageRatio() {
-        return sanitize(testMinimizationPercentage, fieldAccessEdgeCoverageDecrease);
+        return sanitize(fieldAccessEdgeCoverageDecrease, testMinimizationPercentage);
     }
 
 

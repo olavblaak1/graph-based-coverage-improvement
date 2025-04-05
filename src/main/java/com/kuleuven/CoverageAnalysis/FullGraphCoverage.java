@@ -16,6 +16,7 @@ import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.kuleuven.Graph.Graph.Graph;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,7 +97,7 @@ public class FullGraphCoverage extends Coverage {
 
 
     @Override
-    protected void analyzeTestMethod(MethodDeclaration testMethod, List<MethodDeclaration> testMethods) {
+    protected void analyzeTestMethod(MethodDeclaration testMethod, Collection<MethodDeclaration> testMethods) {
         // Collect all method calls within the test method
         testMethod.findAll(MethodCallExpr.class).forEach(testCall -> {
             try {
