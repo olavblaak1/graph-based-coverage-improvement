@@ -1,0 +1,8 @@
+target/
+systems/
+data/
+*.log
+.DS_Store
+settings.json
+__pycache__/
+.vscode/

@@ -53,7 +53,7 @@ echo "--- RUNNING TEST SUITE MINIMIZATION AND ANALYSIS ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $minimizationStrategy"
 
 # EVALUATION
-echo "--- EVALUATING COVERAGE OF MINIMIZED SUITE WITH INDEPENDENT COVERAGE METRIC ---"
+echo "--- EVALUATING COVERAGE OF MINIMIZED SUITE WITH COVERAGE METRIC ---"
 echo "Running original test suite"
 cd systems/$systemName || exit
 mvn test
@@ -80,6 +80,9 @@ echo "Unmarking reduced test suite"
 cd "$currentDir" || exit
 mainClass="com.kuleuven.TestMinimization.UnmarkReducedTestSuite"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
+
+echo "EVALUATING COVERAGE OF FULL SUITE WITH MUTATION COVERAGE"
+sh scripts/getMutationCoverage.sh $systemName
 
 echo "Done!"
 
