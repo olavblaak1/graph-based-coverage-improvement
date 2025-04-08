@@ -8,6 +8,11 @@ import com.kuleuven.Graph.Node.NodeType;
 
 public class NOOMMetric implements MetricStrategy {
 
+    @Override
+    public void preprocess(Graph graph) {
+        return;
+    }
+
     /*
      * NOOM = Σ (number of methods overridden by a class)
      * it was found this correlates to bug proneness

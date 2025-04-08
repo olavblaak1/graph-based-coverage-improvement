@@ -20,6 +20,12 @@ public class NodeRanker {
             case HITS:
                 metricStrategy = new HITSMetric();
                 break;
+            case BETWEENNESS:
+                metricStrategy = new BetweennessMetric();
+                break;
+            case PAGERANK:
+                metricStrategy = new PageRankMetric();
+                break;
             default:
                 break;
         }

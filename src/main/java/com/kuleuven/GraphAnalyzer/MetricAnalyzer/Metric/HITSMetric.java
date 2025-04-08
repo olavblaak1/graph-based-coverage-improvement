@@ -16,9 +16,14 @@ public class HITSMetric implements MetricStrategy {
     private Map<Node, Double> authorityScores = new HashMap<>();
     private Map<Node, Double> hubScores = new HashMap<>();
 
+
+    @Override
+    public void preprocess(Graph graph) {
+        runHITS(graph);
+    }
+
     @Override
     public double calculateRank(Node node, Graph graph) {
-        runHITS(graph);
         double authority = authorityScores.getOrDefault(node, 0.0);
         double hub = hubScores.getOrDefault(node, 0.0);
         return authority + hub; // or just return one of them
@@ -32,6 +37,7 @@ public class HITSMetric implements MetricStrategy {
         }
 
         for (int iter = 0; iter < MAX_ITERATIONS; iter++) {
+            System.out.println("Iteration " + iter + ": " + authorityScores.size() + " " + hubScores.size());
             Map<Node, Double> newAuthority = new HashMap<>();
             Map<Node, Double> newHub = new HashMap<>();
 

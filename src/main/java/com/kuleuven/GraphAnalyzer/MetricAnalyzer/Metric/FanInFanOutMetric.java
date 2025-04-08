@@ -18,6 +18,11 @@ public class FanInFanOutMetric implements MetricStrategy {
      */
 
     @Override
+    public void preprocess(Graph graph) {
+        return;
+    }
+
+    @Override
     public double calculateRank(Node node, Graph graph) {
         double fanIn = 0;
         double fanOut = 0;

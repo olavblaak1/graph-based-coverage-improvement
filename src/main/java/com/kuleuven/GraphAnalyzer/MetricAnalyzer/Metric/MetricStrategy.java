@@ -11,6 +11,7 @@ public interface MetricStrategy {
     // Calculate the rank of a node in a graph, should be greater than zero for untested path discovery to work
     default <T extends Graph> RankedGraph<T> calculateMetric(T graph) {
         RankedGraph<T> rankedGraph = new RankedGraph<>(graph);
+        preprocess(graph);
         graph.getNodes().forEach(node -> {
             double rank = calculateRank(node, graph);
             rankedGraph.setRank(node, rank);
@@ -19,6 +20,7 @@ public interface MetricStrategy {
         return rankedGraph;
     }
 
+    void preprocess(Graph graph);
     double calculateRank(Node node, Graph graph);
     void normalizeGraph(RankedGraph<? extends Graph> rankedGraph);
 }

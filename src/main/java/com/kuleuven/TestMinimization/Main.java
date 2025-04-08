@@ -71,6 +71,7 @@ public class Main {
 
         SerializeManager serializeManager = new SerializeManager();
         RankedGraph<? extends Graph> SUTGraph = serializeManager.deserializeRankedGraph(graphJson);
+        SUTGraph.getNodes().forEach(node -> System.out.println(SUTGraph.getRank(node)));
 
         ParseManager parseManager = new ParseManager();
         List<Path> dependencyJarPaths = parseManager.getClasspathJars(classPaths);
@@ -80,7 +81,7 @@ public class Main {
         parseManager.setupParser(jarPaths, List.of(srcDir, testDirectory));
         parseManager.parseDirectory(testDirectory);
 
-        TestMinimization testMinimization = new TestMinimization(minimizationMethod, 1, 0);
+        TestMinimization testMinimization = new TestMinimization(minimizationMethod, 1, 0.2);
         Map<MethodDeclaration, Double> rankedTests = testMinimization.minimizeTests((RankedGraph<CoverageGraph>) SUTGraph, parseManager.getTestCases());
 
         double testMinimizationPercentage = 0.5; // keep x% of the most important test cases

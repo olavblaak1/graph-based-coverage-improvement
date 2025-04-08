@@ -20,7 +20,7 @@ public class RankedGraphSerializer {
         RankedGraph<T> rankedGraph = new RankedGraph<T>(graph);
         for (int i = 0; i < jsonGraph.getJSONArray("nodes").length(); i++) {
             JSONObject jsonNode = jsonGraph.getJSONArray("nodes").getJSONObject(i);
-            rankedGraph.setRank(serializeManager.deserializeNode(jsonNode), jsonNode.getInt("rank"));
+            rankedGraph.setRank(serializeManager.deserializeNode(jsonNode), jsonNode.getDouble("rank"));
         }
         return rankedGraph;
     }
