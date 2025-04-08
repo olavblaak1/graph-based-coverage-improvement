@@ -2,10 +2,7 @@ package com.kuleuven.GraphAnalyzer;
 
 import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Graph.RankedGraph;
-import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.FanInFanOutMetric;
-import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.Metric;
-import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.MetricStrategy;
-import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.NOOMMetric;
+import com.kuleuven.GraphAnalyzer.MetricAnalyzer.Metric.*;
 
 public class NodeRanker {
 
@@ -19,6 +16,9 @@ public class NodeRanker {
                 break;
             case NOOM:
                 metricStrategy = new NOOMMetric();
+                break;
+            case HITS:
+                metricStrategy = new HITSMetric();
                 break;
             default:
                 break;

@@ -16,6 +16,8 @@ public class Main {
         String systemName = args[0];
 
         String graphPath = "data/" + systemName + "/analysis/coverageGraph.json";
+
+
         Metric metric = Metric.valueOf(args[1]);
         String outputPath = "data/" + systemName + "/analysis/rankedGraph.json";
 
