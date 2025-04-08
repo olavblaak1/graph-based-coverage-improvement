@@ -5,6 +5,8 @@ import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.Node.Node;
 
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class GraphExtractionManager {
@@ -20,6 +22,26 @@ public class GraphExtractionManager {
                 edge -> !graph.getGraph().isEdgeMarked(edge));
     }
 
+    public PartitionedGraph getPartiallyCoveredGraph(RankedGraph<CoverageGraph> graph, CoverageRange coverageRange) {
+
+        Set<Node> firstPercentile = graph.getGraph().getCoveragePercentileNode(coverageRange.getStart());
+        Set<Node> secondPercentile = graph.getGraph().getCoveragePercentileNode(coverageRange.getEnd());
+
+        RankedGraph<CoverageGraph> uncoveredGraph = getGraphUnderCondition(graph,
+                firstPercentile::contains,
+                edge -> true);
+
+        RankedGraph<CoverageGraph> partiallyCoveredGraph = getGraphUnderCondition(graph,
+                node -> !firstPercentile.contains(node) && secondPercentile.contains(node),
+                edge -> true);
+
+        RankedGraph<CoverageGraph> coveredGraph = getGraphUnderCondition(graph,
+                node -> !firstPercentile.contains(node) && !secondPercentile.contains(node),
+                edge -> true);
+
+        return new PartitionedGraph(uncoveredGraph, partiallyCoveredGraph, coveredGraph);
+    }
+
     public RankedGraph<CoverageGraph> getGraphUnderCondition(RankedGraph<CoverageGraph> graph, Predicate<Node> nodePred, Predicate<Edge> edgePred) {
         CoverageGraph originalCoverageGraph = graph.getGraph();
         CoverageGraph coverageGraph = new CoverageGraph();
@@ -30,7 +52,6 @@ public class GraphExtractionManager {
                 .forEach(
                         node -> {
                             coverageGraph.addNode(node);
-                            System.out.println(originalCoverageGraph.getMarkedNodeCount(node));
                             coverageGraph.setMarkCount(node, originalCoverageGraph.getMarkedNodeCount(node));
                         });
 

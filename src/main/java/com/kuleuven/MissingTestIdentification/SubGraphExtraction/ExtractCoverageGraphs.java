@@ -4,7 +4,9 @@ import com.kuleuven.Graph.Graph.CoverageGraph;
 import com.kuleuven.Graph.Graph.RankedGraph;
 import com.kuleuven.Graph.GraphUtils;
 import com.kuleuven.Graph.Serializer.SerializeManager;
+import com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractionAlgorithms.CoverageRange;
 import com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractionAlgorithms.GraphExtractionManager;
+import com.kuleuven.MissingTestIdentification.SubGraphExtraction.ExtractionAlgorithms.PartitionedGraph;
 import org.json.JSONObject;
 
 public class ExtractCoverageGraphs {
@@ -33,8 +35,21 @@ public class ExtractCoverageGraphs {
         RankedGraph<CoverageGraph> uncoveredGraph = graphExtractionManager.getUncoveredGraph(rankedGraph);
         RankedGraph<CoverageGraph> fullyCoveredGraph = graphExtractionManager.getFullyCoveredGraph(rankedGraph);
 
+
         GraphUtils.writeFile("data/" + systemName + "/analysis/fullyCoveredGraph.json", serializeManager.serializeRankedGraph(fullyCoveredGraph).toString(4).getBytes());
         GraphUtils.writeFile("data/" + systemName + "/analysis/uncoveredGraph.json", serializeManager.serializeRankedGraph(uncoveredGraph).toString(4).getBytes());
+
+        // Get partially covered graph
+        CoverageRange coverageRange = new CoverageRange(0.2, 0.8);
+        PartitionedGraph partitionedGraph = graphExtractionManager.getPartiallyCoveredGraph(rankedGraph, coverageRange);
+
+        RankedGraph<CoverageGraph> uncoveredPartiallyCoveredGraph = partitionedGraph.getUncoveredGraph();
+        RankedGraph<CoverageGraph> partiallyCoveredGraph = partitionedGraph.getPartiallyCoveredGraph();
+        RankedGraph<CoverageGraph> coveredPartiallyCoveredGraph = partitionedGraph.getCoveredGraph();
+
+        GraphUtils.writeFile("data/" + systemName + "/analysis/partiallyCoveredGraph.json", serializeManager.serializeRankedGraph(partiallyCoveredGraph).toString(4).getBytes());
+        GraphUtils.writeFile("data/" + systemName + "/analysis/coveredPartiallyCoveredGraph.json", serializeManager.serializeRankedGraph(coveredPartiallyCoveredGraph).toString(4).getBytes());
+        GraphUtils.writeFile("data/" + systemName + "/analysis/uncoveredPartiallyCoveredGraph.json", serializeManager.serializeRankedGraph(uncoveredPartiallyCoveredGraph).toString(4).getBytes());
 
 
     }

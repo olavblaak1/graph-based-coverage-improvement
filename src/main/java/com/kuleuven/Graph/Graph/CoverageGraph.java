@@ -6,13 +6,13 @@ import com.kuleuven.Graph.Node.Node;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CoverageGraph extends Graph {
     private final Map<Node, Integer> markedNodes;
     private final Map<Edge, Integer> markedEdges;
 
-    private Integer maxNodeMarkCount;
-    private Integer maxEdgeMarkCount;
 
 
     /*
@@ -23,8 +23,6 @@ public class CoverageGraph extends Graph {
         super(graph);
         markedNodes = new HashMap<>();
         markedEdges = new HashMap<>();
-        maxNodeMarkCount = 0;
-        maxEdgeMarkCount = 0;
     }
 
 
@@ -32,8 +30,6 @@ public class CoverageGraph extends Graph {
         super();
         this.markedEdges = new HashMap<>();
         this.markedNodes = new HashMap<>();
-        maxNodeMarkCount = 0;
-        maxEdgeMarkCount = 0;
     }
 
     public void markNode(Node node) {
@@ -42,10 +38,6 @@ public class CoverageGraph extends Graph {
         } else {
             markedNodes.put(node, markedNodes.get(node) + 1);
         }
-
-        if (maxNodeMarkCount < markedNodes.get(node)) {
-            maxNodeMarkCount = markedNodes.get(node);
-        }
     }
 
     public void markEdge(Edge edge) {
@@ -53,10 +45,6 @@ public class CoverageGraph extends Graph {
             markedEdges.put(edge, 1);
         } else {
             markedEdges.put(edge, markedEdges.get(edge) + 1);
-        }
-
-        if (maxEdgeMarkCount < markedEdges.get(edge)) {
-            maxEdgeMarkCount = markedEdges.get(edge);
         }
     }
 
@@ -91,14 +79,21 @@ public class CoverageGraph extends Graph {
         return (double) getEdgesOfType(edgeType).stream().filter(this::isEdgeMarked).count() / getEdgesOfType(edgeType).size();
     }
 
-    public Integer getMaxEdgeCoverCount() {
-        return maxEdgeMarkCount;
-    }
-
     public Integer getMaxNodeCoverCount() {
-        return maxNodeMarkCount;
+        return markedNodes.values().stream().max(Integer::compareTo).orElse(0);
     }
 
+    public Set<Node> getCoveragePercentileNode(double x) {
+        if (x < 0 || x > 1) {
+            throw new IllegalArgumentException("Percentile must be between 0 and 1");
+        }
+        int index = (int) Math.ceil(x * markedNodes.size());
+        return markedNodes.entrySet().stream()
+                .sorted(Map.Entry.<Node, Integer>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .limit(index)
+                .collect(Collectors.toSet());
+    }
 
     @Override
     public GraphType getType() {
