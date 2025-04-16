@@ -7,8 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MarkReducedTestSuite {
     public static void main(String[] args) throws IOException {
@@ -32,8 +31,27 @@ public class MarkReducedTestSuite {
         // We just want to mark all tests, so no jars necessary
         parseManager.setupParser(List.of(classPaths, jarPath), List.of(testDirectory));
         parseManager.parseDirectory(testDirectory);
-        Set<MethodDeclaration> minimizedTests = parseManager.getFilteredTestCases(retainedMethodsListPath);
 
-        parseManager.markTestMethodsInSourceRoots(minimizedTests);
+        // Ask user if they want to randomly mark test cases
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Do you want to randomly mark half of the test cases? (yes/no): ");
+        String userInput = scanner.nextLine().trim().toLowerCase();
+
+        Set<MethodDeclaration> testMethodsToMark;
+        if (userInput.equals("yes")) {
+            // Randomly select half of the test cases
+            Set<MethodDeclaration> allTestCases = parseManager.getTestCases();
+            List<MethodDeclaration> testCaseList = new ArrayList<>(allTestCases);
+            Collections.shuffle(testCaseList);
+            testMethodsToMark = new HashSet<>(testCaseList.subList(0, testCaseList.size() / 2));
+            System.out.println("Randomly selected half of the test cases to mark.");
+        } else {
+            // Use the usual minimized test cases
+            testMethodsToMark = parseManager.getFilteredTestCases(retainedMethodsListPath);
+            System.out.println("Using minimized test cases from the provided list.");
+        }
+
+        // Mark the test methods
+        parseManager.markTestMethodsInSourceRoots(testMethodsToMark);
     }
 }
