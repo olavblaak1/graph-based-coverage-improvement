@@ -67,7 +67,8 @@ public class ExtractGraphHelper {
 
                 if (!overriddenMethod.isPresent()) {
                     // If it is finally not found, there must be an edge-case that we did not consider
-                    throw new RuntimeException("Could not find overridden method for method: " + resolvedMethod.getQualifiedName());
+                    System.out.println("Could not find overridden method for: " + name);
+                    return Optional.empty();
                 }
                 MethodNode overriddenMethodNode = new MethodNode(overriddenMethod.get().getQualifiedName(),
                         overriddenMethod.get().getSignature());
@@ -84,7 +85,11 @@ public class ExtractGraphHelper {
         } catch (UnsupportedOperationException e) {
             System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in method: " + node);
             return Optional.empty();
+        } catch (IllegalArgumentException e) {
+            System.err.println("This is likely a bug in JavaParser: " + e.getMessage());
+            return Optional.empty();
         }
+
     }
 
     private static Optional<ResolvedMethodDeclaration> getEnumOverriddenMethod(ResolvedMethodDeclaration resolvedMethod) {
@@ -170,9 +175,16 @@ public class ExtractGraphHelper {
             for (int i = 0; i < methodDeclaration.getNumberOfParams(); i++) {
                 ResolvedParameterDeclaration methodParam = methodDeclaration.getParam(i);
                 ResolvedParameterDeclaration ancestorParam = method.getParam(i);
-                if (!ancestorParam.getType().erasure().isAssignableBy(methodParam.getType().erasure())) {
+                try {
+                    if (!ancestorParam.getType().erasure().isAssignableBy(methodParam.getType().erasure())) {
+                        return false;
+                    }
+                }
+                catch (IllegalArgumentException e) {
+                    // This is likely a bug in JavaParser, we can ignore it for now
                     return false;
                 }
+
             }
             return true;
         }

@@ -25,6 +25,6 @@ sh scripts/runGraphExtraction.sh "$systemName"
 sh scripts/runCoverageAnalysis.sh "$systemName"
 sh scripts/runMetricAnalysis.sh "$systemName"
 sh scripts/runTestMinimization.sh "$systemName"
-sh scripts/evaluateCoverage.sh "$systemName"
+sh scripts/getMutationCoverage.sh "$systemName"
 
 echo "Done!"

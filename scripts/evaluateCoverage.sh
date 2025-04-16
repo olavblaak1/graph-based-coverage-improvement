@@ -9,17 +9,6 @@ fi
 
 currentDir=$(pwd)
 
-echo "--- EVALUATING COVERAGE OF MINIMIZED SUITE WITH COVERAGE METRIC ---"
-echo "Running original test suite"
-cd systems/$systemName || exit
-mvn test
-echo "Creating original independent coverage report"
-mvn jacoco:report
-
-mkdir -p $currentDir/data/$systemName/metrics/jacoco-report-original
-cp -r target/site/jacoco $currentDir/data/$systemName/metrics/jacoco-report-original
-cd "$currentDir" || exit
-
 mainClass="com.kuleuven.TestMinimization.MarkReducedTestSuite"
 
 echo "Marking reduced test suite"

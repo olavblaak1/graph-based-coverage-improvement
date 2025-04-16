@@ -21,27 +21,27 @@ sh scripts/getDependencies.sh $systemName
 
 currentDir=$(pwd)
 
-mainClass="com.kuleuven.TestMinimization.MarkReducedTestSuite"
 
 echo "Marking reduced test suite"
+mainClass="com.kuleuven.TestMinimization.MarkReducedTestSuite"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
 
-echo "Running reduced test suite"
 cd systems/$systemName || exit
-mvn -DwithHistory -Dthreads=8 -DincludedGroups=minimized test-compile org.pitest:pitest-maven:mutationCoverage
-
-mkdir -p $currentDir/data/$systemName/metrics/pitest-report-minimized
-cp -r target/pit-reports $currentDir/data/$systemName/metrics/pitest-report-minimized
-
 echo "Running full test suite"
-mvn -DwithHistory -Dthreads=8 -DincludedGroups=minimized,redundant test-compile org.pitest:pitest-maven:mutationCoverage
+mvn -DwithHistory -DtimeOutFactor=1.5 -Dthreads=8 -DincludedGroups=minimized,redundant clean test org.pitest:pitest-maven:mutationCoverage
 
 mkdir -p $currentDir/data/$systemName/metrics/pitest-report-full
 cp -r target/pit-reports/ $currentDir/data/$systemName/metrics/pitest-report-full
 
+echo "Running reduced test suite"
+mvn -DwithHistory -DtimeOutFactor=1.5 -Dthreads=8 -DincludedGroups=minimized org.pitest:pitest-maven:mutationCoverage
+
+mkdir -p $currentDir/data/$systemName/metrics/pitest-report-minimized
+cp -r target/pit-reports $currentDir/data/$systemName/metrics/pitest-report-minimized
+
 
 echo "Unmarking reduced test suite"
-cd "$currentDir" || exit
+cd $currentDir || exit
 mainClass="com.kuleuven.TestMinimization.UnmarkReducedTestSuite"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName"
 
