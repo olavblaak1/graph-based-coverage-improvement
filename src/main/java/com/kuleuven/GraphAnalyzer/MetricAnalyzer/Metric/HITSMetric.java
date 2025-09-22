@@ -33,7 +33,7 @@ public class HITSMetric implements MetricStrategy {
         // Initialize scores
         for (Node node : graph.getNodes()) {
             authorityScores.put(node, 1.0);
-            hubScores.put(node, 1.0);
+            hubScores.put(node, 1.0); // correct
         }
 
         for (int iter = 0; iter < MAX_ITERATIONS; iter++) {
@@ -100,6 +100,5 @@ public class HITSMetric implements MetricStrategy {
 
     @Override
     public void normalizeGraph(RankedGraph<? extends Graph> rankedGraph) {
-        // If needed, you can put final scores into rankedGraph
     }
 }

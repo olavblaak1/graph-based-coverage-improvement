@@ -1,8 +1,12 @@
 package com.kuleuven.Graph.Graph;
 
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
 import com.kuleuven.Graph.Edge.EdgeType;
+import com.kuleuven.Graph.Node.MethodNode;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.NodeType;
+import com.kuleuven.Graph.Node.isOverride;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -10,21 +14,70 @@ import java.util.stream.Collectors;
 public class Graph {
     private final Map<Node, Map<EdgeType, Collection<Edge>>> outgoingEdges;
     private final Map<Node, Map<EdgeType, Collection<Edge>>> incomingEdges;
+    private final Map<String, Node> idToNode;
 
     public Graph(Graph graph) {
         incomingEdges = new HashMap<>();
         outgoingEdges = new HashMap<>();
+        idToNode = new HashMap<>();
         for (Node node : graph.getNodes()) {
             addNode(node);
         }
         for (Edge edge : graph.getEdges()) {
             addEdge(edge);
         }
+        for (Node node : graph.getNodes()) {
+            idToNode.put(node.getId(), node);
+        }
+    }
+
+    public Integer getSize() {
+        return incomingEdges.size();
+    }
+
+    public Graph getReachableSubGraph(Node start, Collection<NodeType> nodeTypes, Collection<EdgeType> edgeTypes) {
+        Graph reachableSubgraph = new Graph();
+        Set<Node> visited = new HashSet<>();
+        Deque<Node> stack = new ArrayDeque<>();
+        stack.push(start);
+
+        while (!stack.isEmpty()) {
+            Node current = stack.pop();
+
+            if (!visited.add(current)) {
+                continue;
+            }
+
+            if (nodeTypes.contains(current.getType())) {
+                reachableSubgraph.addNode(current);
+            }
+            for (EdgeType edgeType : edgeTypes) {
+                for (Edge edge : getOutgoingEdgesOfType(current, edgeType)) {
+                    Node target = edge.getDestination();
+
+                    if (nodeTypes.contains(target.getType())) {
+                        reachableSubgraph.addNode(target);
+                        reachableSubgraph.addEdge(edge);
+                        stack.push(target);
+                    }
+                }
+            }
+        }
+
+        return reachableSubgraph;
+    }
+
+    public static Optional<String> getMethodID(ResolvedMethodDeclaration node) {
+        String name = node.getQualifiedName();
+        String signature = node.getSignature();
+
+        return Optional.of(new MethodNode(name, signature, isOverride.UNKNOWN).getId());
     }
 
     public Graph() {
         outgoingEdges = new HashMap<>();
         incomingEdges = new HashMap<>();
+        idToNode = new HashMap<>();
     }
 
     public Collection<Node> getNodes() {
@@ -50,6 +103,7 @@ public class Graph {
             incomingEdges.get(node).put(type, new HashSet<>());
             outgoingEdges.get(node).put(type, new HashSet<>());
         }
+        idToNode.put(node.getId(), node);
     }
 
 
@@ -64,6 +118,7 @@ public class Graph {
         if (nodeExists(node)) {
             incomingEdges.remove(node);
             outgoingEdges.remove(node);
+            idToNode.remove(node.getId());
         }
     }
 
@@ -81,7 +136,7 @@ public class Graph {
     }
 
     public Optional<Node> getNode(String id) {
-        return incomingEdges.keySet().stream().filter(node -> node.getId().equals(id)).findFirst();
+        return Optional.ofNullable(idToNode.get(id));
     }
 
     public Collection<Edge> getOutgoingEdgesOfType(Node node, EdgeType type) {

@@ -217,6 +217,15 @@ public class ExtractGraphHelper {
         } catch (UnsupportedOperationException e) {
             System.err.println("Cannot resolve: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
             return true;
+        } catch (IllegalStateException e) {
+            System.err.println("Illegal state: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Illegal argument: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getLocalizedMessage() + " in resolvable: " + resolvable);
+            return true;
         }
     }
 
@@ -282,14 +291,16 @@ public class ExtractGraphHelper {
             if (doesNotResolve(methodCall)) {
                 return;
             }
-            ResolvedMethodDeclaration resolvedMethodCall = methodCall.resolve();
-
-            MethodNode destinationMethodNode = new MethodNode(resolvedMethodCall.getQualifiedName(),
-                    resolvedMethodCall.getSignature());
-
-            ResolvedMethodDeclaration resolvedSourceMethod = methodDeclaration.resolve();
 
             try {
+
+                ResolvedMethodDeclaration resolvedMethodCall = methodCall.resolve();
+
+                MethodNode destinationMethodNode = new MethodNode(resolvedMethodCall.getQualifiedName(),
+                        resolvedMethodCall.getSignature());
+
+                ResolvedMethodDeclaration resolvedSourceMethod = methodDeclaration.resolve();
+
                 MethodNode sourceMethodNode = new MethodNode(resolvedSourceMethod.getQualifiedName(),
                         resolvedSourceMethod.getSignature());
 

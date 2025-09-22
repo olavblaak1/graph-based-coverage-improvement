@@ -64,7 +64,7 @@
     </dependencies>
 
     <build>
-        <outputDirectory>${project.build.directory}/classes</outputDirectory>
+        <outputDirectory>target/classes</outputDirectory>
 
         <plugins>
             <plugin>
@@ -88,7 +88,7 @@
                         <goal>copy-dependencies</goal>
                     </goals>
                     <configuration>
-                        <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                        <outputDirectory>target/libs</outputDirectory>
                     </configuration>
                 </execution>
             </executions>

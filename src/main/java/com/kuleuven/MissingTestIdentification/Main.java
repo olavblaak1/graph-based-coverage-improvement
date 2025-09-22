@@ -21,8 +21,6 @@ public class Main {
             return;
         }
 
-
-
         String systemName = args[0];
 
         String graphPath = "data/" + systemName + "/analysis/uncoveredGraph.json";

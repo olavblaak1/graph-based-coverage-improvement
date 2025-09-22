@@ -11,43 +11,45 @@ import java.util.*;
 
 public class MarkReducedTestSuite {
     public static void main(String[] args) throws IOException {
-        if (args.length != 1) {
-            System.err.println("Usage: java MarkReducedTestSuite <systemName>");
+        if (args.length != 3) {
+            System.err.println("Usage: java MarkReducedTestSuite <systemName> <reductionPercentage> <markRandomly>");
             return;
         }
 
         System.out.println("Note: This will only work for JUnit 5 or above");
 
         String systemName = args[0];
+        int percentage = Integer.parseInt(args[1]);
+        boolean markRandomly = Boolean.parseBoolean(args[2]);
         File testDirectory = new File("systems/" + systemName + "/src/test/java");
         Path classPaths = Paths.get("systems/" + systemName + "/target/classpath.txt");
-        File srcDir = new File("systems/" + systemName + "/src/main/java");
         Path jarPath = Paths.get("systems/" + systemName + "/target/targetjars.txt");
 
 
         Path retainedMethodsListPath = Paths.get("data/" + systemName + "/minimization/minimizedTests.json");
         ParseManager parseManager = new ParseManager();
 
+        List<Path> jarPaths = new ArrayList<>();
+        jarPaths.addAll(parseManager.getClasspathJars(classPaths));
+        jarPaths.addAll(parseManager.getClasspathJars(jarPath));
+
         // We just want to mark all tests, so no jars necessary
-        parseManager.setupParser(List.of(classPaths, jarPath), List.of(testDirectory));
+        parseManager.setupParser(jarPaths, List.of(testDirectory));
         parseManager.parseDirectory(testDirectory);
 
-        // Ask user if they want to randomly mark test cases
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Do you want to randomly mark half of the test cases? (yes/no): ");
-        String userInput = scanner.nextLine().trim().toLowerCase();
-
-        Set<MethodDeclaration> testMethodsToMark;
-        if (userInput.equals("yes")) {
+        Collection<String> testMethodsToMark;
+        if (markRandomly) {
             // Randomly select half of the test cases
-            Set<MethodDeclaration> allTestCases = parseManager.getTestCases();
+            Collection<MethodDeclaration> allTestCases = parseManager.getNonPrivateTestCases();
             List<MethodDeclaration> testCaseList = new ArrayList<>(allTestCases);
             Collections.shuffle(testCaseList);
-            testMethodsToMark = new HashSet<>(testCaseList.subList(0, testCaseList.size() / 2));
-            System.out.println("Randomly selected half of the test cases to mark.");
+
+            throw new RuntimeException("Marking randomly has been disabled for now. ");
+            //testMethodsToMark = new HashSet<>(testCaseList.subList(0,  (int) (((double) percentage / 100) * testCaseList.size())));
+            // System.out.println("Randomly selected half of the test cases to mark.");
         } else {
             // Use the usual minimized test cases
-            testMethodsToMark = parseManager.getFilteredTestCases(retainedMethodsListPath);
+            testMethodsToMark = parseManager.getFilteredTestCases(retainedMethodsListPath, percentage);
             System.out.println("Using minimized test cases from the provided list.");
         }
 

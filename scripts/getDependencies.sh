@@ -21,7 +21,7 @@ OUTPUT_FILE="target/targetjars.txt"
 
 echo "--- COMPILING PROJECT ---"
 # Build all JARs (main, sources, test-sources, tests)
-mvn clean install
+mvn clean -Dgroups="" -DexcludedGroups="" install
 
 
 echo "--- RETRIEVING DEPENDENCIES ---"

@@ -10,5 +10,6 @@ fi
 mainClass="com.kuleuven.CoverageAnalysis.MissingTestFinder"
 analysisStrategy="FULL"
 
+sh scripts/getDependencies.sh "$systemName"
 echo "--- RUNNING GRAPH COVERAGE ANALYSIS ---"
 mvn exec:java -Dexec.mainClass=$mainClass -Dexec.args="$systemName $analysisStrategy"

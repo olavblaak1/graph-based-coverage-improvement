@@ -26,6 +26,19 @@ public class NodeRanker {
             case PAGERANK:
                 metricStrategy = new PageRankMetric();
                 break;
+            case OVERRIDES:
+                metricStrategy = new OverridesMetric();
+                break;
+            case DIT:
+                metricStrategy = new DITMetric();
+                break;
+            case DITANDHITS:
+                metricStrategy = new DITandHitsMetric();
+                break;
+            case FIELD_ACCESS:
+                metricStrategy = new FieldAccessMetric();
+                break;
+
             default:
                 break;
         }

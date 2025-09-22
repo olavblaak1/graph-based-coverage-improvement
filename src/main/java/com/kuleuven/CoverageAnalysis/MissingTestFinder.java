@@ -14,8 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class MissingTestFinder {
 
@@ -53,21 +53,26 @@ public class MissingTestFinder {
         parseManager.setupParser(jarPaths, List.of(srcDir, testDirectory));
         parseManager.parseDirectory(testDirectory);
 
-        Set<MethodDeclaration> testMethods;
+
+
+
+        Collection<MethodDeclaration> testMethods;
         if (args.length == 3) {
             Path testMethodListPath = Paths.get(args[2]);
-            try {
-                testMethods = parseManager.getFilteredTestCases(testMethodListPath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            // Ask user what % of test cases to mark
+            System.out.print("Enter the percentage of test cases to mark (0-100): ");
+            int percentage = 100; // default to 100% if not specified
+            throw new RuntimeException("Cannot test coverage with partial test cases yet.");
+            // testMethods = parseManager.getFilteredTestCases(testMethodListPath, percentage);
         } else {
-            testMethods = parseManager.getTestCases();
+            testMethods = parseManager.getNonPrivateTestCases();
         }
+
+        Collection <MethodDeclaration> allMethodsInTestDir = parseManager.getMethodDeclarations();
 
         CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(analysisMethod);
 
-        CoverageGraph coverageGraph = coverageAnalyzer.analyze(testMethods, SUTGraph);
+        CoverageGraph coverageGraph = coverageAnalyzer.analyze(allMethodsInTestDir, SUTGraph);
 
 
         GraphSerializer<CoverageGraph> coverageGraphSerializer = new CoverageGraphSerializer();

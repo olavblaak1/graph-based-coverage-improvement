@@ -5,5 +5,9 @@ public enum Metric {
     NOOM,
     HITS,
     BETWEENNESS,
-    PAGERANK
+    PAGERANK,
+    OVERRIDES,
+    DIT,
+    DITANDHITS,
+    FIELD_ACCESS
 }

@@ -29,7 +29,10 @@ public class FieldCoverageChecker implements CoverageVisitor<ResolvedFieldDeclar
 
     @Override
     public boolean isCoveredBy(ClassNode node, ResolvedFieldDeclaration fieldDeclaration) {
-        return false;
+        String accessedFieldName = node.getName();
+        String fieldNameToCheck = fieldDeclaration.getName();
+
+        return fieldNameToCheck.equals(accessedFieldName);
     }
 
     @Override

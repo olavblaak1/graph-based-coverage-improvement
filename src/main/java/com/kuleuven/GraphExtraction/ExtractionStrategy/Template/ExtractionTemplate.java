@@ -33,7 +33,6 @@ public abstract class ExtractionTemplate<T extends com.github.javaparser.ast.Nod
             graph.addNode(node);
         }
 
-
         // Extracts the edges of the graph from the AST nodes
         // these may be method calls, inheritance relations, ...
         for (Edge edge : extractEdges(ASTNodes)) {

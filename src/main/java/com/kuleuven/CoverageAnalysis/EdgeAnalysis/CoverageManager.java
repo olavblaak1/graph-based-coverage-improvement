@@ -3,7 +3,13 @@ package com.kuleuven.CoverageAnalysis.EdgeAnalysis;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.kuleuven.Graph.Edge.Edge;
+import com.kuleuven.Graph.Edge.EdgeType;
+import com.kuleuven.Graph.Graph.Graph;
 import com.kuleuven.Graph.Node.Node;
+import com.kuleuven.Graph.Node.NodeType;
+
+import java.util.Optional;
+import java.util.Set;
 
 public class CoverageManager {
     private final FieldCoverageChecker fieldCoverageVisitor;

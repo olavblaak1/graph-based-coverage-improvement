@@ -6,10 +6,9 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
-import com.github.javaparser.resolution.UnsolvedSymbolException;
+import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithPrivateModifier;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
@@ -74,6 +73,7 @@ public class ParseManager {
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         StaticJavaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         ParserConfiguration parserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver);
+        parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_14);
         sourceRoots.forEach(root -> root.setParserConfiguration(parserConfiguration));
         this.javaParser = new JavaParser(parserConfiguration);
         this.compilationUnits = new LinkedList<>();
@@ -97,6 +97,13 @@ public class ParseManager {
         try (FileInputStream in = new FileInputStream(file)) {
 
             ParseResult<CompilationUnit> parseResult = javaParser.parse(in);
+            if (!parseResult.isSuccessful()) {
+                System.err.println("Failed to parse file: " + file.getName());
+                parseResult.getProblems().forEach(problem -> {
+                    System.err.println("Problem: " + problem.getMessage());
+                });
+                return;
+            }
             parseResult.ifSuccessful(cu -> compilationUnits.add(cu));
 
         } catch (Exception e) {
@@ -110,47 +117,63 @@ public class ParseManager {
         return new LinkedList<>(compilationUnits);
     }
 
-    public Set<MethodDeclaration> getTestCases() {
+    public Collection<MethodDeclaration> getNonPrivateTestCases() {
         return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
-                .filter(method ->
-                        method.isAnnotationPresent("org.junit.jupiter.api.Test")
-                                || method.getNameAsString().startsWith("test"))
+                .filter(method -> method.isAnnotationPresent("org.junit.jupiter.api.Test")
+                        || method.getNameAsString().startsWith("test"))
                 .filter(method -> !method.isPrivate())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
+    }
+
+    public Collection<MethodDeclaration> getMethodDeclarations() {
+        return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
+                .collect(Collectors.toList());
+    }
+
+    public Collection<MethodDeclaration> getPrivateTestCases() {
+        return compilationUnits.stream().flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
+                .filter(method -> method.isAnnotationPresent("Test")
+                        || method.getNameAsString().startsWith("test"))
+                .filter(NodeWithPrivateModifier::isPrivate)
+                .collect(Collectors.toList());
     }
 
 
-    public Set<MethodDeclaration> getFilteredTestCases(Path testMethodListPath) throws IOException {
+    public Set<String> getFilteredTestCases(Path testMethodListPath, int percentage) throws IOException {
         Set<String> testMethodList = new HashSet<>();
         JSONObject testMethodListJson = new JSONObject(new String(Files.readAllBytes(testMethodListPath)));
         JSONArray testMethods = testMethodListJson.getJSONArray("minimizedTests");
-        for (int i = 0; i < testMethods.length(); i++) {
+
+        int retainedMethodCount = (int) (((double) percentage / 100) * testMethods.length());
+        System.out.println("Retained method count: " + retainedMethodCount);
+        for (int i = 0; i < retainedMethodCount; i++) {
             JSONObject testMethod = testMethods.getJSONObject(i);
             testMethodList.add(testMethod.getString("name"));
         }
-        return getTestCases().stream()
-                .filter(method -> testMethodList.contains(method.resolve().getQualifiedName()))
-                .collect(Collectors.toSet());
+        System.out.println("Retained " + retainedMethodCount + " test methods from the list, out of " + testMethods.length() + " total methods.");
+        return testMethodList;
     }
 
 
-    public void markTestMethodsInSourceRoots(Set<MethodDeclaration> testMethods) {
-        Set<MethodDeclaration> CUs = new HashSet<>(testMethods.size()*2);
+    public void markTestMethodsInSourceRoots(Collection<String> testMethods) {
+        Collection<MethodDeclaration> CUs = new HashSet<>(testMethods.size()*2);
         sourceRoots.forEach(sourceRoot -> {
             try {
-                sourceRoot.tryToParse().forEach(compilationUnitParseResult ->
-                        compilationUnitParseResult.ifSuccessful(cu ->
-                                CUs.addAll(cu.findAll(MethodDeclaration.class))));
+                sourceRoot.tryToParse().forEach(compilationUnitParseResult -> compilationUnitParseResult.ifSuccessful(cu ->
+                        CUs.addAll(cu.findAll(MethodDeclaration.class).stream()
+                                .filter(method -> method.isAnnotationPresent("Test"))
+                                .collect(Collectors.toList()))));
             } catch (IOException e) {
+                System.err.println("Error marking test methods");
+                System.err.println("Error message: " + e.getMessage());
             }
         });
+        System.out.println("CU Size: " + CUs.size());
         CUs.forEach(
             method -> {
-                if (testMethods.contains(method)) {
-                    System.out.println("Marked method: " + method.resolve().getQualifiedName());
+                if (testMethods.contains(method.resolve().getQualifiedSignature())) {
                     method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"minimized\"");
-                }
-                else {
+                } else {
                     method.addSingleMemberAnnotation("org.junit.jupiter.api.Tag", "\"redundant\"");
                 }
             }
@@ -168,18 +191,16 @@ public class ParseManager {
                                                 annotation -> {
                                                     if (annotation.getNameAsString().equals("org.junit.jupiter.api.Tag") &&
                                                             annotation.getMemberValue() instanceof StringLiteralExpr &&
-                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized") ||
-                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("redundant")
+                                                            ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("minimized") || ((StringLiteralExpr) annotation.getMemberValue()).getValue().equals("redundant")
                                                     ) {
                                                         annotation.remove();
-                                                        System.out.println("Unmarked method: " + method.resolve().getQualifiedName());
                                                     }
                                                 }
                                         )
                                 )
                         )
                 );
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.err.println("Error unmarking test methods");
                 System.err.println("Error message: " + e.getMessage());
             }
